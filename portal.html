@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxIntakeFlow — Firm Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --navy:#0d1b2a;--navy-mid:#1b2d42;--navy-light:#1e3a52;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.25);
+  --cream:#faf8f3;--white:#fff;
+  --gray-100:#f4f4f6;--gray-200:#e5e4e0;--gray-400:#99948e;--gray-600:#55534e;--gray-800:#1e1c18;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.1);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,0.08);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.1);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.08);
+  --font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+  --radius:10px;--radius-lg:16px;--shadow:0 2px 12px rgba(13,27,42,0.07);--shadow-lg:0 8px 32px rgba(13,27,42,0.13);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--navy);height:60px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.tb-logo{font-family:var(--font-display);font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.tb-firm{font-size:13px;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:8px}
+.tb-firm strong{color:white}
+.tb-actions{display:flex;align-items:center;gap:12px}
+.tb-plan{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);padding:4px 10px;border-radius:99px}
+.tb-logout{background:none;border:none;color:rgba(255,255,255,0.35);font-size:13px;cursor:pointer;transition:color 0.2s;font-family:var(--font-body)}
+.tb-logout:hover{color:white}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 60px)}
+
+/* SIDEBAR */
+.sidebar{background:white;border-right:1px solid var(--gray-200);padding:20px 12px}
+.sidebar-nav{list-style:none}
+.sidebar-nav li{margin-bottom:2px}
+.sidebar-nav button{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border:none;background:none;border-radius:8px;font-family:var(--font-body);font-size:13px;font-weight:500;color:var(--gray-600);cursor:pointer;transition:all 0.15s;text-align:left}
+.sidebar-nav button:hover{background:var(--gray-100);color:var(--gray-800)}
+.sidebar-nav button.active{background:var(--gold-dim);color:var(--navy);font-weight:600}
+.sidebar-nav .icon{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.s-divider{height:1px;background:var(--gray-200);margin:12px 0}
+.s-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray-400);padding:8px 12px 4px;display:block}
+
+/* TRIAL BANNER */
+.trial-banner{background:var(--amber-dim);border-bottom:1px solid rgba(245,158,11,0.2);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#92400e}
+.trial-banner strong{color:#78350f}
+.trial-upgrade{background:var(--amber);color:#78350f;border:none;border-radius:6px;padding:5px 14px;font-family:var(--font-body);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.trial-upgrade:hover{background:#fbbf24}
+
+/* MAIN */
+.main{overflow-y:auto}
+.page{display:none;padding:36px 40px;animation:fadeUp 0.2s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.page-title{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--gray-400);margin-bottom:28px}
+
+/* STAT CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px;position:relative;overflow:hidden}
+.stat-card::after{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--sc-accent,var(--gray-200))}
+.stat-card.blue{--sc-accent:var(--blue)}
+.stat-card.amber{--sc-accent:var(--amber)}
+.stat-card.purple{--sc-accent:#a78bfa}
+.stat-card.green{--sc-accent:var(--green)}
+.stat-card.gold{--sc-accent:var(--gold)}
+.sc-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400);margin-bottom:8px}
+.sc-value{font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--navy)}
+
+/* CLIENTS TABLE */
+.table-wrap{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--gray-200);gap:12px;flex-wrap:wrap}
+.table-title{font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--navy)}
+.table-actions{display:flex;gap:8px;align-items:center}
+.search-input{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;padding:8px 12px;font-family:var(--font-body);font-size:13px;color:var(--gray-800);outline:none;width:200px;transition:border-color 0.2s}
+.search-input:focus{border-color:var(--gold)}
+.filter-select{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;padding:8px 10px;font-family:var(--font-body);font-size:13px;color:var(--gray-800);outline:none;cursor:pointer}
+
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400);padding:12px 16px;text-align:left;background:var(--gray-100);border-bottom:1px solid var(--gray-200)}
+td{padding:13px 16px;font-size:13px;color:var(--gray-600);border-bottom:1px solid var(--gray-100)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
+.client-name{font-weight:600;color:var(--gray-800)}
+
+.stage-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:0.3px}
+.stage-intake    {background:var(--blue-dim);color:#1e40af}
+.stage-missing   {background:var(--amber-dim);color:#92400e}
+.stage-progress  {background:rgba(167,139,250,0.1);color:#5b21b6}
+.stage-signed    {background:var(--green-dim);color:#14532d}
+.stage-submitted {background:rgba(34,197,94,0.15);color:#14532d}
+.stage-closed    {background:var(--gray-100);color:var(--gray-400)}
+.stage-default   {background:var(--gray-100);color:var(--gray-600)}
+
+/* INTAKE LINK BOX */
+.intake-link-box{background:var(--navy);border-radius:var(--radius-lg);padding:24px 28px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.ilb-text{color:white}
+.ilb-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.ilb-url{font-family:monospace;font-size:12px;color:rgba(255,255,255,0.5);word-break:break-all}
+.ilb-actions{display:flex;gap:8px;flex-shrink:0}
+.ilb-btn{background:none;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 16px;font-family:var(--font-body);font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);cursor:pointer;white-space:nowrap;transition:all 0.2s}
+.ilb-btn:hover{border-color:var(--gold);color:var(--gold)}
+.ilb-btn.primary{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.ilb-btn.primary:hover{background:#d9b85c}
+
+/* SETTINGS */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow)}
+.card-title{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.card-sub{font-size:13px;color:var(--gray-400);margin-bottom:22px}
+.full-width{grid-column:1/-1}
+
+.f-field{margin-bottom:16px}
+.f-field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.5px;color:var(--gray-600);margin-bottom:7px}
+.f-field label .opt{color:var(--gray-400);font-weight:400;font-size:11px;margin-left:4px}
+.f-input{width:100%;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius);padding:11px 14px;font-family:var(--font-body);font-size:14px;color:var(--gray-800);outline:none;transition:all 0.2s}
+.f-input:focus{background:white;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim)}
+.f-input::placeholder{color:var(--gray-400)}
+.f-note{font-size:11px;color:var(--gray-400);margin-top:6px;line-height:1.5}
+
+.url-row{display:flex;gap:8px}
+.url-row .f-input{flex:1}
+.test-btn{background:var(--navy);color:white;border:none;border-radius:8px;padding:11px 14px;font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.2s}
+.test-btn:hover{background:var(--navy-mid)}
+
+.test-ok  {font-size:12px;color:var(--green);margin-top:6px;display:none}
+.test-fail{font-size:12px;color:var(--red);margin-top:6px;display:none}
+
+/* PREPARERS IN SETTINGS */
+.prep-header{display:grid;grid-template-columns:1fr 1fr 100px 38px;gap:8px;padding:0 2px;margin-bottom:6px}
+.prep-header span{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400)}
+.prep-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.prep-row{display:grid;grid-template-columns:1fr 1fr 100px 38px;gap:8px;align-items:center}
+.p-inp{width:100%;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;padding:9px 10px;font-family:var(--font-body);font-size:13px;color:var(--gray-800);outline:none;transition:border-color 0.2s}
+.p-inp:focus{border-color:var(--gold)}
+.p-inp::placeholder{color:var(--gray-400)}
+.remove-btn{background:none;border:1px solid var(--gray-200);border-radius:7px;color:var(--gray-400);cursor:pointer;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.2s}
+.remove-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-dim)}
+.add-prep-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px dashed var(--gray-400);border-radius:8px;padding:8px 14px;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:all 0.2s}
+.add-prep-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+
+.save-btn{background:var(--navy);color:white;border:none;border-radius:var(--radius);padding:11px 24px;font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.save-btn:hover{background:var(--navy-mid);transform:translateY(-1px)}
+.save-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.save-ok{color:var(--green);font-size:12px;font-weight:600;margin-left:10px;display:none}
+
+/* SUBSCRIPTION CARD */
+.sub-card{background:var(--navy);border-radius:var(--radius-lg);padding:24px;color:white}
+.sub-plan{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--gold);margin-bottom:4px}
+.sub-status{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px}
+.sub-detail{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:6px}
+.sub-detail strong{color:white}
+.manage-btn{background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:9px 20px;font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;margin-top:16px;transition:all 0.2s}
+.manage-btn:hover{background:#d9b85c}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:white;border-radius:var(--radius);padding:12px 18px;font-size:13px;font-weight:500;display:none;align-items:center;gap:8px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.2);max-width:280px}
+#toast.show{display:flex}
+#toast.ok{border-left:3px solid var(--green)}
+#toast.err{border-left:3px solid var(--red)}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .settings-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-logo">TaxIntakeFlow</div>
+  <div class="tb-firm">Firm: <strong id="tbFirmName">Loading...</strong></div>
+  <div class="tb-actions">
+    <span class="tb-plan" id="tbPlan">Starter</span>
+    <button class="tb-logout" onclick="doLogout()">Log out</button>
+  </div>
+</div>
+
+<!-- TRIAL BANNER -->
+<div class="trial-banner" id="trialBanner" style="display:none">
+  <span>🎉 Free trial — <strong id="trialDays">14 days</strong> remaining. No credit card required yet.</span>
+  <button class="trial-upgrade" onclick="showPage('billing')">Upgrade Now</button>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <ul class="sidebar-nav">
+      <li><button class="active" onclick="showPage('dashboard',this)"><span class="icon">📊</span> Dashboard</button></li>
+      <li><button onclick="showPage('clients',this)"><span class="icon">👥</span> Clients</button></li>
+      <span class="s-divider"></span>
+      <span class="s-label">Setup</span>
+      <li><button onclick="showPage('settings',this)"><span class="icon">⚙️</span> Settings</button></li>
+      <li><button onclick="showPage('billing',this)"><span class="icon">💳</span> Billing</button></li>
+    </ul>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ── DASHBOARD ───────────────────────────── -->
+    <div class="page active" id="page_dashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Your firm at a glance — Tax Year <span id="dashYear">2025</span></div>
+
+      <!-- INTAKE LINK -->
+      <div class="intake-link-box">
+        <div class="ilb-text">
+          <div class="ilb-label">Your Client Intake Form Link</div>
+          <div class="ilb-url" id="intakeLinkDisplay">Configure your settings first to generate your link</div>
+        </div>
+        <div class="ilb-actions">
+          <button class="ilb-btn" onclick="copyIntakeLink()">Copy Link</button>
+          <button class="ilb-btn primary" onclick="openIntakeLink()">Open Form</button>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card blue">
+          <div class="sc-label">Total Clients</div>
+          <div class="sc-value" id="statTotal">—</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="sc-label">Docs Missing</div>
+          <div class="sc-value" id="statMissing">—</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="sc-label">In Progress</div>
+          <div class="sc-value" id="statProgress">—</div>
+        </div>
+        <div class="stat-card green">
+          <div class="sc-label">Filed</div>
+          <div class="sc-value" id="statFiled">—</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="sc-label">Preparers</div>
+          <div class="sc-value" id="statPreparers">—</div>
+        </div>
+      </div>
+
+      <!-- RECENT CLIENTS -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Recent Clients</div>
+          <div class="table-actions">
+            <button class="ilb-btn" onclick="showPage('clients')">View All →</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Client</th><th>Tax Year</th><th>Preparer</th><th>Stage</th><th>Date</th>
+          </tr></thead>
+          <tbody id="recentClients">
+            <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:32px">No clients yet — share your intake form link to get started</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── CLIENTS ──────────────────────────────── -->
+    <div class="page" id="page_clients">
+      <div class="page-title">All Clients</div>
+      <div class="page-sub">Every client who submitted your intake form</div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title" id="clientsCount">All Clients</div>
+          <div class="table-actions">
+            <input type="text" class="search-input" placeholder="Search name or email..." oninput="filterClients(this.value)" id="clientSearch">
+            <select class="filter-select" onchange="filterByStage(this.value)">
+              <option value="">All Stages</option>
+              <option>Intake Received</option>
+              <option>Engagement Signed</option>
+              <option>Documents Missing</option>
+              <option>Intake Complete</option>
+              <option>In Progress</option>
+              <option>Return Submitted</option>
+              <option>Return Complete</option>
+              <option>Closed</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Client</th><th>Filing Status</th><th>Preparer</th><th>Stage</th><th>Submitted</th>
+          </tr></thead>
+          <tbody id="allClients">
+            <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:32px">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ─────────────────────────────── -->
+    <div class="page" id="page_settings">
+      <div class="page-title">Settings</div>
+      <div class="page-sub">Configure your firm. Changes take effect immediately — no code edits ever.</div>
+
+      <div class="settings-grid">
+
+        <!-- FIRM INFO -->
+        <div class="card">
+          <div class="card-title">Firm Information</div>
+          <div class="card-sub">Appears on your intake form and engagement letter</div>
+          <div class="f-field">
+            <label>Firm Name</label>
+            <input type="text" class="f-input" id="setFirmName" placeholder="Prosperium Tax &amp; Advisory">
+          </div>
+          <div class="f-field">
+            <label>Tax Year</label>
+            <input type="text" class="f-input" id="setTaxYear" placeholder="2025">
+          </div>
+          <div class="f-field">
+            <label>Phone <span class="opt">(optional)</span></label>
+            <input type="text" class="f-input" id="setPhone" placeholder="(555) 555-5555">
+          </div>
+          <div class="f-field">
+            <label>Email</label>
+            <input type="text" class="f-input" id="setEmail" placeholder="info@yourfirm.com">
+          </div>
+          <button class="save-btn" onclick="saveFirmInfo()">Save Firm Info</button>
+          <span class="save-ok" id="firmInfoOk">✓ Saved</span>
+        </div>
+
+        <!-- GHL WEBHOOK -->
+        <div class="card">
+          <div class="card-title">🔗 GHL Connection</div>
+          <div class="card-sub">Paste your GoHighLevel inbound webhook URL. Every form submission will automatically create a contact in GHL and fire your workflows.</div>
+          <div class="f-field">
+            <label>GHL Inbound Webhook URL</label>
+            <div class="url-row">
+              <input type="text" class="f-input" id="setGhlWebhook"
+                placeholder="https://services.leadconnectorhq.com/hooks/XXXX/webhook-trigger/YYYY">
+              <button class="test-btn" onclick="testGHL()">Test</button>
+            </div>
+            <div class="test-ok"  id="ghlTestOk">✅ Connected — request sent to GHL</div>
+            <div class="test-fail" id="ghlTestFail">❌ Could not reach webhook — check the URL</div>
+            <div class="f-note">
+              Get this URL from GHL: <strong>Automation → Workflows → TIF — New Intake Received → click Webhook trigger → copy Inbound Webhook URL</strong>
+            </div>
+          </div>
+          <button class="save-btn" onclick="saveGHL()">Save Webhook</button>
+          <span class="save-ok" id="ghlSaveOk">✓ Saved</span>
+        </div>
+
+        <!-- PREPARERS — full width -->
+        <div class="card full-width">
+          <div class="card-title">🧾 Preparers</div>
+          <div class="card-sub">Add, edit, or remove preparers. Changes appear in the intake form dropdown immediately after saving.</div>
+
+          <div class="prep-header">
+            <span>Full Name</span><span>Email</span><span>PTIN</span><span></span>
+          </div>
+          <div class="prep-list" id="settingsPreparerList"></div>
+          <button class="add-prep-btn" onclick="addSettingsPreparer()">+ Add Preparer</button>
+
+          <div style="margin-top:20px">
+            <button class="save-btn" onclick="savePreparers()">Save Preparers</button>
+            <span class="save-ok" id="prepSaveOk">✓ Saved to your system</span>
+          </div>
+        </div>
+
+        <!-- YOUR LINKS -->
+        <div class="card full-width">
+          <div class="card-title">🚀 Your System Links</div>
+          <div class="card-sub">Share the intake form link with clients. Generate an engagement letter link for a specific client anytime.</div>
+
+          <div class="f-field">
+            <label>Intake Form Link — send this to all clients</label>
+            <div class="url-row">
+              <input type="text" class="f-input" id="intakeLinkFull" readonly style="font-family:monospace;font-size:12px">
+              <button class="test-btn" onclick="copyIntakeLink()" style="background:var(--gold);color:var(--navy)">Copy</button>
+            </div>
+          </div>
+
+          <div class="f-field" style="margin-top:20px">
+            <label>Generate Engagement Letter for a Client</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end">
+              <div>
+                <label style="font-size:11px;color:var(--gray-400);margin-bottom:5px;display:block">First Name</label>
+                <input type="text" class="f-input" id="engFirst" placeholder="Maria" oninput="buildEngLink()">
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--gray-400);margin-bottom:5px;display:block">Last Name</label>
+                <input type="text" class="f-input" id="engLast" placeholder="Gonzalez" oninput="buildEngLink()">
+              </div>
+              <div>
+                <label style="font-size:11px;color:var(--gray-400);margin-bottom:5px;display:block">Preparer</label>
+                <select class="f-input" id="engPrep" onchange="buildEngLink()">
+                  <option value="">Select...</option>
+                </select>
+              </div>
+              <button class="test-btn" onclick="copyEngLink()" style="background:var(--gold);color:var(--navy);height:42px">Copy Link</button>
+            </div>
+            <input type="text" class="f-input" id="engLinkOut" readonly style="font-family:monospace;font-size:11px;margin-top:8px" placeholder="Fill in name above...">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── BILLING ──────────────────────────────── -->
+    <div class="page" id="page_billing">
+      <div class="page-title">Billing</div>
+      <div class="page-sub">Manage your subscription</div>
+
+      <div class="card" style="max-width:500px">
+        <div class="sub-card" id="subCard">
+          <div class="sub-plan" id="subPlanName">Starter — Monthly</div>
+          <div class="sub-status" id="subStatus">Free Trial</div>
+          <div class="sub-detail" id="subDetail">Trial ends in <strong id="subTrialEnd">14 days</strong></div>
+          <div class="sub-detail">Need help? <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5e2d2b2e2e312c2a1e2a3f2637302a3f353b38323129703d3133">[email&#160;protected]</a></strong></div>
+          <button class="manage-btn" onclick="goToStripe()">Manage Billing →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── SUPABASE CONFIG ──────────────────────────────────────────
+// REPLACE with your actual values
+const SUPABASE_URL  = "https://yyobsleksxryuwxenvnb.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY";
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// State
+let FIRM = null;
+let PREPARERS = [];
+let CLIENTS = [];
+let CLIENTS_ALL = [];
+let prepRowId = 0;
+
+// ── AUTH CHECK ───────────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = "auth.html"; return; }
+
+  // Load firm
+  const { data: firm } = await sb.from("firms")
+    .select("*")
+    .eq("owner_id", session.user.id)
+    .single();
+
+  if (!firm) { window.location.href = "auth.html"; return; }
+  FIRM = firm;
+
+  // Update UI
+  document.getElementById("tbFirmName").textContent = firm.firm_name;
+  document.getElementById("tbPlan").textContent = firm.plan_tier.charAt(0).toUpperCase() + firm.plan_tier.slice(1);
+  document.getElementById("dashYear").textContent = firm.tax_year || "2025";
+
+  // Trial banner
+  if (firm.plan_status === "trialing" && firm.trial_ends_at) {
+    const days = Math.max(0, Math.ceil((new Date(firm.trial_ends_at) - new Date()) / 86400000));
+    document.getElementById("trialDays").textContent = `${days} day${days !== 1 ? "s" : ""}`;
+    document.getElementById("trialBanner").style.display = "flex";
+  }
+
+  // Populate settings fields
+  document.getElementById("setFirmName").value   = firm.firm_name || "";
+  document.getElementById("setTaxYear").value    = firm.tax_year  || "2025";
+  document.getElementById("setPhone").value      = firm.phone     || "";
+  document.getElementById("setEmail").value      = firm.email     || "";
+  document.getElementById("setGhlWebhook").value = firm.ghl_webhook_url || "";
+
+  // Billing
+  document.getElementById("subPlanName").textContent = `${firm.plan_tier} — ${firm.plan_interval}`;
+  document.getElementById("subStatus").textContent   = firm.plan_status === "trialing" ? "Free Trial" : "Active";
+
+  // Load preparers
+  await loadPreparers();
+
+  // Load clients
+  await loadClients();
+
+  // Build intake link
+  updateIntakeLink();
+}
+
+// ── PREPARERS ────────────────────────────────────────────────
+async function loadPreparers() {
+  const { data } = await sb.from("preparers")
+    .select("*")
+    .eq("firm_id", FIRM.id)
+    .eq("is_active", true)
+    .order("created_at");
+
+  PREPARERS = data || [];
+  renderSettingsPreparers();
+  document.getElementById("statPreparers").textContent = PREPARERS.length;
+  populateEngPrepDropdown();
+}
+
+function renderSettingsPreparers() {
+  const list = document.getElementById("settingsPreparerList");
+  list.innerHTML = "";
+  if (PREPARERS.length === 0) { addSettingsPreparer(); return; }
+  PREPARERS.forEach(p => addSettingsPreparer(p.name, p.email, p.ptin));
+}
+
+function addSettingsPreparer(name = "", email = "", ptin = "") {
+  const list = document.getElementById("settingsPreparerList");
+  const id   = ++prepRowId;
+  const row  = document.createElement("div");
+  row.className = "prep-row";
+  row.id = `pr_${id}`;
+  row.innerHTML = `
+    <input class="p-inp" placeholder="John Smith" value="${name}" id="pn_${id}">
+    <input class="p-inp" placeholder="john@firm.com" value="${email}" id="pe_${id}">
+    <input class="p-inp" placeholder="P00001" value="${ptin}" id="pt_${id}">
+    <button class="remove-btn" onclick="document.getElementById('pr_${id}').remove()">🗑</button>`;
+  list.appendChild(row);
+}
+
+function getPreparersFromForm() {
+  return Array.from(document.querySelectorAll(".prep-row")).map(row => {
+    const inputs = row.querySelectorAll(".p-inp");
+    return { name: inputs[0]?.value.trim(), email: inputs[1]?.value.trim(), ptin: inputs[2]?.value.trim() };
+  }).filter(p => p.name);
+}
+
+async function savePreparers() {
+  const preps = getPreparersFromForm();
+  if (!preps.length) { toast("Add at least one preparer", "err"); return; }
+
+  // Delete existing, reinsert
+  await sb.from("preparers").delete().eq("firm_id", FIRM.id);
+  await sb.from("preparers").insert(preps.map(p => ({ ...p, firm_id: FIRM.id })));
+
+  // Also send to Apps Script if connected
+  if (FIRM.ghl_webhook_url || localStorage.getItem("tif_appsScriptUrl")) {
+    const appsUrl = localStorage.getItem("tif_appsScriptUrl");
+    if (appsUrl) {
+      fetch(appsUrl, { method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ action:"sync_preparers", preparers: preps }), mode:"no-cors" });
+    }
+  }
+
+  PREPARERS = preps;
+  populateEngPrepDropdown();
+  showSaveOk("prepSaveOk");
+  toast("Preparers saved!", "ok");
+}
+
+function populateEngPrepDropdown() {
+  ["engPrep"].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = `<option value="">Select...</option>`;
+    PREPARERS.forEach(p => {
+      const o = document.createElement("option");
+      o.value = p.name; o.textContent = p.name;
+      if (p.name === cur) o.selected = true;
+      sel.appendChild(o);
+    });
+  });
+}
+
+// ── FIRM INFO ────────────────────────────────────────────────
+async function saveFirmInfo() {
+  const updates = {
+    firm_name: document.getElementById("setFirmName").value.trim(),
+    tax_year:  document.getElementById("setTaxYear").value.trim(),
+    phone:     document.getElementById("setPhone").value.trim(),
+    email:     document.getElementById("setEmail").value.trim(),
+  };
+  if (!updates.firm_name) { toast("Firm name required", "err"); return; }
+  await sb.from("firms").update(updates).eq("id", FIRM.id);
+  Object.assign(FIRM, updates);
+  document.getElementById("tbFirmName").textContent = FIRM.firm_name;
+  updateIntakeLink();
+  showSaveOk("firmInfoOk");
+  toast("Firm info saved!", "ok");
+}
+
+// ── GHL WEBHOOK ──────────────────────────────────────────────
+async function saveGHL() {
+  const url = document.getElementById("setGhlWebhook").value.trim();
+  await sb.from("firms").update({ ghl_webhook_url: url }).eq("id", FIRM.id);
+  FIRM.ghl_webhook_url = url;
+  updateIntakeLink();
+  showSaveOk("ghlSaveOk");
+  toast("GHL webhook saved!", "ok");
+}
+
+async function testGHL() {
+  const url = document.getElementById("setGhlWebhook").value.trim();
+  if (!url) { toast("Enter webhook URL first", "err"); return; }
+  document.getElementById("ghlTestOk").style.display   = "none";
+  document.getElementById("ghlTestFail").style.display = "none";
+  try {
+    await fetch(url, { method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ action:"test", source:"TaxIntakeFlow" }),
+      mode:"no-cors", signal: AbortSignal.timeout(6000) });
+    document.getElementById("ghlTestOk").style.display = "block";
+  } catch {
+    document.getElementById("ghlTestFail").style.display = "block";
+  }
+}
+
+// ── INTAKE LINK ──────────────────────────────────────────────
+function updateIntakeLink() {
+  if (!FIRM) return;
+  const base    = window.location.href.replace("portal.html", "");
+  const appsUrl = localStorage.getItem("tif_appsScriptUrl") || "";
+  const link    = `${base}intake.html?firm=${encodeURIComponent(FIRM.firm_name)}&year=${FIRM.tax_year || "2025"}&firmId=${FIRM.id}&url=${encodeURIComponent(appsUrl)}&ghl=${encodeURIComponent(FIRM.ghl_webhook_url || "")}`;
+
+  document.getElementById("intakeLinkDisplay").textContent = link;
+  const full = document.getElementById("intakeLinkFull");
+  if (full) full.value = link;
+  window._intakeLink = link;
+}
+
+function copyIntakeLink() {
+  const link = window._intakeLink;
+  if (!link) { toast("Configure firm info first", "err"); return; }
+  copy(link); toast("Intake form link copied!", "ok");
+}
+function openIntakeLink() {
+  if (window._intakeLink) window.open(window._intakeLink, "_blank");
+}
+
+// ── ENGAGEMENT LINK ──────────────────────────────────────────
+function buildEngLink() {
+  const first = document.getElementById("engFirst")?.value.trim();
+  const last  = document.getElementById("engLast")?.value.trim();
+  const prep  = document.getElementById("engPrep")?.value;
+  if (!first || !last) return;
+  const base = window.location.href.replace("portal.html","");
+  const appsUrl = localStorage.getItem("tif_appsScriptUrl") || "";
+  const link = `${base}engagement.html?firstName=${encodeURIComponent(first)}&lastName=${encodeURIComponent(last)}&preparer=${encodeURIComponent(prep)}&firmName=${encodeURIComponent(FIRM.firm_name)}&taxYear=${FIRM.tax_year||"2025"}&appsScriptUrl=${encodeURIComponent(appsUrl)}`;
+  document.getElementById("engLinkOut").value = link;
+}
+
+function copyEngLink() {
+  const val = document.getElementById("engLinkOut")?.value;
+  if (!val || val.includes("Fill")) { toast("Enter client name first","err"); return; }
+  copy(val); toast("Engagement letter link copied!","ok");
+}
+
+// ── CLIENTS ──────────────────────────────────────────────────
+async function loadClients() {
+  const { data } = await sb.from("clients")
+    .select("*, preparers(name)")
+    .eq("firm_id", FIRM.id)
+    .order("created_at", { ascending: false });
+
+  CLIENTS_ALL = data || [];
+  CLIENTS = [...CLIENTS_ALL];
+
+  // Stats
+  document.getElementById("statTotal").textContent    = CLIENTS_ALL.length;
+  document.getElementById("statMissing").textContent  = CLIENTS_ALL.filter(c => c.pipeline_stage === "Documents Missing").length;
+  document.getElementById("statProgress").textContent = CLIENTS_ALL.filter(c => c.pipeline_stage === "In Progress").length;
+  document.getElementById("statFiled").textContent    = CLIENTS_ALL.filter(c => ["Return Submitted","Return Complete","Closed"].includes(c.pipeline_stage)).length;
+
+  renderRecentClients();
+  renderAllClients();
+}
+
+function stageBadge(stage) {
+  const map = {
+    "Intake Received":   "stage-intake",
+    "Documents Missing": "stage-missing",
+    "In Progress":       "stage-progress",
+    "Engagement Signed": "stage-signed",
+    "Return Submitted":  "stage-submitted",
+    "Return Complete":   "stage-submitted",
+    "Closed":            "stage-closed",
+  };
+  const cls = map[stage] || "stage-default";
+  return `<span class="stage-badge ${cls}">${stage}</span>`;
+}
+
+function renderRecentClients() {
+  const tbody = document.getElementById("recentClients");
+  const recent = CLIENTS_ALL.slice(0, 8);
+  if (!recent.length) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:32px">No clients yet — share your intake form link to get started</td></tr>`; return; }
+  tbody.innerHTML = recent.map(c => `
+    <tr>
+      <td class="client-name">${c.first_name} ${c.last_name}</td>
+      <td>${c.tax_year || "—"}</td>
+      <td>${c.preparers?.name || "Unassigned"}</td>
+      <td>${stageBadge(c.pipeline_stage || "Intake Received")}</td>
+      <td>${new Date(c.created_at).toLocaleDateString()}</td>
+    </tr>`).join("");
+}
+
+function renderAllClients() {
+  const tbody = document.getElementById("allClients");
+  document.getElementById("clientsCount").textContent = `${CLIENTS.length} Client${CLIENTS.length !== 1 ? "s" : ""}`;
+  if (!CLIENTS.length) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:32px">No clients match your search</td></tr>`; return; }
+  tbody.innerHTML = CLIENTS.map(c => `
+    <tr>
+      <td><div class="client-name">${c.first_name} ${c.last_name}</div><div style="font-size:11px;color:var(--gray-400)">${c.email || ""}</div></td>
+      <td>${c.filing_status || "—"}</td>
+      <td>${c.preparers?.name || "Unassigned"}</td>
+      <td>${stageBadge(c.pipeline_stage || "Intake Received")}</td>
+      <td>${new Date(c.created_at).toLocaleDateString()}</td>
+    </tr>`).join("");
+}
+
+function filterClients(q) {
+  const lower = q.toLowerCase();
+  CLIENTS = CLIENTS_ALL.filter(c =>
+    `${c.first_name} ${c.last_name}`.toLowerCase().includes(lower) ||
+    (c.email || "").toLowerCase().includes(lower));
+  renderAllClients();
+}
+
+function filterByStage(stage) {
+  CLIENTS = stage ? CLIENTS_ALL.filter(c => c.pipeline_stage === stage) : [...CLIENTS_ALL];
+  renderAllClients();
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function showPage(id, el) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".sidebar-nav button").forEach(b => b.classList.remove("active"));
+  document.getElementById("page_" + id)?.classList.add("active");
+  if (el) el.classList.add("active");
+}
+
+// ── LOGOUT ───────────────────────────────────────────────────
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = "auth.html";
+}
+
+// ── STRIPE ───────────────────────────────────────────────────
+function goToStripe() {
+  toast("Stripe billing portal coming soon","ok");
+  // In production: redirect to Stripe customer portal URL
+}
+
+// ── UTILS ────────────────────────────────────────────────────
+function showSaveOk(id) {
+  const el = document.getElementById(id);
+  el.style.display = "inline";
+  setTimeout(() => el.style.display = "none", 2500);
+}
+function copy(text) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const el = Object.assign(document.createElement("textarea"),{value:text});
+    document.body.appendChild(el); el.select(); document.execCommand("copy"); el.remove();
+  });
+}
+function toast(msg, type = "ok") {
+  const el = document.getElementById("toast");
+  el.textContent = (type==="ok"?"✓ ":"⚠ ") + msg;
+  el.className   = "show " + type;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.display = "none", 3000);
+  el.

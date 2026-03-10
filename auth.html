@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxIntakeFlow — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --navy:#0d1b2a;--navy-mid:#1b2d42;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.3);
+  --cream:#faf8f3;--white:#fff;
+  --gray-100:#f4f4f6;--gray-200:#e5e4e0;--gray-400:#99948e;--gray-600:#55534e;--gray-800:#1e1c18;
+  --green:#22c55e;--red:#ef4444;--red-dim:rgba(239,68,68,0.1);
+  --font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+  --radius:10px;--shadow-lg:0 8px 40px rgba(13,27,42,0.2);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--navy);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden}
+body::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(201,168,76,0.08),transparent 60%),radial-gradient(ellipse at 70% 20%,rgba(59,130,246,0.05),transparent 50%);pointer-events:none}
+
+.auth-wrap{width:100%;max-width:440px;position:relative;z-index:1}
+
+.auth-logo{text-align:center;margin-bottom:32px}
+.auth-logo-text{font-family:var(--font-display);font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.auth-logo-sub{font-size:12px;color:rgba(255,255,255,0.3);margin-top:4px}
+
+.auth-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:40px;backdrop-filter:blur(20px);box-shadow:var(--shadow-lg)}
+
+.auth-tabs{display:flex;background:rgba(255,255,255,0.05);border-radius:10px;padding:4px;margin-bottom:32px;gap:4px}
+.auth-tab{flex:1;padding:9px;border:none;background:none;font-family:var(--font-display);font-size:13px;font-weight:700;color:rgba(255,255,255,0.4);cursor:pointer;border-radius:7px;transition:all 0.2s}
+.auth-tab.active{background:var(--gold);color:var(--navy)}
+
+.form-title{font-family:var(--font-display);font-size:22px;font-weight:700;color:white;margin-bottom:6px}
+.form-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;line-height:1.5}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px}
+.f-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:12px 16px;font-family:var(--font-body);font-size:14px;color:white;outline:none;transition:all 0.2s}
+.f-input:focus{border-color:var(--gold);background:rgba(255,255,255,0.09)}
+.f-input::placeholder{color:rgba(255,255,255,0.2)}
+.f-input.error{border-color:var(--red);background:var(--red-dim)}
+
+/* plan summary shown on signup */
+.plan-summary{background:rgba(201,168,76,0.08);border:1px solid var(--gold-border);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;display:none}
+.plan-summary.show{display:flex;align-items:center;gap:12px}
+.ps-icon{font-size:22px}
+.ps-text{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5}
+.ps-text strong{color:var(--gold)}
+
+.submit-btn{width:100%;background:var(--gold);color:var(--navy);border:none;border-radius:var(--radius);padding:14px;font-family:var(--font-display);font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:8px;letter-spacing:0.3px}
+.submit-btn:hover{background:#d9b85c;transform:translateY(-1px)}
+.submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+.error-msg{background:var(--red-dim);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:#fca5a5;margin-bottom:16px;display:none}
+.error-msg.show{display:block}
+
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:rgba(255,255,255,0.08)}
+.divider span{font-size:12px;color:rgba(255,255,255,0.25)}
+
+.forgot-link{text-align:right;margin-top:-8px;margin-bottom:16px}
+.forgot-link a{font-size:12px;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s}
+.forgot-link a:hover{color:var(--gold)}
+
+.terms{font-size:11px;color:rgba(255,255,255,0.25);text-align:center;margin-top:16px;line-height:1.6}
+.terms a{color:rgba(255,255,255,0.35);text-decoration:none}
+.terms a:hover{color:var(--gold)}
+
+.back-link{text-align:center;margin-top:24px}
+.back-link a{font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s}
+.back-link a:hover{color:var(--gold)}
+
+/* success */
+.success-screen{display:none;text-align:center;padding:20px 0}
+.success-icon{font-size:48px;margin-bottom:16px}
+.success-title{font-family:var(--font-display);font-size:22px;font-weight:700;color:white;margin-bottom:8px}
+.success-sub{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="auth-wrap">
+  <div class="auth-logo">
+    <div class="auth-logo-text">TaxIntakeFlow</div>
+    <div class="auth-logo-sub">The complete intake system for tax firms</div>
+  </div>
+
+  <div class="auth-card">
+
+    <!-- TABS -->
+    <div class="auth-tabs" id="authTabs">
+      <button class="auth-tab active" onclick="showTab('login')">Log In</button>
+      <button class="auth-tab" onclick="showTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- ERROR -->
+    <div class="error-msg" id="errorMsg"></div>
+
+    <!-- ── LOGIN FORM ──────────────────────────── -->
+    <div id="loginForm">
+      <div class="form-title">Welcome back</div>
+      <div class="form-sub">Log in to your firm dashboard</div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" class="f-input" id="loginEmail" placeholder="you@yourfirm.com" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" class="f-input" id="loginPw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="forgot-link"><a href="#" onclick="showForgot()">Forgot password?</a></div>
+      <button class="submit-btn" id="loginBtn" onclick="doLogin()">Log In →</button>
+    </div>
+
+    <!-- ── SIGNUP FORM ─────────────────────────── -->
+    <div id="signupForm" style="display:none">
+      <div class="form-title">Start your free trial</div>
+      <div class="form-sub">14 days free. No credit card required.</div>
+
+      <div class="plan-summary" id="planSummary">
+        <div class="ps-icon">🚀</div>
+        <div class="ps-text">Starting on <strong id="planSummaryText">Growth — Monthly</strong></div>
+      </div>
+
+      <div class="field">
+        <label>Firm Name</label>
+        <input type="text" class="f-input" id="signupFirm" placeholder="Prosperium Tax &amp; Advisory">
+      </div>
+      <div class="field">
+        <label>Your Email</label>
+        <input type="email" class="f-input" id="signupEmail" placeholder="you@yourfirm.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" class="f-input" id="signupPw" placeholder="At least 8 characters">
+      </div>
+      <button class="submit-btn" id="signupBtn" onclick="doSignup()">Create Account &amp; Start Trial →</button>
+      <div class="terms">By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></div>
+    </div>
+
+    <!-- ── FORGOT PASSWORD ────────────────────── -->
+    <div id="forgotForm" style="display:none">
+      <div class="form-title">Reset password</div>
+      <div class="form-sub">Enter your email and we'll send a reset link</div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" class="f-input" id="forgotEmail" placeholder="you@yourfirm.com">
+      </div>
+      <button class="submit-btn" onclick="doForgot()">Send Reset Link →</button>
+      <div class="divider"><span>or</span></div>
+      <div style="text-align:center"><a href="#" onclick="showTab('login')" style="font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none">← Back to login</a></div>
+    </div>
+
+    <!-- ── SUCCESS ────────────────────────────── -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">✅</div>
+      <div class="success-title" id="successTitle">Account created!</div>
+      <div class="success-sub" id="successSub">Check your email to confirm your account, then log in to complete your firm setup.</div>
+    </div>
+
+  </div>
+
+  <div class="back-link"><a href="pricing.html">← Back to pricing</a></div>
+</div>
+
+<script>
+// ── SUPABASE CONFIG ──────────────────────────────────────────
+// REPLACE THESE with your actual Supabase project URL and anon key
+// Found in: Supabase Dashboard → Settings → API
+const SUPABASE_URL  = "https://yyobsleksxryuwxenvnb.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY";
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── URL PARAMS ───────────────────────────────────────────────
+const P = new URLSearchParams(window.location.search);
+const mode     = P.get("mode")     || "login";
+const plan     = P.get("plan")     || "growth";
+const interval = P.get("interval") || "monthly";
+
+// Init
+if (mode === "signup") showTab("signup");
+
+// Show plan summary on signup
+const planNames = { starter:"Starter", growth:"Growth", pro:"Pro" };
+const intNames  = { monthly:"Monthly", "6month":"6-Month", "12month":"Annual" };
+document.getElementById("planSummaryText").textContent =
+  `${planNames[plan] || "Growth"} — ${intNames[interval] || "Monthly"}`;
+if (mode === "signup") document.getElementById("planSummary").classList.add("show");
+
+// ── TAB SWITCHING ────────────────────────────────────────────
+function showTab(tab) {
+  document.getElementById("loginForm").style.display  = tab === "login"  ? "block" : "none";
+  document.getElementById("signupForm").style.display = tab === "signup" ? "block" : "none";
+  document.getElementById("forgotForm").style.display = "none";
+  document.querySelectorAll(".auth-tab").forEach((b,i) =>
+    b.classList.toggle("active", (i===0 && tab==="login") || (i===1 && tab==="signup")));
+  clearError();
+}
+
+function showForgot() {
+  document.getElementById("loginForm").style.display  = "none";
+  document.getElementById("signupForm").style.display = "none";
+  document.getElementById("forgotForm").style.display = "block";
+  document.querySelectorAll(".auth-tab").forEach(b => b.classList.remove("active"));
+  clearError();
+}
+
+// ── LOGIN ────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const pw    = document.getElementById("loginPw").value;
+  if (!email || !pw) { showError("Please enter your email and password"); return; }
+
+  const btn = document.getElementById("loginBtn");
+  btn.disabled = true; btn.textContent = "Logging in...";
+
+  const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+
+  if (error) {
+    showError(error.message === "Invalid login credentials"
+      ? "Incorrect email or password"
+      : error.message);
+    btn.disabled = false; btn.textContent = "Log In →";
+  } else {
+    btn.textContent = "Redirecting...";
+    window.location.href = "portal.html";
+  }
+}
+
+// ── SIGNUP ────────────────────────────────────────────────────
+async function doSignup() {
+  const firmName = document.getElementById("signupFirm").value.trim();
+  const email    = document.getElementById("signupEmail").value.trim();
+  const pw       = document.getElementById("signupPw").value;
+
+  if (!firmName) { showError("Please enter your firm name"); return; }
+  if (!email)    { showError("Please enter your email"); return; }
+  if (pw.length < 8) { showError("Password must be at least 8 characters"); return; }
+
+  const btn = document.getElementById("signupBtn");
+  btn.disabled = true; btn.textContent = "Creating account...";
+
+  // Create auth user
+  const { data, error } = await sb.auth.signUp({
+    email,
+    password: pw,
+    options: {
+      data: { firm_name: firmName, plan_tier: plan, plan_interval: interval }
+    }
+  });
+
+  if (error) {
+    showError(error.message);
+    btn.disabled = false; btn.textContent = "Create Account & Start Trial →";
+    return;
+  }
+
+  // Create firm record
+  if (data.user) {
+    await sb.from("firms").insert({
+      owner_id:      data.user.id,
+      firm_name:     firmName,
+      email:         email,
+      plan_tier:     plan,
+      plan_interval: interval,
+      plan_status:   "trialing",
+    });
+  }
+
+  // Show success
+  document.getElementById("authTabs").style.display    = "none";
+  document.getElementById("signupForm").style.display  = "none";
+  document.getElementById("successScreen").style.display = "block";
+}
+
+// ── FORGOT PASSWORD ──────────────────────────────────────────
+async function doForgot() {
+  const email = document.getElementById("forgotEmail").value.trim();
+  if (!email) { showError("Please enter your email"); return; }
+
+  await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + "/auth.html?mode=reset"
+  });
+
+  document.getElementById("forgotForm").style.display   = "none";
+  document.getElementById("successScreen").style.display = "block";
+  document.getElementById("successTitle").textContent    = "Reset link sent!";
+  document.getElementById("successSub").textContent      = "Check your email for a password reset link.";
+}
+
+// ── UTILS ────────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById("errorMsg");
+  el.textContent = msg;
+  el.classList.add("show");
+}
+function clearError() {
+  document.getElementById("errorMsg").classList.remove("show");
+}
+
+// Check if already logged in
+sb.auth.getSession().then(({ data: { session } }) => {
+  if (session) window.location.href = "portal.html";
+});
+</script>
+</body>
+</html>
