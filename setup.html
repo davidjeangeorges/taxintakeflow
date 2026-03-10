@@ -268,7 +268,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);
           <div class="card-title">GHL Inbound Webhook URL</div>
           <div class="card-sub">This connects form submissions to GoHighLevel so contacts are created automatically and your workflows fire.</div>
           <div class="field">
-            <label>GHL Webhook URL <span class="req">*</span></label>
+            <label>GHL Webhook URL <span class="opt">(add later — you get this from GHL in Phase 4)</span></label>
             <div class="url-input-wrap">
               <input type="text" class="f-input" id="ghlWebhookUrl"
                 placeholder="https://services.leadconnectorhq.com/hooks/XXXXXXXX/webhook-trigger/YYYYYY"
@@ -674,7 +674,7 @@ function saveUrls() {
   const ghl  = document.getElementById("ghlWebhookUrl").value.trim();
 
   if (!apps) { toast("Please enter the Apps Script URL", "err"); return; }
-  if (!ghl)  { toast("Please enter the GHL Webhook URL", "err"); return; }
+  // GHL webhook is optional at this stage — can be added later
 
   localStorage.setItem("tif_appsScriptUrl", apps);
   localStorage.setItem("tif_ghlWebhookUrl", ghl);
