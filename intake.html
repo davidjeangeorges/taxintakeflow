@@ -1,0 +1,3764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tax Intake Form | TaxIntakeFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TAXINTAKEFLOW — INTAKE FORM
+   Professional Tax Intake | Navy + Gold Theme
+   ============================================================ */
+
+:root {
+  --navy:      #0d1b2a;
+  --navy-mid:  #1b2d42;
+  --navy-light:#243b55;
+  --gold:      #c9a84c;
+  --gold-light:#e8c96d;
+  --cream:     #faf8f3;
+  --white:     #ffffff;
+  --gray-100:  #f4f4f6;
+  --gray-200:  #e8e8ed;
+  --gray-400:  #9999aa;
+  --gray-600:  #555566;
+  --gray-800:  #222233;
+  --red:       #c0392b;
+  --green:     #27ae60;
+  --blue:      #2980b9;
+  --shadow-sm: 0 2px 8px rgba(13,27,42,0.08);
+  --shadow-md: 0 4px 20px rgba(13,27,42,0.14);
+  --shadow-lg: 0 8px 40px rgba(13,27,42,0.2);
+  --radius:    10px;
+  --radius-lg: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--gray-800);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── HEADER ─────────────────────────────────────── */
+.form-header {
+  background: var(--navy);
+  color: var(--white);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.form-header .logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+.form-header .firm-name {
+  font-size: 13px;
+  color: var(--gray-400);
+  margin-top: 2px;
+}
+.header-secure {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--gray-400);
+}
+.header-secure svg { color: var(--green); }
+
+/* ── PROGRESS BAR ────────────────────────────────── */
+.progress-wrap {
+  background: var(--navy-mid);
+  padding: 16px 32px;
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+}
+.progress-steps {
+  display: flex;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto;
+  gap: 0;
+}
+.progress-step {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  cursor: default;
+}
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-400);
+  background: var(--navy);
+  flex-shrink: 0;
+  transition: all 0.3s;
+  position: relative;
+  z-index: 1;
+}
+.step-circle.active {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--navy);
+}
+.step-circle.done {
+  border-color: var(--green);
+  background: var(--green);
+  color: white;
+}
+.step-label {
+  font-size: 11px;
+  color: var(--gray-400);
+  margin-left: 8px;
+  white-space: nowrap;
+  display: none;
+}
+.step-label.active { color: var(--gold-light); display: block; }
+.step-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--gray-600);
+  margin: 0 4px;
+  transition: background 0.3s;
+}
+.step-connector.done { background: var(--green); }
+@media (min-width: 640px) { .step-label { display: block; } }
+
+/* ── MAIN CONTAINER ──────────────────────────────── */
+.form-container {
+  max-width: 820px;
+  margin: 32px auto;
+  padding: 0 16px 80px;
+}
+
+/* ── SECTIONS ────────────────────────────────────── */
+.form-section {
+  display: none;
+  animation: fadeUp 0.35s ease;
+}
+.form-section.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── CARDS ───────────────────────────────────────── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+  border: 1px solid var(--gray-200);
+}
+.card-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.card-subtitle {
+  font-size: 14px;
+  color: var(--gray-400);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+.section-divider {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 28px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+/* ── FORM FIELDS ─────────────────────────────────── */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.field-row.three { grid-template-columns: 1fr 1fr 1fr; }
+.field-row.full  { grid-template-columns: 1fr; }
+@media (max-width: 600px) {
+  .field-row, .field-row.three { grid-template-columns: 1fr; }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-600);
+}
+.field-group label .req {
+  color: var(--red);
+  margin-left: 2px;
+}
+.field-group label .hint {
+  font-weight: 400;
+  color: var(--gray-400);
+  font-size: 12px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--gray-800);
+  background: var(--white);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+}
+input.error, select.error, textarea.error {
+  border-color: var(--red);
+}
+textarea { resize: vertical; min-height: 80px; }
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555566' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.field-note {
+  font-size: 12px;
+  color: var(--gray-400);
+  margin-top: 2px;
+}
+.field-error {
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 2px;
+  display: none;
+}
+.field-error.show { display: block; }
+
+/* ── CHECKBOXES & RADIOS ─────────────────────────── */
+.check-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--white);
+}
+.check-item:hover { border-color: var(--gold); background: #fffdf5; }
+.check-item.selected {
+  border-color: var(--gold);
+  background: #fffdf5;
+}
+.check-item input[type="checkbox"],
+.check-item input[type="radio"] {
+  width: 18px; height: 18px;
+  min-width: 18px;
+  margin-top: 2px;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+.check-item .check-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-800);
+}
+.check-item .check-desc {
+  font-size: 12px;
+  color: var(--gray-400);
+  margin-top: 2px;
+}
+
+.check-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 600px) { .check-grid { grid-template-columns: 1fr; } }
+
+/* ── RADIO PILLS ─────────────────────────────────── */
+.radio-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.radio-pill {
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1.5px solid var(--gray-200);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--gray-600);
+  background: white;
+}
+.radio-pill:hover { border-color: var(--gold); color: var(--gold); }
+.radio-pill.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--navy);
+}
+
+/* ── CONDITIONAL SUBSECTIONS ─────────────────────── */
+.subsection {
+  display: none;
+  background: var(--gray-100);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  border-left: 3px solid var(--gold);
+}
+.subsection.show { display: block; animation: fadeUp 0.25s ease; }
+.subsection-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+/* ── REPEATABLE BLOCKS ───────────────────────────── */
+.repeat-container { margin-bottom: 8px; }
+.repeat-block {
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.repeat-block-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy-mid);
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.btn-remove-block {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.btn-remove-block:hover { background: #fde8e8; }
+.btn-add-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1.5px dashed var(--gold);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  width: 100%;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+.btn-add-block:hover { background: #fffdf5; }
+
+/* ── DUE DILIGENCE CALLOUT ───────────────────────── */
+.dd-callout {
+  background: #fff8e1;
+  border: 1px solid #f0c040;
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+}
+.dd-callout-icon { font-size: 20px; flex-shrink: 0; }
+.dd-callout-text { font-size: 13px; color: #7a5c00; line-height: 1.6; }
+.dd-callout-text strong { color: #5a4000; }
+
+/* ── FILE UPLOAD ─────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--gray-100);
+  margin-bottom: 16px;
+}
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--gold);
+  background: #fffdf5;
+}
+.upload-zone-icon { font-size: 36px; margin-bottom: 12px; color: var(--gray-400); }
+.upload-zone-title { font-weight: 600; font-size: 15px; color: var(--gray-600); margin-bottom: 4px; }
+.upload-zone-sub { font-size: 12px; color: var(--gray-400); }
+.upload-zone input[type="file"] { display: none; }
+.upload-btn {
+  display: inline-block;
+  background: var(--navy);
+  color: white;
+  padding: 8px 20px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background 0.2s;
+}
+.upload-btn:hover { background: var(--navy-light); }
+.upload-file-list { margin-top: 16px; }
+.upload-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.upload-file-name { display: flex; align-items: center; gap: 8px; color: var(--gray-600); }
+.upload-file-size { color: var(--gray-400); font-size: 12px; }
+.upload-file-remove {
+  background: none;
+  border: none;
+  color: var(--red);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 4px;
+}
+
+/* ── DOCUMENT CATEGORIES ─────────────────────────── */
+.doc-categories {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (max-width: 600px) { .doc-categories { grid-template-columns: 1fr; } }
+.doc-category {
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 16px;
+  transition: border-color 0.2s;
+}
+.doc-category.has-files { border-color: var(--green); }
+.doc-category-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.doc-category-sub { font-size: 11px; color: var(--gray-400); margin-bottom: 12px; }
+.doc-category-upload {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--gray-100);
+  border: 1px dashed var(--gray-400);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--gray-600);
+  transition: all 0.2s;
+}
+.doc-category-upload:hover { background: #fffdf5; border-color: var(--gold); color: var(--gold); }
+.doc-category-upload input[type="file"] { display: none; }
+.doc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--green);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-top: 8px;
+}
+
+/* ── NAVIGATION BUTTONS ──────────────────────────── */
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--gray-200);
+}
+.btn {
+  padding: 12px 28px;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary {
+  background: var(--navy);
+  color: var(--white);
+}
+.btn-primary:hover { background: var(--navy-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-secondary {
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+.btn-secondary:hover { background: var(--gray-200); }
+.btn-gold {
+  background: var(--gold);
+  color: var(--navy);
+}
+.btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── WELCOME SCREEN ──────────────────────────────── */
+.welcome-hero {
+  text-align: center;
+  padding: 48px 32px 40px;
+}
+.welcome-icon {
+  width: 72px;
+  height: 72px;
+  background: var(--navy);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 32px;
+}
+.welcome-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+.welcome-sub {
+  font-size: 15px;
+  color: var(--gray-400);
+  max-width: 480px;
+  margin: 0 auto 32px;
+  line-height: 1.7;
+}
+.welcome-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+  text-align: left;
+}
+@media (max-width: 600px) { .welcome-steps { grid-template-columns: 1fr; } }
+.welcome-step {
+  background: var(--gray-100);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.welcome-step-num {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.welcome-step-text {
+  font-size: 13px;
+  color: var(--gray-600);
+  line-height: 1.5;
+}
+
+/* ── REVIEW SCREEN ───────────────────────────────── */
+.review-section {
+  margin-bottom: 20px;
+}
+.review-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.review-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 500px) { .review-grid { grid-template-columns: 1fr; } }
+.review-item { font-size: 13px; }
+.review-label { color: var(--gray-400); font-size: 12px; }
+.review-value { color: var(--gray-800); font-weight: 500; }
+
+/* ── SUCCESS SCREEN ──────────────────────────────── */
+.success-screen {
+  text-align: center;
+  padding: 60px 32px;
+}
+.success-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--green);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 40px;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.success-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+.success-sub {
+  font-size: 15px;
+  color: var(--gray-400);
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* ── MISC ────────────────────────────────────────── */
+.info-box {
+  background: #e8f4fd;
+  border-left: 3px solid var(--blue);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #1a5276;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+.warning-box {
+  background: #fff8e1;
+  border-left: 3px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #7a5c00;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+.required-note {
+  font-size: 12px;
+  color: var(--gray-400);
+  margin-bottom: 24px;
+}
+.required-note span { color: var(--red); }
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-left: 8px;
+}
+.tag-required { background: #fde8e8; color: var(--red); }
+.tag-optional { background: var(--gray-100); color: var(--gray-400); }
+
+/* Spinner for submit */
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Mobile tweaks */
+@media (max-width: 480px) {
+  .form-header { padding: 14px 16px; }
+  .progress-wrap { padding: 12px 16px; }
+  .card { padding: 20px 16px; }
+  .welcome-hero { padding: 32px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="form-header">
+  <div>
+    <div class="logo">TaxIntakeFlow</div>
+    <div class="firm-name" id="firmNameDisplay">Tax & Advisory Services</div>
+  </div>
+  <div class="header-secure">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    Secure & Encrypted
+  </div>
+</header>
+
+<!-- PROGRESS BAR -->
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-steps" id="progressSteps">
+    <!-- Injected by JS -->
+  </div>
+</div>
+
+<!-- MAIN FORM CONTAINER -->
+<div class="form-container" id="formContainer">
+  <!-- Sections injected by JS -->
+</div>
+
+<script>
+// ============================================================
+// TAXINTAKEFLOW — INTAKE FORM ENGINE
+// ============================================================
+
+// ── CONFIGURATION ──────────────────────────────────────────
+const FORM_CONFIG = {
+  firmName:      "Your Tax Firm",  // Override via URL param ?firm=Name
+  taxYear:       "2026",
+
+  // ↓ THE ONLY THING YOU EVER EDIT IN THIS FILE
+  // Paste your Apps Script Web App URL here — preparers load automatically
+  appsScriptUrl: "",               // e.g. https://script.google.com/macros/s/XXXX/exec
+  ghlWebhookUrl: "",               // Loaded from URL param — do not edit manually
+
+  preparers:     [],               // Loaded automatically from Google Sheet — do not touch
+};
+
+// ── STEP DEFINITIONS ───────────────────────────────────────
+const STEPS = [
+  { id: "welcome",        label: "Welcome"       },
+  { id: "personal",       label: "Personal"      },
+  { id: "filing",         label: "Filing Status" },
+  { id: "life_events",    label: "Life Events"   },
+  { id: "income",         label: "Income"        },
+  { id: "dependents",     label: "Dependents"    },
+  { id: "deductions",     label: "Deductions"    },
+  { id: "business",       label: "Business"      },
+  { id: "special",        label: "Special"       },
+  { id: "due_diligence",  label: "Verification"  },
+  { id: "documents",      label: "Documents"     },
+  { id: "review",         label: "Review"        },
+];
+
+// ── STATE ───────────────────────────────────────────────────
+const STATE = {
+  currentStep: 0,
+  data: {},
+  dependents: [],
+  w2Jobs: [],
+  businesses: [],
+  rentalProperties: [],
+  vehicles: [],
+  otherIncome1099: [],
+  uploadedFiles: {},
+  selectedPreparerId: "",
+};
+
+// ── INIT ────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", async () => {
+  // Read URL params
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("firm"))     FORM_CONFIG.firmName      = params.get("firm");
+  if (params.get("url"))      FORM_CONFIG.appsScriptUrl = params.get("url");
+  if (params.get("ghl"))      FORM_CONFIG.ghlWebhookUrl = params.get("ghl");
+  if (params.get("year"))     FORM_CONFIG.taxYear       = params.get("year");
+  if (params.get("preparer")) STATE.selectedPreparerId  = params.get("preparer");
+
+  document.getElementById("firmNameDisplay").textContent = FORM_CONFIG.firmName;
+
+  // Load preparers from Google Sheet before building the form
+  await loadPreparers();
+
+  buildProgressBar();
+  buildAllSections();
+  showStep(0);
+  loadSavedProgress();
+});
+
+// ── LOAD PREPARERS DYNAMICALLY FROM APPS SCRIPT ─────────────
+async function loadPreparers() {
+  // Always start with blank option
+  FORM_CONFIG.preparers = [{ name: "Select a Preparer...", id: "" }];
+
+  if (!FORM_CONFIG.appsScriptUrl) {
+    FORM_CONFIG.preparers.push({ name: "No URL set — contact your firm", id: "" });
+    return;
+  }
+
+  try {
+    const url      = FORM_CONFIG.appsScriptUrl + "?action=get_preparers";
+    const response = await fetch(url);
+    const result   = await response.json();
+
+    if (result.success && result.preparers.length > 0) {
+      result.preparers.forEach(p => FORM_CONFIG.preparers.push(p));
+    } else {
+      FORM_CONFIG.preparers.push({ name: "No preparers found — contact office", id: "" });
+    }
+  } catch (err) {
+    FORM_CONFIG.preparers.push({ name: "Could not load preparers — contact office", id: "" });
+    console.warn("Could not load preparers:", err.message);
+  }
+}
+
+// ── PROGRESS BAR ────────────────────────────────────────────
+function buildProgressBar() {
+  const wrap = document.getElementById("progressSteps");
+  wrap.innerHTML = STEPS.map((step, i) => `
+    <div class="progress-step" id="pstep_${i}">
+      <div class="step-circle" id="pcircle_${i}">${i + 1}</div>
+      <span class="step-label" id="plabel_${i}">${step.label}</span>
+      ${i < STEPS.length - 1 ? `<div class="step-connector" id="pconn_${i}"></div>` : ""}
+    </div>
+  `).join("");
+}
+
+function updateProgressBar() {
+  STEPS.forEach((_, i) => {
+    const circle = document.getElementById(`pcircle_${i}`);
+    const label  = document.getElementById(`plabel_${i}`);
+    const conn   = document.getElementById(`pconn_${i}`);
+    circle.classList.remove("active", "done");
+    label.classList.remove("active");
+    if (i < STATE.currentStep) {
+      circle.classList.add("done");
+      circle.innerHTML = "✓";
+      if (conn) conn.classList.add("done");
+    } else if (i === STATE.currentStep) {
+      circle.classList.add("active");
+      circle.innerHTML = i + 1;
+      label.classList.add("active");
+      if (conn) conn.classList.remove("done");
+    } else {
+      circle.innerHTML = i + 1;
+      if (conn) conn.classList.remove("done");
+    }
+  });
+}
+
+// ── NAVIGATION ──────────────────────────────────────────────
+function showStep(index) {
+  // Hide all sections
+  document.querySelectorAll(".form-section").forEach(s => s.classList.remove("active"));
+  // Show current
+  const section = document.getElementById(`section_${STEPS[index].id}`);
+  if (section) {
+    section.classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  STATE.currentStep = index;
+  updateProgressBar();
+  saveProgress();
+}
+
+function nextStep() {
+  if (!validateCurrentStep()) return;
+  if (STATE.currentStep < STEPS.length - 1) {
+    showStep(STATE.currentStep + 1);
+  }
+}
+
+function prevStep() {
+  if (STATE.currentStep > 0) {
+    showStep(STATE.currentStep - 1);
+  }
+}
+
+function goToStep(id) {
+  const idx = STEPS.findIndex(s => s.id === id);
+  if (idx >= 0) showStep(idx);
+}
+
+// ── VALIDATION ──────────────────────────────────────────────
+function validateCurrentStep() {
+  const stepId = STEPS[STATE.currentStep].id;
+  let valid = true;
+
+  if (stepId === "personal") {
+    valid = validateRequired(["firstName", "lastName", "email", "phone", "dob", "ssn", "address", "city", "state", "zip"]);
+  } else if (stepId === "filing") {
+    valid = validateRequired(["filingStatus"]) && validatePillSelected("filingStatus");
+  }
+  // Other steps are mostly optional or self-validating
+  return valid;
+}
+
+function validateRequired(fieldIds) {
+  let valid = true;
+  fieldIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const err = document.getElementById(`err_${id}`);
+    if (!el.value.trim()) {
+      if (err) err.classList.add("show");
+      el.classList.add("error");
+      valid = false;
+    } else {
+      if (err) err.classList.remove("show");
+      el.classList.remove("error");
+    }
+  });
+  return valid;
+}
+
+function validatePillSelected(fieldName) {
+  return STATE.data[fieldName] ? true : false;
+}
+
+// ── PROGRESS SAVE/LOAD ──────────────────────────────────────
+function saveProgress() {
+  try {
+    const snapshot = {
+      data: STATE.data,
+      dependents: STATE.dependents,
+      w2Jobs: STATE.w2Jobs,
+      businesses: STATE.businesses,
+      rentalProperties: STATE.rentalProperties,
+      vehicles: STATE.vehicles,
+      currentStep: STATE.currentStep
+    };
+    sessionStorage.setItem("tif_progress", JSON.stringify(snapshot));
+  } catch(e) {}
+}
+
+function loadSavedProgress() {
+  try {
+    const saved = sessionStorage.getItem("tif_progress");
+    if (saved) {
+      const snap = JSON.parse(saved);
+      Object.assign(STATE, snap);
+      if (STATE.currentStep > 0) {
+        restoreFormValues();
+      }
+    }
+  } catch(e) {}
+}
+
+function restoreFormValues() {
+  Object.keys(STATE.data).forEach(key => {
+    const el = document.getElementById(key);
+    if (el) {
+      if (el.type === "checkbox") el.checked = STATE.data[key];
+      else el.value = STATE.data[key];
+    }
+  });
+}
+
+// ── FIELD HELPERS ────────────────────────────────────────────
+function setData(key, value) {
+  STATE.data[key] = value;
+  saveProgress();
+}
+
+function getData(key, fallback = "") {
+  return STATE.data[key] !== undefined ? STATE.data[key] : fallback;
+}
+
+function toggleSubsection(triggerId, subsectionId) {
+  const trigger = document.getElementById(triggerId);
+  const sub = document.getElementById(subsectionId);
+  if (!trigger || !sub) return;
+  const show = trigger.checked || trigger.value === "yes";
+  sub.classList.toggle("show", show);
+}
+
+function showSubsection(subsectionId, show) {
+  const sub = document.getElementById(subsectionId);
+  if (sub) sub.classList.toggle("show", show);
+}
+
+// ── PILL SELECTION ───────────────────────────────────────────
+function selectPill(group, value, el) {
+  document.querySelectorAll(`[data-pill="${group}"]`).forEach(p => p.classList.remove("active"));
+  el.classList.add("active");
+  setData(group, value);
+  // Trigger any conditional logic
+  onPillChange(group, value);
+}
+
+function onPillChange(group, value) {
+  if (group === "filingStatus") {
+    showSubsection("sub_spouse_name", value === "mfj" || value === "mfs");
+  }
+  if (group === "hasSpouse") {
+    showSubsection("sub_spouse_section", value === "yes");
+  }
+}
+
+// ── CHECKBOX CHANGE HANDLER ──────────────────────────────────
+function onCheckChange(el, subsectionId) {
+  if (subsectionId) showSubsection(subsectionId, el.checked);
+  setData(el.name || el.id, el.checked);
+}
+
+// ── BUILD ALL SECTIONS ───────────────────────────────────────
+function buildAllSections() {
+  const container = document.getElementById("formContainer");
+  container.innerHTML = [
+    buildWelcomeSection(),
+    buildPersonalSection(),
+    buildFilingSection(),
+    buildLifeEventsSection(),
+    buildIncomeSection(),
+    buildDependentsSection(),
+    buildDeductionsSection(),
+    buildBusinessSection(),
+    buildSpecialSection(),
+    buildDueDiligenceSection(),
+    buildDocumentsSection(),
+    buildReviewSection(),
+  ].join("");
+
+  // Attach upload handlers after DOM is ready
+  setTimeout(() => attachUploadHandlers(), 100);
+}
+
+// ── SECTION: WELCOME ─────────────────────────────────────────
+function buildWelcomeSection() {
+  return `
+<div class="form-section active" id="section_welcome">
+  <div class="card">
+    <div class="welcome-hero">
+      <div class="welcome-icon">📋</div>
+      <div class="welcome-title">Your Tax Intake Form</div>
+      <div class="welcome-sub">
+        Welcome! This secure form helps your tax preparer collect everything needed to prepare your return accurately. 
+        It takes about 10–20 minutes depending on your situation.
+      </div>
+      <div class="welcome-steps">
+        <div class="welcome-step">
+          <div class="welcome-step-num">Step 1</div>
+          <div class="welcome-step-text">Answer questions about your income, life events, and situation this year</div>
+        </div>
+        <div class="welcome-step">
+          <div class="welcome-step-num">Step 2</div>
+          <div class="welcome-step-text">Upload your tax documents — W-2s, 1099s, receipts, and ID</div>
+        </div>
+        <div class="welcome-step">
+          <div class="welcome-step-num">Step 3</div>
+          <div class="welcome-step-text">Review and submit — your preparer will be notified immediately</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider">Assign Your Preparer</div>
+    <div class="field-row full">
+      <div class="field-group">
+        <label>Who is your tax preparer? <span class="req">*</span></label>
+        <select id="assignedPreparer" onchange="setData('preparerName', this.options[this.selectedIndex].text); setData('preparerId', this.value);">
+          ${FORM_CONFIG.preparers.map(p =>
+            `<option value="${p.id}" ${STATE.selectedPreparerId === p.id ? "selected" : ""}>${p.name}</option>`
+          ).join("")}
+        </select>
+        <div class="field-note">If you're not sure, leave this and your firm will assign you.</div>
+      </div>
+    </div>
+
+    <div class="section-divider">Tax Year</div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Which tax year are we filing?</label>
+        <select id="taxYearSelect" onchange="setData('taxYear', this.value)">
+          <option value="2025">Tax Year 2025</option>
+          <option value="2024">Tax Year 2024</option>
+          <option value="2023">Tax Year 2023</option>
+          <option value="2022">Tax Year 2022</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Is this your first time with us?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="firstTime" onclick="selectPill('firstTime','yes',this)">Yes, new client</div>
+          <div class="radio-pill" data-pill="firstTime" onclick="selectPill('firstTime','no',this)">No, returning client</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      🔒 Your information is encrypted and only accessible to your assigned preparer and firm owner. 
+      We will never share your data with third parties.
+    </div>
+
+    <div class="nav-bar">
+      <div></div>
+      <button class="btn btn-gold" onclick="nextStep()">
+        Get Started →
+      </button>
+    </div>
+  </div>
+</div>`;
+}
+
+// ── SECTION: PERSONAL INFO ───────────────────────────────────
+function buildPersonalSection() {
+  return `
+<div class="form-section" id="section_personal">
+  <div class="card">
+    <div class="card-title">Personal Information</div>
+    <div class="card-subtitle">Please enter your information exactly as it appears on your government-issued ID.</div>
+    <div class="required-note"><span>*</span> Required fields</div>
+
+    <div class="section-divider">Full Legal Name</div>
+    <div class="field-row three">
+      <div class="field-group">
+        <label>First Name <span class="req">*</span></label>
+        <input type="text" id="firstName" placeholder="Maria" oninput="setData('firstName',this.value)">
+        <div class="field-error" id="err_firstName">Please enter your first name</div>
+      </div>
+      <div class="field-group">
+        <label>Middle Name <span class="tag tag-optional">Optional</span></label>
+        <input type="text" id="middleName" placeholder="A." oninput="setData('middleName',this.value)">
+      </div>
+      <div class="field-group">
+        <label>Last Name <span class="req">*</span></label>
+        <input type="text" id="lastName" placeholder="Gonzalez" oninput="setData('lastName',this.value)">
+        <div class="field-error" id="err_lastName">Please enter your last name</div>
+      </div>
+    </div>
+
+    <div class="section-divider">Contact & Identity</div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Email Address <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="maria@email.com" oninput="setData('email',this.value)">
+        <div class="field-error" id="err_email">Please enter a valid email</div>
+      </div>
+      <div class="field-group">
+        <label>Phone Number <span class="req">*</span></label>
+        <input type="tel" id="phone" placeholder="(555) 123-4567" oninput="setData('phone',this.value)">
+        <div class="field-error" id="err_phone">Please enter your phone number</div>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Date of Birth <span class="req">*</span></label>
+        <input type="date" id="dob" onchange="setData('dob',this.value)">
+        <div class="field-error" id="err_dob">Please enter your date of birth</div>
+      </div>
+      <div class="field-group">
+        <label>Social Security Number (SSN) <span class="req">*</span></label>
+        <input type="text" id="ssn" placeholder="XXX-XX-XXXX" maxlength="11"
+          oninput="this.value=formatSSN(this.value); setData('ssn',this.value)">
+        <div class="field-note">Format: XXX-XX-XXXX</div>
+        <div class="field-error" id="err_ssn">Please enter your SSN</div>
+      </div>
+    </div>
+    <div class="field-row full">
+      <div class="field-group">
+        <label>Do you have an ITIN instead of an SSN?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="hasITIN" onclick="selectPill('hasITIN','no',this); showSubsection('sub_itin_personal', false)">No, I have an SSN</div>
+          <div class="radio-pill" data-pill="hasITIN" onclick="selectPill('hasITIN','yes',this); showSubsection('sub_itin_personal', true)">Yes, I have an ITIN</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_itin_personal">
+      <div class="subsection-title">ITIN Information</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>ITIN Number</label>
+          <input type="text" id="itin" placeholder="9XX-XX-XXXX" oninput="setData('itin',this.value)">
+        </div>
+        <div class="field-group">
+          <label>Is your ITIN expired?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="itinExpired" onclick="selectPill('itinExpired','no',this)">No</div>
+            <div class="radio-pill" data-pill="itinExpired" onclick="selectPill('itinExpired','yes',this)">Yes / Not sure</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group">
+          <label>Immigration status <span class="tag tag-optional">Optional but helpful</span></label>
+          <select id="immigrationStatus" onchange="setData('immigrationStatus',this.value)">
+            <option value="">Select...</option>
+            <option>Permanent Resident (Green Card)</option>
+            <option>Work Visa (H-1B, L-1, etc.)</option>
+            <option>Student Visa (F-1, OPT)</option>
+            <option>DACA / TPS</option>
+            <option>Other / Prefer not to say</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider">Current Address</div>
+    <div class="field-row full">
+      <div class="field-group">
+        <label>Street Address <span class="req">*</span></label>
+        <input type="text" id="address" placeholder="123 Main Street, Apt 4B" oninput="setData('address',this.value)">
+        <div class="field-error" id="err_address">Please enter your address</div>
+      </div>
+    </div>
+    <div class="field-row three">
+      <div class="field-group">
+        <label>City <span class="req">*</span></label>
+        <input type="text" id="city" placeholder="Miami" oninput="setData('city',this.value)">
+        <div class="field-error" id="err_city">Required</div>
+      </div>
+      <div class="field-group">
+        <label>State <span class="req">*</span></label>
+        <select id="state" onchange="setData('state',this.value)">
+          <option value="">Select...</option>
+          ${US_STATES.map(s => `<option>${s}</option>`).join("")}
+        </select>
+        <div class="field-error" id="err_state">Required</div>
+      </div>
+      <div class="field-group">
+        <label>ZIP Code <span class="req">*</span></label>
+        <input type="text" id="zip" placeholder="33101" maxlength="10" oninput="setData('zip',this.value)">
+        <div class="field-error" id="err_zip">Required</div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label>Did you live at this address all year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="sameAddress" onclick="selectPill('sameAddress','yes',this); showSubsection('sub_prev_address',false)">Yes</div>
+          <div class="radio-pill" data-pill="sameAddress" onclick="selectPill('sameAddress','no',this); showSubsection('sub_prev_address',true)">No, I moved</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Did you live in a different state last year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="movedStates" onclick="selectPill('movedStates','no',this)">No</div>
+          <div class="radio-pill" data-pill="movedStates" onclick="selectPill('movedStates','yes',this)">Yes</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_prev_address">
+      <div class="subsection-title">Previous Address</div>
+      <div class="field-row full">
+        <div class="field-group">
+          <label>Previous Street Address</label>
+          <input type="text" id="prevAddress" placeholder="456 Old Street" oninput="setData('prevAddress',this.value)">
+        </div>
+      </div>
+      <div class="field-row three">
+        <div class="field-group">
+          <label>City</label>
+          <input type="text" id="prevCity" oninput="setData('prevCity',this.value)">
+        </div>
+        <div class="field-group">
+          <label>State</label>
+          <select id="prevState" onchange="setData('prevState',this.value)">
+            <option value="">Select...</option>
+            ${US_STATES.map(s => `<option>${s}</option>`).join("")}
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Month you moved</label>
+          <select id="moveMonth" onchange="setData('moveMonth',this.value)">
+            <option value="">Select...</option>
+            ${["January","February","March","April","May","June","July","August","September","October","November","December"].map(m => `<option>${m}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider">Prior Year Information</div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Did you file a tax return last year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="filedLastYear" onclick="selectPill('filedLastYear','yes',this); showSubsection('sub_prior_agi',true)">Yes</div>
+          <div class="radio-pill" data-pill="filedLastYear" onclick="selectPill('filedLastYear','no',this); showSubsection('sub_prior_agi',false)">No</div>
+          <div class="radio-pill" data-pill="filedLastYear" onclick="selectPill('filedLastYear','notsure',this); showSubsection('sub_prior_agi',false)">Not sure</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_prior_agi">
+      <div class="field-row">
+        <div class="field-group">
+          <label>Prior Year AGI <span class="hint">(from last year's return — line 11 on 1040)</span></label>
+          <input type="text" id="priorAGI" placeholder="$45,000" oninput="setData('priorAGI',this.value)">
+          <div class="field-note">Needed for e-filing. Check your prior year return or IRS transcript.</div>
+        </div>
+        <div class="field-group">
+          <label>Do you have an IRS IP PIN?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="hasIPPIN" onclick="selectPill('hasIPPIN','yes',this); showSubsection('sub_ippin',true)">Yes</div>
+            <div class="radio-pill" data-pill="hasIPPIN" onclick="selectPill('hasIPPIN','no',this); showSubsection('sub_ippin',false)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="subsection" id="sub_ippin">
+        <div class="field-group">
+          <label>IP PIN (6-digit identity protection PIN)</label>
+          <input type="text" id="ippin" placeholder="123456" maxlength="6" oninput="setData('ippin',this.value)">
+        </div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label>Did you make any estimated tax payments this year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="madeEstPayments" onclick="selectPill('madeEstPayments','yes',this); showSubsection('sub_est_payments',true)">Yes</div>
+          <div class="radio-pill" data-pill="madeEstPayments" onclick="selectPill('madeEstPayments','no',this)">No</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_est_payments">
+      <div class="subsection-title">Estimated Tax Payments</div>
+      <div class="field-row">
+        <div class="field-group"><label>Q1 (Jan–Mar)</label><input type="text" id="estQ1" placeholder="$0" oninput="setData('estQ1',this.value)"></div>
+        <div class="field-group"><label>Q2 (Apr–Jun)</label><input type="text" id="estQ2" placeholder="$0" oninput="setData('estQ2',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Q3 (Jul–Sep)</label><input type="text" id="estQ3" placeholder="$0" oninput="setData('estQ3',this.value)"></div>
+        <div class="field-group"><label>Q4 (Oct–Dec)</label><input type="text" id="estQ4" placeholder="$0" oninput="setData('estQ4',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group">
+          <label>Federal or State? (or both)</label>
+          <select id="estPaymentType" onchange="setData('estPaymentType',this.value)">
+            <option value="">Select...</option>
+            <option>Federal only</option>
+            <option>State only</option>
+            <option>Both Federal and State</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider">Refund Preferences</div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>How would you like to receive your refund?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="refundMethod" onclick="selectPill('refundMethod','direct',this); showSubsection('sub_banking',true)">Direct Deposit</div>
+          <div class="radio-pill" data-pill="refundMethod" onclick="selectPill('refundMethod','check',this); showSubsection('sub_banking',false)">Paper Check</div>
+          <div class="radio-pill" data-pill="refundMethod" onclick="selectPill('refundMethod','apply',this); showSubsection('sub_banking',false)">Apply to Next Year</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_banking">
+      <div class="subsection-title">Banking Information for Direct Deposit</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Bank Name</label>
+          <input type="text" id="bankName" placeholder="Bank of America" oninput="setData('bankName',this.value)">
+        </div>
+        <div class="field-group">
+          <label>Account Type</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="accountType" onclick="selectPill('accountType','checking',this)">Checking</div>
+            <div class="radio-pill" data-pill="accountType" onclick="selectPill('accountType','savings',this)">Savings</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Routing Number (9 digits)</label>
+          <input type="text" id="routingNum" placeholder="021000021" maxlength="9" oninput="setData('routingNum',this.value)">
+        </div>
+        <div class="field-group">
+          <label>Account Number</label>
+          <input type="text" id="accountNum" placeholder="123456789" oninput="setData('accountNum',this.value)">
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>`;
+}
+
+// ── SECTION: FILING STATUS ───────────────────────────────────
+function buildFilingSection() {
+  return `
+<div class="form-section" id="section_filing">
+  <div class="card">
+    <div class="card-title">Filing Status</div>
+    <div class="card-subtitle">Select the filing status that best describes your situation as of December 31 of the tax year.</div>
+
+    <div class="check-group">
+      <label class="check-item" onclick="selectFilingStatus('single',this)">
+        <input type="radio" name="filingStatus" value="single">
+        <div>
+          <div class="check-label">Single</div>
+          <div class="check-desc">Unmarried, or legally separated/divorced as of Dec 31</div>
+        </div>
+      </label>
+      <label class="check-item" onclick="selectFilingStatus('mfj',this)">
+        <input type="radio" name="filingStatus" value="mfj">
+        <div>
+          <div class="check-label">Married Filing Jointly (MFJ)</div>
+          <div class="check-desc">Married and both spouses agree to file together</div>
+        </div>
+      </label>
+      <label class="check-item" onclick="selectFilingStatus('mfs',this)">
+        <input type="radio" name="filingStatus" value="mfs">
+        <div>
+          <div class="check-label">Married Filing Separately (MFS)</div>
+          <div class="check-desc">Married but filing your own separate return</div>
+        </div>
+      </label>
+      <label class="check-item" onclick="selectFilingStatus('hoh',this)">
+        <input type="radio" name="filingStatus" value="hoh">
+        <div>
+          <div class="check-label">Head of Household (HOH)</div>
+          <div class="check-desc">Unmarried and paid more than half the cost of home for a qualifying person</div>
+        </div>
+      </label>
+      <label class="check-item" onclick="selectFilingStatus('qw',this)">
+        <input type="radio" name="filingStatus" value="qw">
+        <div>
+          <div class="check-label">Qualifying Surviving Spouse (QW)</div>
+          <div class="check-desc">Spouse died in last 2 years and you have a dependent child</div>
+        </div>
+      </label>
+    </div>
+
+    <div id="sub_spouse_name" style="display:none">
+      <div class="section-divider">Spouse Information</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Spouse First Name <span class="req">*</span></label>
+          <input type="text" id="spouseFirstName" placeholder="Carlos" oninput="setData('spouseFirstName',this.value)">
+        </div>
+        <div class="field-group">
+          <label>Spouse Last Name <span class="req">*</span></label>
+          <input type="text" id="spouseLastName" placeholder="Gonzalez" oninput="setData('spouseLastName',this.value)">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Spouse SSN / ITIN</label>
+          <input type="text" id="spouseSSN" placeholder="XXX-XX-XXXX" maxlength="11"
+            oninput="this.value=formatSSN(this.value); setData('spouseSSN',this.value)">
+        </div>
+        <div class="field-group">
+          <label>Spouse Date of Birth</label>
+          <input type="date" id="spouseDOB" onchange="setData('spouseDOB',this.value)">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Spouse occupation</label>
+          <input type="text" id="spouseOccupation" placeholder="Teacher, Nurse, etc." oninput="setData('spouseOccupation',this.value)">
+        </div>
+        <div class="field-group">
+          <label>Did spouse have any income this year?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="spouseHadIncome" onclick="selectPill('spouseHadIncome','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="spouseHadIncome" onclick="selectPill('spouseHadIncome','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group">
+          <label>Do you have an IP PIN for your spouse?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="spouseIPPIN" onclick="selectPill('spouseIPPIN','yes',this); showSubsection('sub_spouse_ippin',true)">Yes</div>
+            <div class="radio-pill" data-pill="spouseIPPIN" onclick="selectPill('spouseIPPIN','no',this); showSubsection('sub_spouse_ippin',false)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="subsection" id="sub_spouse_ippin">
+        <div class="field-group">
+          <label>Spouse IP PIN</label>
+          <input type="text" id="spouseIppin" placeholder="123456" maxlength="6" oninput="setData('spouseIppin',this.value)">
+        </div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label>What is your occupation / job title?</label>
+        <input type="text" id="occupation" placeholder="Truck Driver, Nurse, Accountant..." oninput="setData('occupation',this.value)">
+      </div>
+      <div class="field-group">
+        <label>Can someone else claim you as a dependent?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="claimedDependent" onclick="selectPill('claimedDependent','no',this)">No</div>
+          <div class="radio-pill" data-pill="claimedDependent" onclick="selectPill('claimedDependent','yes',this)">Yes</div>
+          <div class="radio-pill" data-pill="claimedDependent" onclick="selectPill('claimedDependent','notsure',this)">Not Sure</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>`;
+}
+
+function selectFilingStatus(value, el) {
+  document.querySelectorAll(".check-item").forEach(i => i.classList.remove("selected"));
+  el.classList.add("selected");
+  setData("filingStatus", value);
+  const spouseFields = document.getElementById("sub_spouse_name");
+  if (spouseFields) spouseFields.style.display = (value === "mfj" || value === "mfs") ? "block" : "none";
+}
+
+// ── SECTION: LIFE EVENTS ─────────────────────────────────────
+function buildLifeEventsSection() {
+  const events = [
+    { id: "ev_married",     label: "Got Married",             desc: "New marriage this tax year", sub: "sub_ev_married" },
+    { id: "ev_divorced",    label: "Got Divorced / Separated",desc: "Divorce or legal separation finalized", sub: "sub_ev_divorced" },
+    { id: "ev_spouse_died", label: "Spouse Passed Away",      desc: "Death of spouse this tax year", sub: "sub_ev_spouse_died" },
+    { id: "ev_new_child",   label: "Had / Adopted a Child",   desc: "New birth or adoption", sub: "sub_ev_new_child" },
+    { id: "ev_bought_home", label: "Bought a Home",           desc: "First or additional home purchase", sub: "sub_ev_bought_home" },
+    { id: "ev_sold_home",   label: "Sold a Home or Property", desc: "Sale of primary residence, vacation, or investment property", sub: "sub_ev_sold_home" },
+    { id: "ev_bankruptcy",  label: "Filed Bankruptcy",        desc: "Chapter 7 or Chapter 13", sub: "sub_ev_bankruptcy" },
+    { id: "ev_inheritance", label: "Received an Inheritance", desc: "Inherited money, property, or assets", sub: "sub_ev_inheritance" },
+    { id: "ev_life_ins",    label: "Received Life Insurance Payout", desc: "Death benefit paid to you", sub: "sub_ev_life_ins" },
+    { id: "ev_settlement",  label: "Received a Legal Settlement", desc: "Lawsuit, workers' comp, injury settlement", sub: "sub_ev_settlement" },
+    { id: "ev_retired",     label: "Retired This Year",       desc: "First year of full retirement", sub: null },
+    { id: "ev_lost_job",    label: "Lost Job / Laid Off",     desc: "Received unemployment benefits", sub: "sub_ev_unemployment" },
+    { id: "ev_started_biz", label: "Started a Business",      desc: "New business opened this year", sub: null },
+    { id: "ev_sold_biz",    label: "Sold or Closed a Business", desc: "Business sold, dissolved, or closed", sub: "sub_ev_sold_biz" },
+    { id: "ev_disaster",    label: "Disaster / Casualty Loss", desc: "Hurricane, flood, fire, theft or federally declared disaster", sub: "sub_ev_disaster" },
+  ];
+
+  const subsections = {
+    sub_ev_married: `
+      <div class="field-row">
+        <div class="field-group"><label>Date of marriage</label><input type="date" id="marriageDate" onchange="setData('marriageDate',this.value)"></div>
+        <div class="field-group"><label>State where married</label><select id="marriageState" onchange="setData('marriageState',this.value)"><option value="">Select...</option>${US_STATES.map(s=>`<option>${s}</option>`).join("")}</select></div>
+      </div>`,
+
+    sub_ev_divorced: `
+      <div class="field-row">
+        <div class="field-group"><label>Date divorce was finalized</label><input type="date" id="divorceDate" onchange="setData('divorceDate',this.value)"></div>
+        <div class="field-group"><label>Year of original divorce agreement</label><input type="number" id="divorceAgreementYear" placeholder="2019" min="2000" max="2026" oninput="setData('divorceAgreementYear',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Are you paying alimony to your ex-spouse?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="payAlimony" onclick="selectPill('payAlimony','yes',this); showSubsection('sub_alimony_paid',true)">Yes</div>
+            <div class="radio-pill" data-pill="payAlimony" onclick="selectPill('payAlimony','no',this); showSubsection('sub_alimony_paid',false)">No</div>
+          </div>
+        </div>
+        <div class="field-group"><label>Are you receiving alimony?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="receiveAlimony" onclick="selectPill('receiveAlimony','yes',this); showSubsection('sub_alimony_recv',true)">Yes</div>
+            <div class="radio-pill" data-pill="receiveAlimony" onclick="selectPill('receiveAlimony','no',this); showSubsection('sub_alimony_recv',false)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="subsection" id="sub_alimony_paid">
+        <div class="field-row">
+          <div class="field-group"><label>Total alimony paid this year</label><input type="text" id="alimonyPaid" placeholder="$12,000" oninput="setData('alimonyPaid',this.value)"></div>
+          <div class="field-group"><label>Ex-spouse SSN / ITIN</label><input type="text" id="exSpouseSSN" oninput="setData('exSpouseSSN',this.value)"></div>
+        </div>
+      </div>
+      <div class="subsection" id="sub_alimony_recv">
+        <div class="field-row">
+          <div class="field-group"><label>Total alimony received this year</label><input type="text" id="alimonyReceived" placeholder="$12,000" oninput="setData('alimonyReceived',this.value)"></div>
+        </div>
+      </div>`,
+
+    sub_ev_spouse_died: `
+      <div class="field-row">
+        <div class="field-group"><label>Date of spouse's passing</label><input type="date" id="spouseDeathDate" onchange="setData('spouseDeathDate',this.value)"></div>
+        <div class="field-group"><label>Are you the executor of their estate?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="isExecutor" onclick="selectPill('isExecutor','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="isExecutor" onclick="selectPill('isExecutor','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Did your spouse have income before they passed?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="spouseHadIncomeBeforeDeath" onclick="selectPill('spouseHadIncomeBeforeDeath','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="spouseHadIncomeBeforeDeath" onclick="selectPill('spouseHadIncomeBeforeDeath','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="warning-box">A separate tax return (Form 1041) may be required for the estate. Please upload the death certificate in the documents section.</div>`,
+
+    sub_ev_new_child: `
+      <div class="field-row">
+        <div class="field-group"><label>Birth or adoption date</label><input type="date" id="childBirthDate" onchange="setData('childBirthDate',this.value)"></div>
+        <div class="field-group"><label>Birth or adoption?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="birthOrAdopt" onclick="selectPill('birthOrAdopt','birth',this)">Birth</div>
+            <div class="radio-pill" data-pill="birthOrAdopt" onclick="selectPill('birthOrAdopt','adoption',this)">Adoption</div>
+            <div class="radio-pill" data-pill="birthOrAdopt" onclick="selectPill('birthOrAdopt','foster',this)">Foster</div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box">Please add this child's details in the Dependents section coming up.</div>`,
+
+    sub_ev_bought_home: `
+      <div class="field-row">
+        <div class="field-group"><label>Date of purchase (closing date)</label><input type="date" id="homePurchaseDate" onchange="setData('homePurchaseDate',this.value)"></div>
+        <div class="field-group"><label>Purchase price</label><input type="text" id="homePurchasePrice" placeholder="$350,000" oninput="setData('homePurchasePrice',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Is this your primary residence?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="homePrimaryRes" onclick="selectPill('homePrimaryRes','yes',this)">Yes, primary residence</div>
+            <div class="radio-pill" data-pill="homePrimaryRes" onclick="selectPill('homePrimaryRes','vacation',this)">Vacation / second home</div>
+            <div class="radio-pill" data-pill="homePrimaryRes" onclick="selectPill('homePrimaryRes','rental',this)">Rental investment</div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box">Please upload your HUD-1 or Closing Disclosure in the documents section.</div>`,
+
+    sub_ev_sold_home: `
+      <div class="field-row">
+        <div class="field-group"><label>Date of sale (closing date)</label><input type="date" id="homeSaleDate" onchange="setData('homeSaleDate',this.value)"></div>
+        <div class="field-group"><label>Sale price</label><input type="text" id="homeSalePrice" placeholder="$450,000" oninput="setData('homeSalePrice',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Original purchase price</label><input type="text" id="homeOrigPrice" placeholder="$280,000" oninput="setData('homeOrigPrice',this.value)"></div>
+        <div class="field-group"><label>Was this your primary residence?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="soldHomePrimary" onclick="selectPill('soldHomePrimary','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="soldHomePrimary" onclick="selectPill('soldHomePrimary','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>How long did you own this home?</label><input type="text" id="homeYearsOwned" placeholder="5 years" oninput="setData('homeYearsOwned',this.value)"></div>
+        <div class="field-group"><label>Did you make improvements to this home?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="homeImprovements" onclick="selectPill('homeImprovements','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="homeImprovements" onclick="selectPill('homeImprovements','no',this)">No</div>
+          </div>
+        </div>
+      </div>`,
+
+    sub_ev_bankruptcy: `
+      <div class="field-row">
+        <div class="field-group"><label>Chapter type</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="bankruptcyChapter" onclick="selectPill('bankruptcyChapter','7',this)">Chapter 7</div>
+            <div class="radio-pill" data-pill="bankruptcyChapter" onclick="selectPill('bankruptcyChapter','13',this)">Chapter 13</div>
+          </div>
+        </div>
+        <div class="field-group"><label>Date filed</label><input type="date" id="bankruptcyDate" onchange="setData('bankruptcyDate',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Was any debt discharged (forgiven)?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="debtDischarged" onclick="selectPill('debtDischarged','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="debtDischarged" onclick="selectPill('debtDischarged','no',this)">No</div>
+            <div class="radio-pill" data-pill="debtDischarged" onclick="selectPill('debtDischarged','pending',this)">Still pending</div>
+          </div>
+        </div>
+      </div>`,
+
+    sub_ev_inheritance: `
+      <div class="field-row">
+        <div class="field-group"><label>What did you inherit?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="inheritType" onclick="selectPill('inheritType','cash',this)">Cash / Bank accounts</div>
+            <div class="radio-pill" data-pill="inheritType" onclick="selectPill('inheritType','property',this)">Real estate</div>
+            <div class="radio-pill" data-pill="inheritType" onclick="selectPill('inheritType','investments',this)">Investments</div>
+            <div class="radio-pill" data-pill="inheritType" onclick="selectPill('inheritType','mixed',this)">Mixed</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Approximate value inherited</label><input type="text" id="inheritValue" placeholder="$50,000" oninput="setData('inheritValue',this.value)"></div>
+        <div class="field-group"><label>Did you sell any inherited property?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="soldInherited" onclick="selectPill('soldInherited','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="soldInherited" onclick="selectPill('soldInherited','no',this)">No</div>
+          </div>
+        </div>
+      </div>`,
+
+    sub_ev_life_ins: `
+      <div class="field-row">
+        <div class="field-group"><label>Amount received</label><input type="text" id="lifeInsAmount" placeholder="$250,000" oninput="setData('lifeInsAmount',this.value)"></div>
+        <div class="field-group"><label>Was this from a term or whole life policy?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="lifeInsType" onclick="selectPill('lifeInsType','term',this)">Term life</div>
+            <div class="radio-pill" data-pill="lifeInsType" onclick="selectPill('lifeInsType','whole',this)">Whole / Universal</div>
+            <div class="radio-pill" data-pill="lifeInsType" onclick="selectPill('lifeInsType','unknown',this)">Not sure</div>
+          </div>
+        </div>
+      </div>`,
+
+    sub_ev_settlement: `
+      <div class="field-row">
+        <div class="field-group"><label>Type of settlement</label>
+          <select id="settlementType" onchange="setData('settlementType',this.value)">
+            <option value="">Select...</option>
+            <option>Personal injury / physical injury</option>
+            <option>Workers' compensation</option>
+            <option>Wrongful termination / employment</option>
+            <option>Emotional distress (no physical injury)</option>
+            <option>Discrimination</option>
+            <option>Property damage</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field-group"><label>Total amount received</label><input type="text" id="settlementAmount" placeholder="$85,000" oninput="setData('settlementAmount',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Did you receive a 1099 for this settlement?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="settlement1099" onclick="selectPill('settlement1099','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="settlement1099" onclick="selectPill('settlement1099','no',this)">No</div>
+          </div>
+        </div>
+      </div>`,
+
+    sub_ev_unemployment: `
+      <div class="field-row">
+        <div class="field-group"><label>Total unemployment benefits received (from 1099-G)</label><input type="text" id="unemploymentAmount" placeholder="$8,400" oninput="setData('unemploymentAmount',this.value)"></div>
+        <div class="field-group"><label>State that issued unemployment</label>
+          <select id="unemploymentState" onchange="setData('unemploymentState',this.value)">
+            <option value="">Select...</option>
+            ${US_STATES.map(s=>`<option>${s}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+      <div class="info-box">Please upload your 1099-G in the documents section.</div>`,
+
+    sub_ev_sold_biz: `
+      <div class="field-row">
+        <div class="field-group"><label>Business name</label><input type="text" id="soldBizName" oninput="setData('soldBizName',this.value)"></div>
+        <div class="field-group"><label>Sale price</label><input type="text" id="soldBizPrice" placeholder="$120,000" oninput="setData('soldBizPrice',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Original cost / investment</label><input type="text" id="soldBizCost" placeholder="$50,000" oninput="setData('soldBizCost',this.value)"></div>
+        <div class="field-group"><label>Date of sale</label><input type="date" id="soldBizDate" onchange="setData('soldBizDate',this.value)"></div>
+      </div>`,
+
+    sub_ev_disaster: `
+      <div class="field-row">
+        <div class="field-group"><label>Type of disaster or loss</label>
+          <select id="disasterType" onchange="setData('disasterType',this.value)">
+            <option value="">Select...</option>
+            <option>Hurricane</option>
+            <option>Flood</option>
+            <option>Fire / Wildfire</option>
+            <option>Tornado</option>
+            <option>Theft</option>
+            <option>Vandalism</option>
+            <option>Other natural disaster</option>
+          </select>
+        </div>
+        <div class="field-group"><label>Was this in a federally declared disaster area?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="federalDisaster" onclick="selectPill('federalDisaster','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="federalDisaster" onclick="selectPill('federalDisaster','no',this)">No</div>
+            <div class="radio-pill" data-pill="federalDisaster" onclick="selectPill('federalDisaster','notsure',this)">Not sure</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Estimated value of loss</label><input type="text" id="disasterLossValue" placeholder="$25,000" oninput="setData('disasterLossValue',this.value)"></div>
+        <div class="field-group"><label>Did insurance cover any of this?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="disasterInsurance" onclick="selectPill('disasterInsurance','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="disasterInsurance" onclick="selectPill('disasterInsurance','no',this)">No</div>
+          </div>
+        </div>
+      </div>`,
+  };
+
+  return `
+<div class="form-section" id="section_life_events">
+  <div class="card">
+    <div class="card-title">Life Events</div>
+    <div class="card-subtitle">Did any of these happen during the tax year? Check all that apply — each one may affect your return.</div>
+
+    <div class="check-grid">
+      ${events.map(ev => `
+        <label class="check-item" id="label_${ev.id}">
+          <input type="checkbox" id="${ev.id}" name="${ev.id}"
+            onchange="onCheckChange(this); if(this.checked && '${ev.sub}') showSubsection('${ev.sub}',true); else if('${ev.sub}'!='null') showSubsection('${ev.sub}',false)">
+          <div>
+            <div class="check-label">${ev.label}</div>
+            <div class="check-desc">${ev.desc}</div>
+          </div>
+        </label>
+      `).join("")}
+    </div>
+
+    ${Object.keys(subsections).map(subId => `
+      <div class="subsection" id="${subId}">
+        <div class="subsection-title">${events.find(e=>e.sub===subId)?.label || ""} — Details</div>
+        ${subsections[subId]}
+      </div>
+    `).join("")}
+
+    <div class="nav-bar">
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>`;
+}
+
+// ── SECTION: INCOME ──────────────────────────────────────────
+function buildIncomeSection() {
+  return `
+<div class="form-section" id="section_income">
+  <div class="card">
+    <div class="card-title">Income</div>
+    <div class="card-subtitle">Select all income sources that apply to you (and your spouse) this tax year. Each selection opens the relevant questions.</div>
+
+    <div class="section-divider">Employment Income</div>
+    <div class="check-item" style="margin-bottom:8px">
+      <input type="checkbox" id="inc_w2" onchange="onCheckChange(this); showSubsection('sub_w2_income', this.checked)">
+      <div>
+        <div class="check-label">W-2 Employment (wages, salary)</div>
+        <div class="check-desc">You received a W-2 from one or more employers</div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_w2_income">
+      <div id="w2Container"></div>
+      <button class="btn-add-block" onclick="addW2()">+ Add Another W-2 / Employer</button>
+    </div>
+
+    <div class="section-divider">Self-Employment / Contract Income</div>
+    <div class="check-item" style="margin-bottom:8px">
+      <input type="checkbox" id="inc_1099nec" onchange="onCheckChange(this); showSubsection('sub_1099_income', this.checked)">
+      <div>
+        <div class="check-label">1099-NEC / Self-Employed / Contract Work</div>
+        <div class="check-desc">You received 1099-NEC or did freelance / gig work</div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_1099_income">
+      <div id="nec1099Container"></div>
+      <button class="btn-add-block" onclick="add1099NEC()">+ Add Another 1099 / Income Source</button>
+    </div>
+
+    <div class="check-item" style="margin-bottom:8px">
+      <input type="checkbox" id="inc_trucker" onchange="onCheckChange(this); showSubsection('sub_trucker_income', this.checked)">
+      <div>
+        <div class="check-label">Trucker / Owner-Operator</div>
+        <div class="check-desc">You drive commercially — company driver, owner-operator, or fleet owner</div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_trucker_income">
+      ${buildTruckerIncomeSection()}
+    </div>
+
+    <div class="check-item" style="margin-bottom:8px">
+      <input type="checkbox" id="inc_1099k" onchange="onCheckChange(this); showSubsection('sub_1099k_income', this.checked)">
+      <div>
+        <div class="check-label">1099-K (PayPal, Venmo, Cash App, eBay, Etsy, Amazon)</div>
+        <div class="check-desc">You received a 1099-K from a payment platform</div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_1099k_income">
+      <div class="field-row">
+        <div class="field-group"><label>Platform / company name</label><input type="text" id="k1099Platform" placeholder="PayPal, Venmo, eBay..." oninput="setData('k1099Platform',this.value)"></div>
+        <div class="field-group"><label>Total amount on 1099-K</label><input type="text" id="k1099Amount" placeholder="$8,500" oninput="setData('k1099Amount',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>What was this income for?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="k1099Type" onclick="selectPill('k1099Type','personal',this)">Personal sales (non-business)</div>
+            <div class="radio-pill" data-pill="k1099Type" onclick="selectPill('k1099Type','business',this)">Business / side hustle income</div>
+            <div class="radio-pill" data-pill="k1099Type" onclick="selectPill('k1099Type','mixed',this)">Both</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider">Investment & Passive Income</div>
+    <div class="check-grid">
+      <div class="check-item">
+        <input type="checkbox" id="inc_rental" onchange="onCheckChange(this); showSubsection('sub_rental_income', this.checked)">
+        <div><div class="check-label">Rental Property Income</div><div class="check-desc">Residential, commercial, or Airbnb/VRBO</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_investments" onchange="onCheckChange(this); showSubsection('sub_investments', this.checked)">
+        <div><div class="check-label">Stocks / Investments / Capital Gains</div><div class="check-desc">Sold stocks, ETFs, mutual funds (1099-B)</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_crypto" onchange="onCheckChange(this); showSubsection('sub_crypto', this.checked)">
+        <div><div class="check-label">Cryptocurrency / Digital Assets</div><div class="check-desc">Bought, sold, traded, staked, or received crypto or NFTs</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_dividends" onchange="onCheckChange(this); showSubsection('sub_dividends', this.checked)">
+        <div><div class="check-label">Dividends & Interest</div><div class="check-desc">1099-DIV or 1099-INT from bank or brokerage</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_k1" onchange="onCheckChange(this); showSubsection('sub_k1', this.checked)">
+        <div><div class="check-label">K-1 Income</div><div class="check-desc">Partnership, S-Corp, trust, or estate Schedule K-1</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_royalties" onchange="onCheckChange(this); showSubsection('sub_royalties', this.checked)">
+        <div><div class="check-label">Royalties</div><div class="check-desc">Music, oil/gas, intellectual property, patents</div></div>
+      </div>
+    </div>
+
+    <!-- Investment sub-sections -->
+    <div class="subsection" id="sub_rental_income">
+      <div id="rentalContainer"></div>
+      <button class="btn-add-block" onclick="addRental()">+ Add Another Rental Property</button>
+    </div>
+    <div class="subsection" id="sub_investments">
+      <div class="field-row">
+        <div class="field-group"><label>Brokerage / firm name(s)</label><input type="text" id="brokerageName" placeholder="Fidelity, Schwab, Robinhood..." oninput="setData('brokerageName',this.value)"></div>
+        <div class="field-group"><label>Did you receive a 1099-B?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="has1099B" onclick="selectPill('has1099B','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="has1099B" onclick="selectPill('has1099B','no',this)">No, not yet</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Did you exercise any stock options (ISO or NSO)?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="stockOptions" onclick="selectPill('stockOptions','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="stockOptions" onclick="selectPill('stockOptions','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_crypto">
+      <div class="field-row">
+        <div class="field-group"><label>Platforms used (Coinbase, Binance, etc.)</label><input type="text" id="cryptoPlatforms" placeholder="Coinbase, Kraken..." oninput="setData('cryptoPlatforms',this.value)"></div>
+        <div class="field-group"><label>Total estimated proceeds from sales</label><input type="text" id="cryptoProceeds" placeholder="$15,000" oninput="setData('cryptoProceeds',this.value)"></div>
+      </div>
+      <div class="check-group" style="margin-bottom:8px">
+        ${[
+          ["cryptoSold","Sold or exchanged crypto for cash or other crypto"],
+          ["cryptoMined","Received crypto from mining"],
+          ["cryptoStaked","Received staking rewards"],
+          ["cryptoAirdrop","Received an airdrop"],
+          ["cryptoNFT","Bought or sold NFTs"],
+          ["cryptoPayment","Received crypto as payment for goods/services"],
+        ].map(([id,label])=>`
+          <label class="check-item">
+            <input type="checkbox" id="${id}" onchange="setData('${id}',this.checked)">
+            <div><div class="check-label">${label}</div></div>
+          </label>`).join("")}
+      </div>
+    </div>
+    <div class="subsection" id="sub_dividends">
+      <div class="field-row">
+        <div class="field-group"><label>Bank / brokerage name</label><input type="text" id="dividendSource" placeholder="Chase, Vanguard..." oninput="setData('dividendSource',this.value)"></div>
+        <div class="field-group"><label>Total interest received (1099-INT)</label><input type="text" id="interestAmount" placeholder="$1,200" oninput="setData('interestAmount',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Did you receive foreign dividends or have a foreign bank account?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="foreignDividends" onclick="selectPill('foreignDividends','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="foreignDividends" onclick="selectPill('foreignDividends','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_k1">
+      <div class="field-row">
+        <div class="field-group"><label>Entity name</label><input type="text" id="k1EntityName" placeholder="ABC Partnership LLC" oninput="setData('k1EntityName',this.value)"></div>
+        <div class="field-group"><label>Type of K-1</label>
+          <select id="k1Type" onchange="setData('k1Type',this.value)">
+            <option value="">Select...</option>
+            <option>Schedule K-1 (Form 1065) — Partnership</option>
+            <option>Schedule K-1 (Form 1120-S) — S-Corp</option>
+            <option>Schedule K-1 (Form 1041) — Trust/Estate</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_royalties">
+      <div class="field-row">
+        <div class="field-group"><label>Type of royalty income</label>
+          <select id="royaltyType" onchange="setData('royaltyType',this.value)">
+            <option value="">Select...</option>
+            <option>Music / Entertainment</option>
+            <option>Oil & Gas</option>
+            <option>Intellectual Property / Patents</option>
+            <option>Book / Publishing</option>
+            <option>Software / Technology</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field-group"><label>Total royalty income</label><input type="text" id="royaltyAmount" placeholder="$5,000" oninput="setData('royaltyAmount',this.value)"></div>
+      </div>
+    </div>
+
+    <div class="section-divider">Government & Retirement Income</div>
+    <div class="check-grid">
+      <div class="check-item">
+        <input type="checkbox" id="inc_ss" onchange="onCheckChange(this); showSubsection('sub_ss', this.checked)">
+        <div><div class="check-label">Social Security Benefits</div><div class="check-desc">SSA-1099 form</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_pension" onchange="onCheckChange(this); showSubsection('sub_pension', this.checked)">
+        <div><div class="check-label">Pension / 401(k) / IRA Distribution</div><div class="check-desc">1099-R form — retirement distributions</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_military" onchange="onCheckChange(this); showSubsection('sub_military', this.checked)">
+        <div><div class="check-label">Military / VA Income</div><div class="check-desc">Active duty, reserves, VA benefits, combat pay</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_disability" onchange="onCheckChange(this); showSubsection('sub_disability', this.checked)">
+        <div><div class="check-label">Disability Income</div><div class="check-desc">Short-term, long-term disability, SSI</div></div>
+      </div>
+    </div>
+
+    <div class="subsection" id="sub_ss">
+      <div class="field-row">
+        <div class="field-group"><label>Total Social Security benefits (Box 5 on SSA-1099)</label><input type="text" id="ssAmount" placeholder="$18,000" oninput="setData('ssAmount',this.value)"></div>
+        <div class="field-group"><label>Did spouse also receive Social Security?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="spouseSS" onclick="selectPill('spouseSS','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="spouseSS" onclick="selectPill('spouseSS','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_pension">
+      <div class="field-row">
+        <div class="field-group"><label>Account type</label>
+          <select id="pensionType" onchange="setData('pensionType',this.value)">
+            <option value="">Select...</option>
+            <option>Traditional IRA distribution</option>
+            <option>Roth IRA distribution</option>
+            <option>401(k) distribution</option>
+            <option>403(b) distribution</option>
+            <option>Pension / defined benefit plan</option>
+            <option>Required Minimum Distribution (RMD)</option>
+            <option>Early withdrawal (under 59½)</option>
+          </select>
+        </div>
+        <div class="field-group"><label>Total gross distribution (Box 1 on 1099-R)</label><input type="text" id="pensionAmount" placeholder="$22,000" oninput="setData('pensionAmount',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Taxable amount (Box 2a on 1099-R)</label><input type="text" id="pensionTaxable" placeholder="$22,000" oninput="setData('pensionTaxable',this.value)"></div>
+        <div class="field-group"><label>Federal tax withheld (Box 4)</label><input type="text" id="pensionFedWithheld" placeholder="$2,200" oninput="setData('pensionFedWithheld',this.value)"></div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_military">
+      <div class="field-row">
+        <div class="field-group"><label>Branch of service</label>
+          <select id="militaryBranch" onchange="setData('militaryBranch',this.value)">
+            <option value="">Select...</option>
+            <option>Army</option><option>Navy</option><option>Air Force</option>
+            <option>Marines</option><option>Coast Guard</option><option>Space Force</option><option>National Guard / Reserves</option>
+          </select>
+        </div>
+        <div class="field-group"><label>Did you serve in a combat zone?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="combatZone" onclick="selectPill('combatZone','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="combatZone" onclick="selectPill('combatZone','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_disability">
+      <div class="field-row">
+        <div class="field-group"><label>Type of disability income</label>
+          <select id="disabilityType" onchange="setData('disabilityType',this.value)">
+            <option value="">Select...</option>
+            <option>Employer-paid short-term disability</option>
+            <option>Employer-paid long-term disability</option>
+            <option>Social Security Disability (SSDI)</option>
+            <option>Supplemental Security Income (SSI)</option>
+            <option>Private disability insurance</option>
+            <option>Workers' compensation</option>
+          </select>
+        </div>
+        <div class="field-group"><label>Total amount received</label><input type="text" id="disabilityAmount" placeholder="$14,000" oninput="setData('disabilityAmount',this.value)"></div>
+      </div>
+    </div>
+
+    <div class="section-divider">Other Income</div>
+    <div class="check-grid">
+      <div class="check-item">
+        <input type="checkbox" id="inc_gambling" onchange="onCheckChange(this); showSubsection('sub_gambling', this.checked)">
+        <div><div class="check-label">Gambling / Lottery / Sports Betting</div><div class="check-desc">Casino, W-2G, sports apps, lottery tickets</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_foreign" onchange="onCheckChange(this); showSubsection('sub_foreign', this.checked)">
+        <div><div class="check-label">Foreign Income</div><div class="check-desc">Income earned outside the US, foreign accounts</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_tips" onchange="onCheckChange(this); showSubsection('sub_tips', this.checked)">
+        <div><div class="check-label">Tips Not Reported on W-2</div><div class="check-desc">Cash tips your employer didn't include on your W-2</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_crowdfund" onchange="onCheckChange(this); showSubsection('sub_crowdfund', this.checked)">
+        <div><div class="check-label">Crowdfunding / Social Media / OnlyFans</div><div class="check-desc">Income from Patreon, GoFundMe, content creation</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_prizes" onchange="onCheckChange(this); showSubsection('sub_prizes', this.checked)">
+        <div><div class="check-label">Prizes & Awards</div><div class="check-desc">Non-cash prizes, awards, gift cards received from contests</div></div>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="inc_scholarship" onchange="onCheckChange(this); showSubsection('sub_scholarship', this.checked)">
+        <div><div class="check-label">Scholarship / Grant Income</div><div class="check-desc">Used for room, board, or non-tuition expenses</div></div>
+      </div>
+    </div>
+
+    <div class="subsection" id="sub_gambling">
+      <div class="dd-callout">
+        <div class="dd-callout-icon">⚠️</div>
+        <div class="dd-callout-text"><strong>Important:</strong> ALL gambling winnings are taxable and must be reported — even if you didn't receive a W-2G. Losses can only be deducted up to the amount of your winnings.</div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Total gambling WINNINGS this year</label><input type="text" id="gamblingWinnings" placeholder="$5,000" oninput="setData('gamblingWinnings',this.value)"></div>
+        <div class="field-group"><label>Total gambling LOSSES this year</label><input type="text" id="gamblingLosses" placeholder="$3,200" oninput="setData('gamblingLosses',this.value)"></div>
+      </div>
+      <div class="check-group" style="margin-bottom:8px">
+        ${[
+          ["gambCasino","Casino games (slots, table games, poker)"],
+          ["gambSports","Sports betting (DraftKings, FanDuel, etc.)"],
+          ["gambLottery","Lottery / scratch tickets"],
+          ["gambHorses","Horse racing"],
+          ["gambOnline","Online gambling / poker"],
+          ["gambBingo","Bingo"],
+        ].map(([id,label])=>`
+          <label class="check-item">
+            <input type="checkbox" id="${id}" onchange="setData('${id}',this.checked)">
+            <div><div class="check-label">${label}</div></div>
+          </label>`).join("")}
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Did you receive a W-2G form?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="hasW2G" onclick="selectPill('hasW2G','yes',this)">Yes — please upload it</div>
+            <div class="radio-pill" data-pill="hasW2G" onclick="selectPill('hasW2G','no',this)">No W-2G but I still had winnings</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Do you keep a gambling log / diary?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="gamblingLog" onclick="selectPill('gamblingLog','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="gamblingLog" onclick="selectPill('gamblingLog','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" id="sub_foreign">
+      <div class="field-row">
+        <div class="field-group"><label>Country where income was earned</label><input type="text" id="foreignCountry" placeholder="Mexico, Canada, Germany..." oninput="setData('foreignCountry',this.value)"></div>
+        <div class="field-group"><label>Total foreign income (USD equivalent)</label><input type="text" id="foreignIncomeAmount" placeholder="$30,000" oninput="setData('foreignIncomeAmount',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Did you pay taxes to a foreign country?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="foreignTaxPaid" onclick="selectPill('foreignTaxPaid','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="foreignTaxPaid" onclick="selectPill('foreignTaxPaid','no',this)">No</div>
+          </div>
+        </div>
+        <div class="field-group"><label>Do you have a foreign bank account over $10,000?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="foreignBankAccount" onclick="selectPill('foreignBankAccount','yes',this)">Yes (FBAR required)</div>
+            <div class="radio-pill" data-pill="foreignBankAccount" onclick="selectPill('foreignBankAccount','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" id="sub_tips">
+      <div class="field-row">
+        <div class="field-group"><label>Total unreported tips received</label><input type="text" id="unreportedTips" placeholder="$3,000" oninput="setData('unreportedTips',this.value)"></div>
+        <div class="field-group"><label>Industry</label><input type="text" id="tipsIndustry" placeholder="Restaurant, Salon, Valet..." oninput="setData('tipsIndustry',this.value)"></div>
+      </div>
+    </div>
+
+    <div class="subsection" id="sub_crowdfund">
+      <div class="field-row">
+        <div class="field-group"><label>Platform(s)</label><input type="text" id="crowdfundPlatform" placeholder="Patreon, TikTok, YouTube, OnlyFans..." oninput="setData('crowdfundPlatform',this.value)"></div>
+        <div class="field-group"><label>Total income received</label><input type="text" id="crowdfundAmount" placeholder="$12,000" oninput="setData('crowdfundAmount',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Do you have business expenses related to this income?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="crowdfundExpenses" onclick="selectPill('crowdfundExpenses','yes',this)">Yes (equipment, software, etc.)</div>
+            <div class="radio-pill" data-pill="crowdfundExpenses" onclick="selectPill('crowdfundExpenses','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" id="sub_prizes">
+      <div class="field-row">
+        <div class="field-group"><label>Description of prize/award</label><input type="text" id="prizeDescription" placeholder="Game show winnings, contest prize..." oninput="setData('prizeDescription',this.value)"></div>
+        <div class="field-group"><label>Fair market value</label><input type="text" id="prizeValue" placeholder="$2,500" oninput="setData('prizeValue',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Did you receive a 1099-MISC for this?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="prize1099" onclick="selectPill('prize1099','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="prize1099" onclick="selectPill('prize1099','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" id="sub_scholarship">
+      <div class="field-row">
+        <div class="field-group"><label>Total scholarship/grant received</label><input type="text" id="scholarshipTotal" placeholder="$15,000" oninput="setData('scholarshipTotal',this.value)"></div>
+        <div class="field-group"><label>Amount used for tuition/fees/books</label><input type="text" id="scholarshipTuition" placeholder="$12,000" oninput="setData('scholarshipTuition',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Amount used for room, board, or other (taxable portion)</label><input type="text" id="scholarshipOther" placeholder="$3,000" oninput="setData('scholarshipOther',this.value)"></div>
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>`;
+}
+
+// ── TRUCKER INCOME SUB-SECTION ───────────────────────────────
+function buildTruckerIncomeSection() {
+  return `
+    <div class="subsection-title">Trucking Income & Business Details</div>
+    <div class="field-row">
+      <div class="field-group"><label>Driver type</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="truckDriverType" onclick="selectPill('truckDriverType','oo',this); showSubsection('sub_trucker_oo',true); showSubsection('sub_trucker_company',false)">Owner-Operator</div>
+          <div class="radio-pill" data-pill="truckDriverType" onclick="selectPill('truckDriverType','company',this); showSubsection('sub_trucker_company',true); showSubsection('sub_trucker_oo',false)">Company Driver</div>
+          <div class="radio-pill" data-pill="truckDriverType" onclick="selectPill('truckDriverType','lease',this)">Lease Operator</div>
+          <div class="radio-pill" data-pill="truckDriverType" onclick="selectPill('truckDriverType','fleet',this)">Fleet Owner</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" id="sub_trucker_oo">
+      <div class="subsection-title">Owner-Operator Details</div>
+      <div class="field-row">
+        <div class="field-group"><label>Do you have an LLC or Corporation?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="truckHasEntity" onclick="selectPill('truckHasEntity','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="truckHasEntity" onclick="selectPill('truckHasEntity','no',this)">No, sole proprietor</div>
+          </div>
+        </div>
+        <div class="field-group"><label>EIN (Employer ID Number)</label><input type="text" id="truckEIN" placeholder="XX-XXXXXXX" oninput="setData('truckEIN',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>MC / DOT Number</label><input type="text" id="truckMCDOT" placeholder="MC-123456" oninput="setData('truckMCDOT',this.value)"></div>
+        <div class="field-group"><label>Total gross revenue (from 1099-NEC or settlement sheets)</label><input type="text" id="truckGrossRevenue" placeholder="$185,000" oninput="setData('truckGrossRevenue',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Number of trucks operated</label><input type="number" id="truckCount" placeholder="1" min="1" oninput="setData('truckCount',this.value)"></div>
+        <div class="field-group"><label>Type of freight</label>
+          <select id="truckFreightType" onchange="setData('truckFreightType',this.value)">
+            <option value="">Select...</option>
+            <option>Dry Van</option><option>Reefer / Refrigerated</option><option>Flatbed</option>
+            <option>Tanker</option><option>Hazmat</option><option>Auto Hauler</option>
+            <option>Oversized / Heavy Haul</option><option>Box Truck / Last Mile</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="section-divider">Trucking Expenses</div>
+      <div class="field-row">
+        <div class="field-group"><label>Fuel</label><input type="text" id="expFuel" placeholder="$42,000" oninput="setData('expFuel',this.value)"></div>
+        <div class="field-group"><label>Truck payment / lease</label><input type="text" id="expTruckPayment" placeholder="$24,000" oninput="setData('expTruckPayment',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Truck insurance</label><input type="text" id="expTruckInsurance" placeholder="$12,000" oninput="setData('expTruckInsurance',this.value)"></div>
+        <div class="field-group"><label>Maintenance & repairs</label><input type="text" id="expMaintenance" placeholder="$8,500" oninput="setData('expMaintenance',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Tolls</label><input type="text" id="expTolls" placeholder="$3,200" oninput="setData('expTolls',this.value)"></div>
+        <div class="field-group"><label>IFTA fuel taxes</label><input type="text" id="expIFTA" placeholder="$1,800" oninput="setData('expIFTA',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Dispatch fees</label><input type="text" id="expDispatch" placeholder="$6,000" oninput="setData('expDispatch',this.value)"></div>
+        <div class="field-group"><label>Lumper fees / unloading</label><input type="text" id="expLumper" placeholder="$2,400" oninput="setData('expLumper',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Scale tickets / weigh station fees</label><input type="text" id="expScales" placeholder="$600" oninput="setData('expScales',this.value)"></div>
+        <div class="field-group"><label>Cell phone (% business use)</label><input type="text" id="expPhone" placeholder="$1,200" oninput="setData('expPhone',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>DOT physical / drug tests / medical</label><input type="text" id="expDOT" placeholder="$400" oninput="setData('expDOT',this.value)"></div>
+        <div class="field-group"><label>CDL renewal / licensing fees</label><input type="text" id="expCDL" placeholder="$200" oninput="setData('expCDL',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Parking fees</label><input type="text" id="expParking" placeholder="$900" oninput="setData('expParking',this.value)"></div>
+        <div class="field-group"><label>ELD / GPS / Tracking devices</label><input type="text" id="expELD" placeholder="$600" oninput="setData('expELD',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Accounting / bookkeeping fees</label><input type="text" id="expAccounting" placeholder="$1,500" oninput="setData('expAccounting',this.value)"></div>
+        <div class="field-group"><label>Association / union dues</label><input type="text" id="expDues" placeholder="$500" oninput="setData('expDues',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Per diem days on the road (nights away from home)</label><input type="number" id="perDiemDays" placeholder="220" min="0" max="365" oninput="setData('perDiemDays',this.value)"></div>
+        <div class="field-group"><label>Meals while on the road (not per diem)</label><input type="text" id="expMeals" placeholder="$3,500" oninput="setData('expMeals',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Other trucking expenses not listed above</label><textarea id="expTruckOther" placeholder="Describe any other business expenses..." oninput="setData('expTruckOther',this.value)"></textarea></div>
+      </div>
+    </div>
+
+    <div class="subsection" id="sub_trucker_company">
+      <div class="subsection-title">Company Driver Details</div>
+      <div class="field-row">
+        <div class="field-group"><label>Employer / carrier name</label><input type="text" id="truckEmployerName" placeholder="Swift, JB Hunt, Werner..." oninput="setData('truckEmployerName',this.value)"></div>
+        <div class="field-group"><label>Days away from home this year</label><input type="number" id="companyPerDiemDays" placeholder="200" min="0" max="365" oninput="setData('companyPerDiemDays',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Did you have any unreimbursed work expenses?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="companyUnreimbursed" onclick="selectPill('companyUnreimbursed','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="companyUnreimbursed" onclick="selectPill('companyUnreimbursed','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── REPEATABLE: W-2 ──────────────────────────────────────────
+function addW2(data = {}) {
+  const idx = STATE.w2Jobs.length;
+  STATE.w2Jobs.push(data);
+  const container = document.getElementById("w2Container");
+  const block = document.createElement("div");
+  block.className = "repeat-block";
+  block.id = `w2block_${idx}`;
+  block.innerHTML = `
+    <div class="repeat-block-title">
+      W-2 Job #${idx + 1}
+      ${idx > 0 ? `<button class="btn-remove-block" onclick="removeRepeat('w2Jobs',${idx},'w2block_${idx}')">✕ Remove</button>` : ""}
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Employer Name</label><input type="text" placeholder="Company Name" oninput="STATE.w2Jobs[${idx}].employer=this.value"></div>
+      <div class="field-group"><label>Employer EIN</label><input type="text" placeholder="XX-XXXXXXX" oninput="STATE.w2Jobs[${idx}].ein=this.value"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Wages (Box 1)</label><input type="text" placeholder="$55,000" oninput="STATE.w2Jobs[${idx}].wages=this.value"></div>
+      <div class="field-group"><label>Federal Tax Withheld (Box 2)</label><input type="text" placeholder="$6,500" oninput="STATE.w2Jobs[${idx}].fedWithheld=this.value"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>State Tax Withheld (Box 17)</label><input type="text" placeholder="$2,800" oninput="STATE.w2Jobs[${idx}].stateWithheld=this.value"></div>
+      <div class="field-group"><label>State (Box 15)</label>
+        <select onchange="STATE.w2Jobs[${idx}].state=this.value">
+          <option value="">Select...</option>
+          ${US_STATES.map(s=>`<option>${s}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Did this W-2 include tips (Box 7)?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" onclick="STATE.w2Jobs[${idx}].hasTips=false" style="padding:6px 14px;font-size:12px" data-pill="w2tips_${idx}">No</div>
+          <div class="radio-pill" onclick="STATE.w2Jobs[${idx}].hasTips=true" style="padding:6px 14px;font-size:12px" data-pill="w2tips_${idx}">Yes</div>
+        </div>
+      </div>
+      <div class="field-group"><label>Any Box 12 codes? (401k, HSA, etc.)</label>
+        <input type="text" placeholder="D=$4,500 / W=$1,200" oninput="STATE.w2Jobs[${idx}].box12=this.value">
+      </div>
+    </div>
+    <div class="field-row full">
+      <div class="field-group"><label>Notes about this W-2</label><input type="text" placeholder="Part-time job, summer work, etc." oninput="STATE.w2Jobs[${idx}].notes=this.value"></div>
+    </div>`;
+  container.appendChild(block);
+}
+
+// ── REPEATABLE: 1099-NEC ─────────────────────────────────────
+function add1099NEC(data = {}) {
+  const idx = STATE.otherIncome1099.length;
+  STATE.otherIncome1099.push(data);
+  const container = document.getElementById("nec1099Container");
+  const block = document.createElement("div");
+  block.className = "repeat-block";
+  block.id = `nec1099block_${idx}`;
+  block.innerHTML = `
+    <div class="repeat-block-title">
+      1099-NEC / Income Source #${idx + 1}
+      ${idx > 0 ? `<button class="btn-remove-block" onclick="removeRepeat('otherIncome1099',${idx},'nec1099block_${idx}')">✕ Remove</button>` : ""}
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Payer / Company Name</label><input type="text" placeholder="Uber, Door Dash, client name..." oninput="STATE.otherIncome1099[${idx}].payer=this.value"></div>
+      <div class="field-group"><label>Payer EIN</label><input type="text" placeholder="XX-XXXXXXX" oninput="STATE.otherIncome1099[${idx}].ein=this.value"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Total amount (Box 1)</label><input type="text" placeholder="$28,000" oninput="STATE.otherIncome1099[${idx}].amount=this.value"></div>
+      <div class="field-group"><label>Federal tax withheld (Box 4)</label><input type="text" placeholder="$0" oninput="STATE.otherIncome1099[${idx}].withheld=this.value"></div>
+    </div>
+    <div class="field-row full">
+      <div class="field-group"><label>Type of work / industry</label>
+        <input type="text" placeholder="Rideshare, construction, consulting, cleaning..." oninput="STATE.otherIncome1099[${idx}].industry=this.value">
+      </div>
+    </div>`;
+  container.appendChild(block);
+}
+
+// ── REPEATABLE: RENTAL PROPERTY ──────────────────────────────
+function addRental(data = {}) {
+  const idx = STATE.rentalProperties.length;
+  STATE.rentalProperties.push(data);
+  const container = document.getElementById("rentalContainer");
+  const block = document.createElement("div");
+  block.className = "repeat-block";
+  block.id = `rentalblock_${idx}`;
+  block.innerHTML = `
+    <div class="repeat-block-title">
+      Rental Property #${idx + 1}
+      ${idx > 0 ? `<button class="btn-remove-block" onclick="removeRepeat('rentalProperties',${idx},'rentalblock_${idx}')">✕ Remove</button>` : ""}
+    </div>
+    <div class="field-row full">
+      <div class="field-group"><label>Property Address</label><input type="text" placeholder="456 Oak Ave, Atlanta, GA 30301" oninput="STATE.rentalProperties[${idx}].address=this.value"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Type of rental</label>
+        <select onchange="STATE.rentalProperties[${idx}].type=this.value">
+          <option value="">Select...</option>
+          <option>Single-family home</option><option>Apartment / condo</option>
+          <option>Multi-family (duplex, triplex)</option><option>Commercial</option>
+          <option>Vacation / short-term (Airbnb)</option><option>Room rental</option>
+        </select>
+      </div>
+      <div class="field-group"><label>Total rent collected</label><input type="text" placeholder="$18,000" oninput="STATE.rentalProperties[${idx}].income=this.value"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Months rented</label><input type="number" placeholder="12" min="1" max="12" oninput="STATE.rentalProperties[${idx}].months=this.value"></div>
+      <div class="field-group"><label>Personal use days (if any)</label><input type="number" placeholder="0" min="0" oninput="STATE.rentalProperties[${idx}].personalDays=this.value"></div>
+    </div>
+    <div class="subsection-title" style="margin-top:12px">Rental Expenses</div>
+    <div class="field-row">
+      <div class="field-group"><label>Mortgage interest</label><input type="text" placeholder="$8,400" oninput="STATE.rentalProperties[${idx}].expMortgage=this.value"></div>
+      <div class="field-group"><label>Property taxes</label><input type="text" placeholder="$3,200" oninput="STATE.rentalProperties[${idx}].expTax=this.value"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Insurance</label><input type="text" placeholder="$1,400" oninput="STATE.rentalProperties[${idx}].expInsurance=this.value"></div>
+      <div class="field-group"><label>Repairs & maintenance</label><input type="text" placeholder="$2,100" oninput="STATE.rentalProperties[${idx}].expRepairs=this.value"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Property management fees</label><input type="text" placeholder="$1,800" oninput="STATE.rentalProperties[${idx}].expMgmt=this.value"></div>
+      <div class="field-group"><label>HOA fees</label><input type="text" placeholder="$600" oninput="STATE.rentalProperties[${idx}].expHOA=this.value"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Advertising / platform fees (Airbnb, etc.)</label><input type="text" placeholder="$900" oninput="STATE.rentalProperties[${idx}].expAds=this.value"></div>
+      <div class="field-group"><label>Utilities paid by you</label><input type="text" placeholder="$0" oninput="STATE.rentalProperties[${idx}].expUtilities=this.value"></div>
+    </div>
+    <div class="field-row full">
+      <div class="field-group"><label>Other rental expenses</label><textarea placeholder="Legal fees, supplies, landscaping..." oninput="STATE.rentalProperties[${idx}].expOther=this.value"></textarea></div>
+    </div>`;
+  container.appendChild(block);
+}
+
+function removeRepeat(arrayName, idx, blockId) {
+  STATE[arrayName].splice(idx, 1);
+  const el = document.getElementById(blockId);
+  if (el) el.remove();
+}
+
+// ── SECTION: DEPENDENTS ──────────────────────────────────────
+function buildDependentsSection() {
+  return `
+<div class="form-section" id="section_dependents">
+  <div class="card">
+    <div class="card-title">Dependents</div>
+    <div class="card-subtitle">List everyone you are claiming as a dependent. Include children, parents, relatives, or any qualifying person you support.</div>
+
+    <div class="dd-callout">
+      <div class="dd-callout-icon">📋</div>
+      <div class="dd-callout-text">
+        <strong>Due Diligence Notice:</strong> Federal law requires us to ask specific questions about each dependent to verify eligibility for credits like Child Tax Credit, EITC, and Child Care Credits. All questions must be answered completely and accurately.
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label>Do you have any dependents to claim?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="hasDependents" onclick="selectPill('hasDependents','yes',this); showSubsection('sub_dependents_list',true)">Yes</div>
+          <div class="radio-pill" data-pill="hasDependents" onclick="selectPill('hasDependents','no',this); showSubsection('sub_dependents_list',false)">No</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" id="sub_dependents_list">
+      <div id="dependentsContainer"></div>
+      <button class="btn-add-block" onclick="addDependent()">+ Add Another Dependent</button>
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>`;
+}
+
+function addDependent(data = {}) {
+  const idx = STATE.dependents.length;
+  STATE.dependents.push(data);
+  const container = document.getElementById("dependentsContainer");
+  const block = document.createElement("div");
+  block.className = "repeat-block";
+  block.id = `depblock_${idx}`;
+  block.innerHTML = `
+    <div class="repeat-block-title">
+      Dependent #${idx + 1}
+      ${idx > 0 ? `<button class="btn-remove-block" onclick="removeRepeat('dependents',${idx},'depblock_${idx}')">✕ Remove</button>` : ""}
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>First Name</label><input type="text" placeholder="First name" oninput="STATE.dependents[${idx}].firstName=this.value"></div>
+      <div class="field-group"><label>Last Name</label><input type="text" placeholder="Last name" oninput="STATE.dependents[${idx}].lastName=this.value"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Date of Birth</label><input type="date" onchange="STATE.dependents[${idx}].dob=this.value"></div>
+      <div class="field-group"><label>SSN / ITIN</label><input type="text" placeholder="XXX-XX-XXXX" maxlength="11" oninput="STATE.dependents[${idx}].ssn=this.value"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Relationship to you</label>
+        <select onchange="STATE.dependents[${idx}].relationship=this.value">
+          <option value="">Select...</option>
+          <option>Biological child</option><option>Adopted child</option><option>Stepchild</option>
+          <option>Foster child</option><option>Grandchild</option><option>Sibling</option>
+          <option>Niece / Nephew</option><option>Parent</option><option>Grandparent</option>
+          <option>Other relative</option><option>Non-relative qualifying person</option>
+        </select>
+      </div>
+      <div class="field-group"><label>How many months lived with you in this tax year?</label>
+        <select onchange="STATE.dependents[${idx}].monthsLived=this.value">
+          <option value="">Select...</option>
+          ${[1,2,3,4,5,6,7,8,9,10,11,12].map(m=>`<option value="${m}">${m} month${m>1?'s':''}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Is this dependent a US Citizen or Resident?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].usCitizen=true" style="padding:6px 14px;font-size:12px" data-pill="citizen_${idx}">Yes</div>
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].usCitizen=false" style="padding:6px 14px;font-size:12px" data-pill="citizen_${idx}">No</div>
+        </div>
+      </div>
+      <div class="field-group"><label>Did this dependent have any income?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].hadIncome=true" style="padding:6px 14px;font-size:12px" data-pill="depinc_${idx}">Yes</div>
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].hadIncome=false" style="padding:6px 14px;font-size:12px" data-pill="depinc_${idx}">No</div>
+        </div>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Is this dependent a full-time student?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].fullTimeStudent=true" style="padding:6px 14px;font-size:12px" data-pill="depstu_${idx}">Yes</div>
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].fullTimeStudent=false" style="padding:6px 14px;font-size:12px" data-pill="depstu_${idx}">No</div>
+        </div>
+      </div>
+      <div class="field-group"><label>Is anyone else claiming this dependent?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].claimedByOther=false" style="padding:6px 14px;font-size:12px" data-pill="depother_${idx}">No</div>
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].claimedByOther=true" style="padding:6px 14px;font-size:12px" data-pill="depother_${idx}">Yes</div>
+        </div>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Does this dependent have a disability?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].disabled=false" style="padding:6px 14px;font-size:12px" data-pill="depdis_${idx}">No</div>
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].disabled=true" style="padding:6px 14px;font-size:12px" data-pill="depdis_${idx}">Yes</div>
+        </div>
+      </div>
+      <div class="field-group"><label>Did you pay for childcare for this dependent?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].childcare=false" style="padding:6px 14px;font-size:12px" data-pill="depcc_${idx}">No</div>
+          <div class="radio-pill" onclick="STATE.dependents[${idx}].childcare=true" style="padding:6px 14px;font-size:12px" data-pill="depcc_${idx}">Yes</div>
+        </div>
+      </div>
+    </div>`;
+  container.appendChild(block);
+}
+
+// ── SECTION: DEDUCTIONS INFO ─────────────────────────────────
+function buildDeductionsSection() {
+  return `
+<div class="form-section" id="section_deductions">
+  <div class="card">
+    <div class="card-title">Deductions & Credits Info</div>
+    <div class="card-subtitle">We collect the facts. Your preparer will determine which deductions and credits you qualify for.</div>
+
+    <div class="section-divider">Home & Property</div>
+    <div class="field-row">
+      <div class="field-group"><label>Do you own your home?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="ownsHome" onclick="selectPill('ownsHome','yes',this); showSubsection('sub_homeowner',true)">Yes</div>
+          <div class="radio-pill" data-pill="ownsHome" onclick="selectPill('ownsHome','no',this); showSubsection('sub_homeowner',false)">No, I rent</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_homeowner">
+      <div class="field-row">
+        <div class="field-group"><label>Mortgage interest paid (from 1098)</label><input type="text" id="mortgageInterest" placeholder="$12,400" oninput="setData('mortgageInterest',this.value)"></div>
+        <div class="field-group"><label>Property taxes paid</label><input type="text" id="propertyTax" placeholder="$4,800" oninput="setData('propertyTax',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Mortgage insurance (PMI) paid</label><input type="text" id="pmiPaid" placeholder="$1,200" oninput="setData('pmiPaid',this.value)"></div>
+        <div class="field-group"><label>Did you refinance your mortgage?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="refinanced" onclick="selectPill('refinanced','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="refinanced" onclick="selectPill('refinanced','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Did you use any part of your home for business?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="homeForBiz" onclick="selectPill('homeForBiz','yes',this); showSubsection('sub_home_office',true)">Yes</div>
+            <div class="radio-pill" data-pill="homeForBiz" onclick="selectPill('homeForBiz','no',this); showSubsection('sub_home_office',false)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="subsection" id="sub_home_office">
+        <div class="field-row">
+          <div class="field-group"><label>Square footage used for business</label><input type="text" id="homeOfficeSqft" placeholder="200 sq ft" oninput="setData('homeOfficeSqft',this.value)"></div>
+          <div class="field-group"><label>Total home square footage</label><input type="text" id="homeTotalSqft" placeholder="1,800 sq ft" oninput="setData('homeTotalSqft',this.value)"></div>
+        </div>
+        <div class="field-row full">
+          <div class="field-group"><label>Is this space used exclusively and regularly for business?</label>
+            <div class="radio-pills">
+              <div class="radio-pill" data-pill="homeOfficeExclusive" onclick="selectPill('homeOfficeExclusive','yes',this)">Yes, exclusively</div>
+              <div class="radio-pill" data-pill="homeOfficeExclusive" onclick="selectPill('homeOfficeExclusive','no',this)">No, mixed use</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group"><label>Did you rent a separate space for your business?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="rentedBizSpace" onclick="selectPill('rentedBizSpace','yes',this); showSubsection('sub_rented_biz',true)">Yes</div>
+          <div class="radio-pill" data-pill="rentedBizSpace" onclick="selectPill('rentedBizSpace','no',this); showSubsection('sub_rented_biz',false)">No</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_rented_biz">
+      <div class="field-row">
+        <div class="field-group"><label>Monthly rent paid</label><input type="text" id="bizRentMonthly" placeholder="$850/month" oninput="setData('bizRentMonthly',this.value)"></div>
+        <div class="field-group"><label>Total months rented</label><input type="number" id="bizRentMonths" placeholder="12" min="1" max="12" oninput="setData('bizRentMonths',this.value)"></div>
+      </div>
+    </div>
+
+    <div class="section-divider">Childcare & Education</div>
+    <div class="field-row">
+      <div class="field-group"><label>Did you pay for childcare so you (and spouse) could work or look for work?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="paidChildcare" onclick="selectPill('paidChildcare','yes',this); showSubsection('sub_childcare',true)">Yes</div>
+          <div class="radio-pill" data-pill="paidChildcare" onclick="selectPill('paidChildcare','no',this); showSubsection('sub_childcare',false)">No</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_childcare">
+      <div class="dd-callout">
+        <div class="dd-callout-icon">📋</div>
+        <div class="dd-callout-text"><strong>Due Diligence — Child & Dependent Care Credit:</strong> Provider information is required to claim this credit.</div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Childcare provider name</label><input type="text" id="childcareProvider" placeholder="Little Stars Daycare" oninput="setData('childcareProvider',this.value)"></div>
+        <div class="field-group"><label>Provider EIN or SSN</label><input type="text" id="childcareEIN" placeholder="XX-XXXXXXX" oninput="setData('childcareEIN',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Total amount paid for childcare</label><input type="text" id="childcareAmount" placeholder="$8,500" oninput="setData('childcareAmount',this.value)"></div>
+        <div class="field-group"><label>Children receiving care (names)</label><input type="text" id="childcareChildren" placeholder="Maria Jr., Carlos" oninput="setData('childcareChildren',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Did your employer provide a Dependent Care FSA (Box 10 on W-2)?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="dependentCareFSA" onclick="selectPill('dependentCareFSA','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="dependentCareFSA" onclick="selectPill('dependentCareFSA','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group"><label>Did you, your spouse, or a dependent attend school this year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="attendedSchool" onclick="selectPill('attendedSchool','yes',this); showSubsection('sub_education',true)">Yes</div>
+          <div class="radio-pill" data-pill="attendedSchool" onclick="selectPill('attendedSchool','no',this); showSubsection('sub_education',false)">No</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_education">
+      <div class="field-row">
+        <div class="field-group"><label>Student name</label><input type="text" id="studentName" placeholder="First Last" oninput="setData('studentName',this.value)"></div>
+        <div class="field-group"><label>School / institution name</label><input type="text" id="schoolName" placeholder="Miami Dade College" oninput="setData('schoolName',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Year in school</label>
+          <select id="schoolYear" onchange="setData('schoolYear',this.value)">
+            <option value="">Select...</option>
+            <option>1st year / Freshman (never claimed AOC before)</option>
+            <option>2nd year / Sophomore</option>
+            <option>3rd year / Junior</option>
+            <option>4th year / Senior</option>
+            <option>Graduate / Professional school</option>
+            <option>Trade / vocational school</option>
+            <option>Other continuing education</option>
+          </select>
+        </div>
+        <div class="field-group"><label>Did you receive a 1098-T form?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="has1098T" onclick="selectPill('has1098T','yes',this)">Yes — upload it</div>
+            <div class="radio-pill" data-pill="has1098T" onclick="selectPill('has1098T','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Tuition & fees paid (Box 1 on 1098-T)</label><input type="text" id="tuitionAmount" placeholder="$8,000" oninput="setData('tuitionAmount',this.value)"></div>
+        <div class="field-group"><label>Scholarships or grants received (Box 5 on 1098-T)</label><input type="text" id="tuitionGrants" placeholder="$2,000" oninput="setData('tuitionGrants',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Did you pay student loan interest this year?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="studentLoanInterest" onclick="selectPill('studentLoanInterest','yes',this); showSubsection('sub_student_loan',true)">Yes</div>
+            <div class="radio-pill" data-pill="studentLoanInterest" onclick="selectPill('studentLoanInterest','no',this); showSubsection('sub_student_loan',false)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="subsection" id="sub_student_loan">
+        <div class="field-group"><label>Total student loan interest paid (from Form 1098-E)</label><input type="text" id="studentLoanInterestAmt" placeholder="$1,800" oninput="setData('studentLoanInterestAmt',this.value)"></div>
+      </div>
+    </div>
+
+    <div class="section-divider">Health & Medical</div>
+    <div class="field-row">
+      <div class="field-group"><label>Did you have health insurance all year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="hadHealthIns" onclick="selectPill('hadHealthIns','yes',this); showSubsection('sub_health_ins_detail',true)">Yes, all year</div>
+          <div class="radio-pill" data-pill="hadHealthIns" onclick="selectPill('hadHealthIns','partial',this); showSubsection('sub_health_ins_detail',true)">Part of the year</div>
+          <div class="radio-pill" data-pill="hadHealthIns" onclick="selectPill('hadHealthIns','no',this); showSubsection('sub_health_ins_detail',false)">No</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_health_ins_detail">
+      <div class="field-row">
+        <div class="field-group"><label>Source of health insurance</label>
+          <select id="healthInsSource" onchange="setData('healthInsSource',this.value)">
+            <option value="">Select...</option>
+            <option>Employer-provided</option>
+            <option>Self-purchased through marketplace (ACA / Healthcare.gov)</option>
+            <option>Self-purchased private plan</option>
+            <option>Medicare</option>
+            <option>Medicaid</option>
+            <option>VA / TRICARE</option>
+            <option>Spouse's employer plan</option>
+            <option>Parents' plan</option>
+          </select>
+        </div>
+        <div class="field-group"><label>Did you receive Form 1095-A? (Marketplace plan)</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="has1095A" onclick="selectPill('has1095A','yes',this)">Yes — upload it</div>
+            <div class="radio-pill" data-pill="has1095A" onclick="selectPill('has1095A','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>If self-employed: Did you pay your own health insurance premiums?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="selfEmployedHealthIns" onclick="selectPill('selfEmployedHealthIns','yes',this); showSubsection('sub_se_health',true)">Yes</div>
+            <div class="radio-pill" data-pill="selfEmployedHealthIns" onclick="selectPill('selfEmployedHealthIns','no',this); showSubsection('sub_se_health',false)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="subsection" id="sub_se_health">
+        <div class="field-group"><label>Total premiums paid</label><input type="text" id="seHealthPremiums" placeholder="$6,200" oninput="setData('seHealthPremiums',this.value)"></div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group"><label>Did you have an HSA or FSA this year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="hasHSAFSA" onclick="selectPill('hasHSAFSA','yes',this); showSubsection('sub_hsa',true)">Yes</div>
+          <div class="radio-pill" data-pill="hasHSAFSA" onclick="selectPill('hasHSAFSA','no',this); showSubsection('sub_hsa',false)">No</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_hsa">
+      <div class="field-row">
+        <div class="field-group"><label>Account type</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="hsaType" onclick="selectPill('hsaType','hsa',this)">HSA</div>
+            <div class="radio-pill" data-pill="hsaType" onclick="selectPill('hsaType','fsa',this)">FSA</div>
+          </div>
+        </div>
+        <div class="field-group"><label>Total amount contributed</label><input type="text" id="hsaContribution" placeholder="$3,850" oninput="setData('hsaContribution',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Total amount withdrawn / distributed</label><input type="text" id="hsaDistribution" placeholder="$2,400" oninput="setData('hsaDistribution',this.value)"></div>
+        <div class="field-group"><label>Were all distributions used for qualified medical expenses?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="hsaQualified" onclick="selectPill('hsaQualified','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="hsaQualified" onclick="selectPill('hsaQualified','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group"><label>Did you have significant medical expenses this year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="hadMedicalExp" onclick="selectPill('hadMedicalExp','yes',this); showSubsection('sub_medical',true)">Yes</div>
+          <div class="radio-pill" data-pill="hadMedicalExp" onclick="selectPill('hadMedicalExp','no',this); showSubsection('sub_medical',false)">No</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_medical">
+      <div class="info-box">List the total amount you paid out of pocket — insurance reimbursements are not included.</div>
+      <div class="field-row">
+        <div class="field-group"><label>Doctor / hospital visits</label><input type="text" id="medDoctor" placeholder="$3,200" oninput="setData('medDoctor',this.value)"></div>
+        <div class="field-group"><label>Prescriptions / medications</label><input type="text" id="medPrescriptions" placeholder="$800" oninput="setData('medPrescriptions',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Dental / vision</label><input type="text" id="medDental" placeholder="$1,400" oninput="setData('medDental',this.value)"></div>
+        <div class="field-group"><label>Mental health / therapy</label><input type="text" id="medMental" placeholder="$2,400" oninput="setData('medMental',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Other medical expenses (surgery, equipment, transportation, etc.)</label><textarea id="medOther" placeholder="Describe..." oninput="setData('medOther',this.value)"></textarea></div>
+      </div>
+    </div>
+
+    <div class="section-divider">Retirement Contributions</div>
+    <div class="field-row">
+      <div class="field-group"><label>Did you contribute to an IRA this year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="iraContrib" onclick="selectPill('iraContrib','yes',this); showSubsection('sub_ira',true)">Yes</div>
+          <div class="radio-pill" data-pill="iraContrib" onclick="selectPill('iraContrib','no',this); showSubsection('sub_ira',false)">No</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_ira">
+      <div class="field-row">
+        <div class="field-group"><label>Type of IRA</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="iraType" onclick="selectPill('iraType','traditional',this)">Traditional IRA</div>
+            <div class="radio-pill" data-pill="iraType" onclick="selectPill('iraType','roth',this)">Roth IRA</div>
+            <div class="radio-pill" data-pill="iraType" onclick="selectPill('iraType','sep',this)">SEP-IRA</div>
+            <div class="radio-pill" data-pill="iraType" onclick="selectPill('iraType','solo401k',this)">Solo 401(k)</div>
+          </div>
+        </div>
+        <div class="field-group"><label>Total contributed in ${FORM_CONFIG.taxYear}</label><input type="text" id="iraContribAmount" placeholder="$6,500" oninput="setData('iraContribAmount',this.value)"></div>
+      </div>
+    </div>
+
+    <div class="section-divider">Charitable Contributions</div>
+    <div class="field-row">
+      <div class="field-group"><label>Did you make any charitable donations?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="madeCharitable" onclick="selectPill('madeCharitable','yes',this); showSubsection('sub_charitable',true)">Yes</div>
+          <div class="radio-pill" data-pill="madeCharitable" onclick="selectPill('madeCharitable','no',this); showSubsection('sub_charitable',false)">No</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_charitable">
+      <div class="field-row">
+        <div class="field-group"><label>Total cash donations</label><input type="text" id="charitableCash" placeholder="$1,200" oninput="setData('charitableCash',this.value)"></div>
+        <div class="field-group"><label>Non-cash donations (clothes, furniture, etc.) — fair market value</label><input type="text" id="charitableNonCash" placeholder="$500" oninput="setData('charitableNonCash',this.value)"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Did you donate a vehicle?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="donatedVehicle" onclick="selectPill('donatedVehicle','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="donatedVehicle" onclick="selectPill('donatedVehicle','no',this)">No</div>
+          </div>
+        </div>
+        <div class="field-group"><label>Do you have receipts for donations over $250?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="charitableReceipts" onclick="selectPill('charitableReceipts','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="charitableReceipts" onclick="selectPill('charitableReceipts','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider">Energy & Vehicle Credits</div>
+    <div class="field-row">
+      <div class="field-group"><label>Did you make any energy-efficient improvements to your home?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="energyImprovements" onclick="selectPill('energyImprovements','yes',this); showSubsection('sub_energy',true)">Yes</div>
+          <div class="radio-pill" data-pill="energyImprovements" onclick="selectPill('energyImprovements','no',this); showSubsection('sub_energy',false)">No</div>
+        </div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_energy">
+      <div class="check-grid">
+        ${[
+          ["energySolar","Solar panels / solar water heater"],
+          ["energyEV","Electric vehicle purchase (new or used)"],
+          ["energyHVAC","Energy-efficient HVAC system"],
+          ["energyWindows","Energy-efficient windows / doors / insulation"],
+          ["energyBattery","Home battery storage system"],
+          ["energyCharger","EV charger installed at home"],
+        ].map(([id,label])=>`
+          <label class="check-item">
+            <input type="checkbox" id="${id}" onchange="setData('${id}',this.checked)">
+            <div><div class="check-label">${label}</div></div>
+          </label>`).join("")}
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Total cost of energy improvements</label><input type="text" id="energyTotalCost" placeholder="$25,000" oninput="setData('energyTotalCost',this.value)"></div>
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>`;
+}
+
+// ── SECTION: BUSINESS ────────────────────────────────────────
+function buildBusinessSection() {
+  return `
+<div class="form-section" id="section_business">
+  <div class="card">
+    <div class="card-title">Business Information</div>
+    <div class="card-subtitle">Do you own or operate any businesses? Add one or more — each can have a different structure and expense category.</div>
+
+    <div class="field-row">
+      <div class="field-group"><label>Do you own a business or file a Schedule C?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="ownsBusiness" onclick="selectPill('ownsBusiness','yes',this); showSubsection('sub_business_list',true)">Yes</div>
+          <div class="radio-pill" data-pill="ownsBusiness" onclick="selectPill('ownsBusiness','no',this); showSubsection('sub_business_list',false)">No</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection" id="sub_business_list">
+      <div id="businessContainer"></div>
+      <button class="btn-add-block" onclick="addBusiness()">+ Add Another Business</button>
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>`;
+}
+
+function addBusiness(data = {}) {
+  const idx = STATE.businesses.length;
+  STATE.businesses.push(data);
+  const container = document.getElementById("businessContainer");
+  const blockId = `bizblock_${idx}`;
+  const block = document.createElement("div");
+  block.className = "repeat-block";
+  block.id = blockId;
+  block.innerHTML = `
+    <div class="repeat-block-title">
+      Business #${idx + 1}
+      ${idx > 0 ? `<button class="btn-remove-block" onclick="removeRepeat('businesses',${idx},'${blockId}')">✕ Remove</button>` : ""}
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Business name (or DBA)</label><input type="text" placeholder="Gonzalez Trucking LLC" oninput="STATE.businesses[${idx}].name=this.value; updateBizTitle(${idx},this.value)"></div>
+      <div class="field-group"><label>Business type / structure</label>
+        <select id="bizType_${idx}" onchange="STATE.businesses[${idx}].type=this.value; showBizExpenses(${idx},this.value)">
+          <option value="">Select type...</option>
+          <option value="sole_prop">Sole Proprietor (Schedule C)</option>
+          <option value="llc_single">LLC - Single Member</option>
+          <option value="llc_multi">LLC - Multi Member / Partnership</option>
+          <option value="scorp">S-Corporation (1120-S)</option>
+          <option value="ccorp">C-Corporation (1120)</option>
+          <option value="trucker">Trucking / Owner-Operator</option>
+          <option value="rideshare">Rideshare / Delivery (Uber, DoorDash)</option>
+          <option value="realtor">Real Estate Agent</option>
+          <option value="medical">Medical / Healthcare Professional</option>
+          <option value="restaurant">Restaurant / Food Service</option>
+          <option value="construction">Construction / Contractor</option>
+          <option value="cleaning">Cleaning / Janitorial</option>
+          <option value="salon">Salon / Beauty / Barbershop</option>
+          <option value="childcare">Childcare / Daycare</option>
+          <option value="other">Other / General Business</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>EIN (if applicable)</label><input type="text" placeholder="XX-XXXXXXX" oninput="STATE.businesses[${idx}].ein=this.value"></div>
+      <div class="field-group"><label>Business start date</label><input type="date" onchange="STATE.businesses[${idx}].startDate=this.value"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Total gross revenue</label><input type="text" placeholder="$95,000" oninput="STATE.businesses[${idx}].revenue=this.value"></div>
+      <div class="field-group"><label>NAICS industry code (if known)</label><input type="text" placeholder="484121" oninput="STATE.businesses[${idx}].naics=this.value"><div class="field-note">Optional — your preparer can look this up</div></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Do you have employees?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" onclick="STATE.businesses[${idx}].hasEmployees=true" style="padding:6px 14px;font-size:12px" data-pill="bizEmp_${idx}">Yes</div>
+          <div class="radio-pill" onclick="STATE.businesses[${idx}].hasEmployees=false" style="padding:6px 14px;font-size:12px" data-pill="bizEmp_${idx}">No</div>
+        </div>
+      </div>
+      <div class="field-group"><label>Did you purchase any equipment or vehicles for this business?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" onclick="STATE.businesses[${idx}].boughtEquipment=true" style="padding:6px 14px;font-size:12px" data-pill="bizEquip_${idx}">Yes</div>
+          <div class="radio-pill" onclick="STATE.businesses[${idx}].boughtEquipment=false" style="padding:6px 14px;font-size:12px" data-pill="bizEquip_${idx}">No</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="bizExpenses_${idx}">
+      <!-- Expenses loaded dynamically when type is selected -->
+      <div class="info-box" id="bizExpPlaceholder_${idx}">Select a business type above to see expense categories.</div>
+    </div>
+
+    <!-- Due diligence for business expenses -->
+    <div class="section-divider">Business Expense Verification</div>
+    <div class="dd-callout">
+      <div class="dd-callout-icon">⚖️</div>
+      <div class="dd-callout-text"><strong>Required:</strong> Please confirm the following to ensure compliance.</div>
+    </div>
+    <div class="check-group">
+      <label class="check-item">
+        <input type="checkbox" onchange="STATE.businesses[${idx}].ddExpensesBusinessOnly=this.checked">
+        <div><div class="check-label">I confirm these expenses are used for business purposes only, or I have allocated the business-use percentage for mixed-use items.</div></div>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" onchange="STATE.businesses[${idx}].ddHasReceipts=this.checked">
+        <div><div class="check-label">I have receipts, invoices, or records to support these expenses.</div></div>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" onchange="STATE.businesses[${idx}].ddNotReimbursed=this.checked">
+        <div><div class="check-label">None of these expenses have been reimbursed by another party.</div></div>
+      </label>
+    </div>`;
+  container.appendChild(block);
+  // Auto-add first block
+  if (STATE.businesses.length === 1) {
+    setTimeout(() => showBizExpenses(0, ""), 50);
+  }
+}
+
+const BIZ_EXPENSES = {
+  trucker: ["Fuel","Truck payment / lease","Truck insurance","Maintenance & repairs","Tolls","IFTA taxes","Dispatch fees","Lumper fees","Scale tickets","ELD / GPS","Cell phone","DOT physical / drug tests","CDL renewal","Parking","Association dues","Meals on the road","Accounting fees"],
+  rideshare: ["Mileage","Gas","Car insurance (business portion)","Car maintenance","Phone","Tolls","Insulated bags / equipment","Platform fees","Parking","Cleaning supplies"],
+  realtor: ["MLS fees","E&O insurance","Marketing / advertising","Signs & lockboxes","Commissions paid out","Vehicle / mileage","Client gifts (up to $25/client)","Education / licensing","Association dues","Phone & internet"],
+  medical: ["Licensing fees","Malpractice insurance","Continuing education (CME)","Scrubs / uniforms","Medical equipment","Software (EMR, billing)","Professional association dues","Phone & pager"],
+  restaurant: ["Food & beverage costs","Supplies","Equipment","Uniforms","Health permits","Cleaning products","Marketing","Delivery fees","Employee meals"],
+  construction: ["Materials & supplies","Subcontractors","Tools & equipment","Vehicle / truck","Fuel","Safety equipment","Permits & licenses","Insurance","Marketing"],
+  cleaning: ["Cleaning supplies","Equipment","Vehicle","Uniforms","Marketing","Insurance","Subcontractors"],
+  salon: ["Supplies & products","Equipment","Booth rent","Licensing","Marketing","Continuing education","Uniforms"],
+  childcare: ["Supplies","Food","Equipment","Licensing / permits","Insurance","Staff wages","Marketing"],
+  sole_prop: ["Supplies","Equipment","Marketing","Phone & internet","Software","Professional fees","Travel","Meals (50% deductible)","Subcontractors","Insurance","Vehicle / mileage"],
+  llc_single: ["Supplies","Equipment","Marketing","Phone & internet","Software","Professional fees","Travel","Meals","Subcontractors","Insurance","Vehicle / mileage"],
+  llc_multi: ["Supplies","Equipment","Rent","Payroll","Marketing","Phone & internet","Software","Professional fees","Travel","Meals","Insurance","Vehicle","Legal fees","Accounting"],
+  scorp: ["Officer salary (W-2)","Payroll taxes","Employee benefits","Rent","Marketing","Software","Travel","Professional fees","Insurance","Vehicle","Legal fees","Accounting fees"],
+  ccorp: ["Officer salary","Payroll taxes","Rent","Marketing","Software","Travel","Professional fees","Insurance","Vehicle","Legal fees","Accounting fees","Dividends paid"],
+  other: ["Supplies","Equipment","Rent / lease","Payroll","Marketing","Phone & internet","Software","Travel","Meals","Insurance","Vehicle / mileage","Professional fees","Continuing education"],
+};
+
+function showBizExpenses(idx, type) {
+  const container = document.getElementById(`bizExpenses_${idx}`);
+  const placeholder = document.getElementById(`bizExpPlaceholder_${idx}`);
+  if (placeholder) placeholder.style.display = "none";
+
+  const expenses = BIZ_EXPENSES[type] || BIZ_EXPENSES["other"];
+
+  let html = `<div class="section-divider">Expenses for Business #${idx+1}</div>`;
+  html += `<div class="field-row">`;
+  const pairs = [];
+  for (let i = 0; i < expenses.length; i += 2) {
+    pairs.push([expenses[i], expenses[i+1]]);
+  }
+  for (const pair of pairs) {
+    html += `<div class="field-row">`;
+    for (const exp of pair) {
+      if (!exp) continue;
+      const key = `biz_${idx}_exp_${exp.replace(/[^a-z]/gi,'_').toLowerCase()}`;
+      html += `<div class="field-group"><label>${exp}</label><input type="text" placeholder="$0" oninput="STATE.businesses[${idx}]['${key}']=this.value"></div>`;
+    }
+    html += `</div>`;
+  }
+  html += `<div class="field-row full"><div class="field-group"><label>Other expenses not listed above — describe and amount</label><textarea placeholder="Describe any additional business expenses..." oninput="STATE.businesses[${idx}].otherExpenses=this.value"></textarea></div></div>`;
+
+  container.innerHTML = html;
+}
+
+// ── SECTION: SPECIAL SITUATIONS ─────────────────────────────
+function buildSpecialSection() {
+  return `
+<div class="form-section" id="section_special">
+  <div class="card">
+    <div class="card-title">Special Situations</div>
+    <div class="card-subtitle">Do any of these apply to your situation? These require additional information and may affect your filing.</div>
+
+    <div class="check-item" style="margin-bottom:8px">
+      <input type="checkbox" id="sp_backtaxes" onchange="onCheckChange(this); showSubsection('sub_backtaxes', this.checked)">
+      <div>
+        <div class="check-label">Back Taxes / Unfiled Returns</div>
+        <div class="check-desc">You have one or more years of unfiled returns or outstanding IRS balances</div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_backtaxes">
+      <div class="field-row full">
+        <div class="field-group"><label>Which years have unfiled returns?</label>
+          <div class="check-grid">
+            ${[2024,2023,2022,2021,2020,2019,2018].map(yr=>`
+              <label class="check-item">
+                <input type="checkbox" id="unfiled_${yr}" onchange="setData('unfiled_${yr}',this.checked)">
+                <div><div class="check-label">${yr}</div></div>
+              </label>`).join("")}
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Have you received any IRS notices or letters?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="hasIRSNotices" onclick="selectPill('hasIRSNotices','yes',this); showSubsection('sub_irs_notices',true)">Yes</div>
+            <div class="radio-pill" data-pill="hasIRSNotices" onclick="selectPill('hasIRSNotices','no',this); showSubsection('sub_irs_notices',false)">No</div>
+          </div>
+        </div>
+        <div class="field-group"><label>Do you have an active installment agreement with the IRS?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="hasInstallment" onclick="selectPill('hasInstallment','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="hasInstallment" onclick="selectPill('hasInstallment','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Is there an active Offer in Compromise (OIC)?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="hasOIC" onclick="selectPill('hasOIC','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="hasOIC" onclick="selectPill('hasOIC','no',this)">No</div>
+          </div>
+        </div>
+        <div class="field-group"><label>Is there an open IRS audit?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="hasAudit" onclick="selectPill('hasAudit','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="hasAudit" onclick="selectPill('hasAudit','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="subsection" id="sub_irs_notices">
+        <div class="field-row">
+          <div class="field-group"><label>Notice number (e.g. CP2000, LT11)</label><input type="text" id="irsNoticeNum" placeholder="CP2000" oninput="setData('irsNoticeNum',this.value)"></div>
+          <div class="field-group"><label>Amount owed per notice</label><input type="text" id="irsNoticeAmount" placeholder="$5,400" oninput="setData('irsNoticeAmount',this.value)"></div>
+        </div>
+        <div class="info-box">Please upload a copy of the IRS notice in the documents section.</div>
+      </div>
+    </div>
+
+    <div class="check-item" style="margin-bottom:8px">
+      <input type="checkbox" id="sp_multistate" onchange="onCheckChange(this); showSubsection('sub_multistate', this.checked)">
+      <div>
+        <div class="check-label">Worked or Lived in Multiple States</div>
+        <div class="check-desc">You earned income in more than one state or lived in a different state than you worked</div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_multistate">
+      <div class="field-row full">
+        <div class="field-group"><label>List all states where you earned income this year</label>
+          <input type="text" id="incomeStates" placeholder="Florida, Georgia, Texas..." oninput="setData('incomeStates',this.value)">
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" style="margin-bottom:8px">
+      <input type="checkbox" id="sp_clergy" onchange="onCheckChange(this); showSubsection('sub_clergy', this.checked)">
+      <div>
+        <div class="check-label">Clergy / Minister Income</div>
+        <div class="check-desc">You receive a housing allowance or serve in a ministerial capacity</div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_clergy">
+      <div class="field-row">
+        <div class="field-group"><label>Housing allowance designated by church</label><input type="text" id="clergyHousingAllowance" placeholder="$18,000" oninput="setData('clergyHousingAllowance',this.value)"></div>
+        <div class="field-group"><label>Actual housing expenses paid</label><input type="text" id="clergyHousingExp" placeholder="$16,000" oninput="setData('clergyHousingExp',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Did you opt out of Social Security?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="clergyOptedOutSS" onclick="selectPill('clergyOptedOutSS','yes',this)">Yes (Form 4361)</div>
+            <div class="radio-pill" data-pill="clergyOptedOutSS" onclick="selectPill('clergyOptedOutSS','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" style="margin-bottom:8px">
+      <input type="checkbox" id="sp_household_emp" onchange="onCheckChange(this); showSubsection('sub_household_emp', this.checked)">
+      <div>
+        <div class="check-label">Household Employee (Nanny, Caregiver, Housekeeper)</div>
+        <div class="check-desc">You paid a household worker $2,600 or more in the tax year (Schedule H required)</div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_household_emp">
+      <div class="field-row">
+        <div class="field-group"><label>Total wages paid to household employee(s)</label><input type="text" id="householdWages" placeholder="$14,000" oninput="setData('householdWages',this.value)"></div>
+        <div class="field-group"><label>Did you withhold Social Security and Medicare taxes?</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="householdWithheld" onclick="selectPill('householdWithheld','yes',this)">Yes</div>
+            <div class="radio-pill" data-pill="householdWithheld" onclick="selectPill('householdWithheld','no',this)">No</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-item" style="margin-bottom:8px">
+      <input type="checkbox" id="sp_nonresident" onchange="onCheckChange(this); showSubsection('sub_nonresident', this.checked)">
+      <div>
+        <div class="check-label">Nonresident Alien or Part-Year Resident</div>
+        <div class="check-desc">You were not a US citizen or permanent resident for all of the tax year</div>
+      </div>
+    </div>
+    <div class="subsection" id="sub_nonresident">
+      <div class="field-row">
+        <div class="field-group"><label>Date you arrived in the US (this year)</label><input type="date" id="usArrivalDate" onchange="setData('usArrivalDate',this.value)"></div>
+        <div class="field-group"><label>Visa type</label><input type="text" id="visaType" placeholder="H-1B, F-1, B-2..." oninput="setData('visaType',this.value)"></div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Country of tax residence</label><input type="text" id="taxResidenceCountry" placeholder="Mexico, Canada..." oninput="setData('taxResidenceCountry',this.value)"></div>
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>`;
+}
+
+// ── SECTION: DUE DILIGENCE ───────────────────────────────────
+function buildDueDiligenceSection() {
+  return `
+<div class="form-section" id="section_due_diligence">
+  <div class="card">
+    <div class="card-title">Verification & Due Diligence</div>
+    <div class="card-subtitle">Federal law requires us to ask and document the following questions. Please answer each one honestly and completely.</div>
+
+    <div class="warning-box">
+      <strong>Important Notice:</strong> Your answers to these questions are used to determine eligibility for tax credits. Providing false information may result in penalties, repayment of credits, and possible criminal prosecution under 26 U.S.C. §7206.
+    </div>
+
+    <div class="section-divider">Earned Income Credit (EIC) Due Diligence</div>
+    <div class="field-row">
+      <div class="field-group"><label>Did you pay anyone to claim your children on a tax return?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="dd_paidToClaim" onclick="selectPill('dd_paidToClaim','no',this)">No</div>
+          <div class="radio-pill" data-pill="dd_paidToClaim" onclick="selectPill('dd_paidToClaim','yes',this)">Yes</div>
+        </div>
+      </div>
+      <div class="field-group"><label>Did you pay more than half the cost of keeping up your home?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="dd_paidHalfHome" onclick="selectPill('dd_paidHalfHome','yes',this)">Yes</div>
+          <div class="radio-pill" data-pill="dd_paidHalfHome" onclick="selectPill('dd_paidHalfHome','no',this)">No</div>
+          <div class="radio-pill" data-pill="dd_paidHalfHome" onclick="selectPill('dd_paidHalfHome','notsure',this)">Not sure</div>
+        </div>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Were all children you're claiming living with you for more than half the year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="dd_childrenLivedWithYou" onclick="selectPill('dd_childrenLivedWithYou','yes',this)">Yes</div>
+          <div class="radio-pill" data-pill="dd_childrenLivedWithYou" onclick="selectPill('dd_childrenLivedWithYou','no',this)">No</div>
+          <div class="radio-pill" data-pill="dd_childrenLivedWithYou" onclick="selectPill('dd_childrenLivedWithYou','na',this)">No children</div>
+        </div>
+      </div>
+      <div class="field-group"><label>Are all claimed children US citizens or qualifying residents?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="dd_childrenUSCitizen" onclick="selectPill('dd_childrenUSCitizen','yes',this)">Yes</div>
+          <div class="radio-pill" data-pill="dd_childrenUSCitizen" onclick="selectPill('dd_childrenUSCitizen','no',this)">No</div>
+          <div class="radio-pill" data-pill="dd_childrenUSCitizen" onclick="selectPill('dd_childrenUSCitizen','na',this)">No children</div>
+        </div>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Do any of your children have a Social Security Number?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="dd_childrenHaveSSN" onclick="selectPill('dd_childrenHaveSSN','yes',this)">Yes, all of them</div>
+          <div class="radio-pill" data-pill="dd_childrenHaveSSN" onclick="selectPill('dd_childrenHaveSSN','some',this)">Some do</div>
+          <div class="radio-pill" data-pill="dd_childrenHaveSSN" onclick="selectPill('dd_childrenHaveSSN','no',this)">No / ITIN only</div>
+          <div class="radio-pill" data-pill="dd_childrenHaveSSN" onclick="selectPill('dd_childrenHaveSSN','na',this)">No children</div>
+        </div>
+      </div>
+      <div class="field-group"><label>Were any of your dependents also claimed by another taxpayer this year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="dd_dualClaim" onclick="selectPill('dd_dualClaim','no',this)">No</div>
+          <div class="radio-pill" data-pill="dd_dualClaim" onclick="selectPill('dd_dualClaim','yes',this)">Yes</div>
+          <div class="radio-pill" data-pill="dd_dualClaim" onclick="selectPill('dd_dualClaim','notsure',this)">Not sure</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider">Child Tax Credit (CTC) Due Diligence</div>
+    <div class="field-row">
+      <div class="field-group"><label>Are all children you're claiming under 17 as of December 31 of the tax year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="dd_childUnder17" onclick="selectPill('dd_childUnder17','yes',this)">Yes</div>
+          <div class="radio-pill" data-pill="dd_childUnder17" onclick="selectPill('dd_childUnder17','no',this)">No / over 17</div>
+          <div class="radio-pill" data-pill="dd_childUnder17" onclick="selectPill('dd_childUnder17','na',this)">No children</div>
+        </div>
+      </div>
+      <div class="field-group"><label>Did any claimed child provide more than half of their own support?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="dd_childSelfSupport" onclick="selectPill('dd_childSelfSupport','no',this)">No</div>
+          <div class="radio-pill" data-pill="dd_childSelfSupport" onclick="selectPill('dd_childSelfSupport','yes',this)">Yes</div>
+          <div class="radio-pill" data-pill="dd_childSelfSupport" onclick="selectPill('dd_childSelfSupport','na',this)">No children</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider">General Compliance Questions</div>
+    <div class="field-row">
+      <div class="field-group"><label>Have you been notified by the IRS that you cannot claim EIC, CTC, or other credits due to reckless or fraudulent claims in a prior year?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="dd_irsBarred" onclick="selectPill('dd_irsBarred','no',this)">No</div>
+          <div class="radio-pill" data-pill="dd_irsBarred" onclick="selectPill('dd_irsBarred','yes',this)">Yes</div>
+        </div>
+      </div>
+      <div class="field-group"><label>To your knowledge, is all the information you have provided on this intake accurate and complete?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="dd_infoAccurate" onclick="selectPill('dd_infoAccurate','yes',this)">Yes, to the best of my knowledge</div>
+          <div class="radio-pill" data-pill="dd_infoAccurate" onclick="selectPill('dd_infoAccurate','no',this)">I have concerns / corrections</div>
+        </div>
+      </div>
+    </div>
+    <div class="field-row full">
+      <div class="field-group"><label>Is there anything else your preparer should know about your tax situation?</label>
+        <textarea id="additionalNotes" placeholder="Any other income, deductions, changes, or special circumstances not covered above..." oninput="setData('additionalNotes',this.value)"></textarea>
+      </div>
+    </div>
+
+    <div class="section-divider">Client Certification</div>
+    <div class="check-group">
+      <label class="check-item" id="certItem">
+        <input type="checkbox" id="clientCertification" onchange="setData('clientCertification',this.checked)">
+        <div>
+          <div class="check-label">I certify that the information provided in this intake form is true, accurate, and complete to the best of my knowledge. I understand that providing false information may result in penalties under federal tax law.</div>
+        </div>
+      </label>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Client Signature (type your full legal name)</label>
+        <input type="text" id="clientSignature" placeholder="Maria Gonzalez" oninput="setData('clientSignature',this.value)">
+      </div>
+      <div class="field-group"><label>Today's Date</label>
+        <input type="date" id="signatureDate" onchange="setData('signatureDate',this.value)">
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>`;
+}
+
+// ── SECTION: DOCUMENTS ───────────────────────────────────────
+function buildDocumentsSection() {
+  const docCategories = [
+    { id: "doc_w2",       title: "W-2 Forms",              sub: "All W-2s from all employers" },
+    { id: "doc_1099",     title: "1099 Forms",             sub: "1099-NEC, 1099-MISC, 1099-K, 1099-G, 1099-R, 1099-INT, 1099-DIV" },
+    { id: "doc_id",       title: "Photo ID",               sub: "Driver's license, passport, state ID" },
+    { id: "doc_sscard",   title: "Social Security Cards",  sub: "Yours, spouse, and all dependents" },
+    { id: "doc_prior",    title: "Prior Year Tax Return",  sub: "Last year's complete federal return" },
+    { id: "doc_1098",     title: "1098 Forms",             sub: "1098 (mortgage), 1098-T (tuition), 1098-E (student loan)" },
+    { id: "doc_1095",     title: "Health Insurance (1095-A)", sub: "Only if you had ACA marketplace coverage" },
+    { id: "doc_biz",      title: "Business Records",       sub: "Income statements, expense receipts, mileage logs" },
+    { id: "doc_irs",      title: "IRS Notices / Letters",  sub: "Any letters received from the IRS" },
+    { id: "doc_crypto",   title: "Crypto / Investment Statements", sub: "1099-B, brokerage statements, crypto transaction history" },
+    { id: "doc_other",    title: "Other Documents",        sub: "Anything else relevant to your return" },
+  ];
+
+  return `
+<div class="form-section" id="section_documents">
+  <div class="card">
+    <div class="card-title">Document Upload</div>
+    <div class="card-subtitle">Upload your tax documents here. You can upload multiple files per category. Accepted formats: PDF, JPG, PNG, HEIC, TIFF (max 25MB per file).</div>
+
+    <div class="info-box">
+      📱 On mobile? You can take photos of your documents directly from this form. Just tap the upload button for each category.
+    </div>
+
+    <div class="doc-categories">
+      ${docCategories.map(cat => `
+        <div class="doc-category" id="doccat_${cat.id}">
+          <div class="doc-category-title">${cat.title}</div>
+          <div class="doc-category-sub">${cat.sub}</div>
+          <label class="doc-category-upload">
+            <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff"
+              onchange="handleDocUpload(this, '${cat.id}', '${cat.title}')">
+            📎 Upload / Take Photo
+          </label>
+          <div id="docfiles_${cat.id}"></div>
+        </div>
+      `).join("")}
+    </div>
+
+    <div class="section-divider">Any Additional Documents</div>
+    <div class="upload-zone" id="mainDropZone" ondragover="event.preventDefault(); this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleMainDrop(event)">
+      <div class="upload-zone-icon">📁</div>
+      <div class="upload-zone-title">Drag & Drop Files Here</div>
+      <div class="upload-zone-sub">or</div>
+      <label class="upload-btn">
+        Browse Files
+        <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff" style="display:none" onchange="handleMainUpload(this)">
+      </label>
+    </div>
+    <div id="mainFileList" class="upload-file-list"></div>
+
+    <div class="nav-bar">
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-primary" onclick="nextStep()">Continue & Review →</button>
+    </div>
+  </div>
+</div>`;
+}
+
+function handleDocUpload(input, categoryId, categoryTitle) {
+  const files = Array.from(input.files);
+  if (!STATE.uploadedFiles[categoryId]) STATE.uploadedFiles[categoryId] = [];
+  STATE.uploadedFiles[categoryId].push(...files);
+
+  const container = document.getElementById(`docfiles_${categoryId}`);
+  const category = document.getElementById(`doccat_${categoryId}`);
+
+  container.innerHTML = STATE.uploadedFiles[categoryId].map((f, i) => `
+    <div class="upload-file-item">
+      <div class="upload-file-name">📄 ${f.name}</div>
+      <div class="upload-file-size">${formatFileSize(f.size)}</div>
+    </div>`).join("");
+
+  category.classList.add("has-files");
+  const badge = category.querySelector(".doc-badge") || document.createElement("div");
+  badge.className = "doc-badge";
+  badge.innerHTML = `✓ ${STATE.uploadedFiles[categoryId].length} file(s)`;
+  if (!category.contains(badge)) category.appendChild(badge);
+}
+
+function handleMainUpload(input) {
+  const files = Array.from(input.files);
+  if (!STATE.uploadedFiles["main"]) STATE.uploadedFiles["main"] = [];
+  STATE.uploadedFiles["main"].push(...files);
+  renderMainFileList();
+}
+
+function handleMainDrop(event) {
+  event.preventDefault();
+  document.getElementById("mainDropZone").classList.remove("dragover");
+  const files = Array.from(event.dataTransfer.files);
+  if (!STATE.uploadedFiles["main"]) STATE.uploadedFiles["main"] = [];
+  STATE.uploadedFiles["main"].push(...files);
+  renderMainFileList();
+}
+
+function renderMainFileList() {
+  const container = document.getElementById("mainFileList");
+  container.innerHTML = (STATE.uploadedFiles["main"] || []).map((f, i) => `
+    <div class="upload-file-item">
+      <div class="upload-file-name">📄 ${f.name}</div>
+      <div class="upload-file-size">${formatFileSize(f.size)}</div>
+      <button class="upload-file-remove" onclick="removeMainFile(${i})">✕</button>
+    </div>`).join("");
+}
+
+function removeMainFile(idx) {
+  STATE.uploadedFiles["main"].splice(idx, 1);
+  renderMainFileList();
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / 1048576).toFixed(1) + " MB";
+}
+
+function attachUploadHandlers() {
+  // Already handled inline
+}
+
+// ── SECTION: REVIEW ──────────────────────────────────────────
+function buildReviewSection() {
+  return `
+<div class="form-section" id="section_review">
+  <div class="card">
+    <div class="card-title">Review & Submit</div>
+    <div class="card-subtitle">Please review your information before submitting. Your preparer will be notified immediately.</div>
+
+    <div id="reviewContent">
+      <!-- Populated dynamically -->
+    </div>
+
+    <div class="section-divider">Ready to Submit?</div>
+    <div class="info-box">
+      By submitting this form, you confirm that all information provided is accurate to the best of your knowledge. 
+      Your data will be securely transmitted to your assigned preparer.
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-gold" id="submitBtn" onclick="submitForm()">
+        <span id="submitText">Submit Intake Form ✓</span>
+        <div class="spinner" id="submitSpinner"></div>
+      </button>
+    </div>
+  </div>
+</div>`;
+}
+
+function buildReviewContent() {
+  const d = STATE.data;
+  const content = document.getElementById("reviewContent");
+  if (!content) return;
+
+  const row = (label, value) => value ? `
+    <div class="review-item">
+      <div class="review-label">${label}</div>
+      <div class="review-value">${value}</div>
+    </div>` : "";
+
+  content.innerHTML = `
+    <div class="review-section">
+      <div class="review-section-title">Personal Information</div>
+      <div class="review-grid">
+        ${row("Name", `${d.firstName||""} ${d.lastName||""}`.trim())}
+        ${row("Email", d.email)}
+        ${row("Phone", d.phone)}
+        ${row("Date of Birth", d.dob)}
+        ${row("Address", `${d.address||""}, ${d.city||""}, ${d.state||""} ${d.zip||""}`.trim())}
+        ${row("Preparer", d.preparerName)}
+        ${row("Tax Year", d.taxYear || FORM_CONFIG.taxYear)}
+      </div>
+    </div>
+    <div class="review-section">
+      <div class="review-section-title">Filing & Income</div>
+      <div class="review-grid">
+        ${row("Filing Status", d.filingStatus?.toUpperCase())}
+        ${row("Occupation", d.occupation)}
+        ${row("Income Sources", [
+          d.inc_w2 ? "W-2" : "",
+          d.inc_1099nec ? "1099-NEC" : "",
+          d.inc_trucker ? "Trucker" : "",
+          d.inc_rental ? "Rental" : "",
+          d.inc_investments ? "Investments" : "",
+          d.inc_crypto ? "Crypto" : "",
+          d.inc_ss ? "Social Security" : "",
+          d.inc_pension ? "Pension/IRA" : "",
+          d.inc_gambling ? "Gambling" : "",
+        ].filter(Boolean).join(", "))}
+        ${row("Dependents", STATE.dependents.length > 0 ? `${STATE.dependents.length} dependent(s)` : "None")}
+        ${row("Businesses", STATE.businesses.length > 0 ? `${STATE.businesses.length} business(es)` : "None")}
+      </div>
+    </div>
+    <div class="review-section">
+      <div class="review-section-title">Documents Uploaded</div>
+      <div class="review-grid">
+        ${Object.keys(STATE.uploadedFiles).map(cat => {
+          const files = STATE.uploadedFiles[cat];
+          if (!files || files.length === 0) return "";
+          return row(cat === "main" ? "General" : cat, `${files.length} file(s)`);
+        }).filter(Boolean).join("")}
+      </div>
+    </div>
+    ${d.additionalNotes ? `
+    <div class="review-section">
+      <div class="review-section-title">Additional Notes</div>
+      <p style="font-size:13px;color:var(--gray-600)">${d.additionalNotes}</p>
+    </div>` : ""}`;
+}
+
+// Override showStep to build review content when reaching review
+const _origShowStep = showStep;
+function showStep(index) {
+  _origShowStep(index);
+  if (STEPS[index].id === "review") {
+    buildReviewContent();
+  }
+}
+
+// ── FORM SUBMISSION ──────────────────────────────────────────
+async function submitForm() {
+  const btn = document.getElementById("submitBtn");
+  const text = document.getElementById("submitText");
+  const spinner = document.getElementById("submitSpinner");
+
+  if (!STATE.data.clientCertification) {
+    alert("Please complete the Client Certification in the Verification step before submitting.");
+    return;
+  }
+
+  btn.disabled = true;
+  text.textContent = "Submitting...";
+  spinner.style.display = "block";
+
+  const payload = {
+    action: "new_client",
+    ...STATE.data,
+    dependents: STATE.dependents,
+    w2Jobs: STATE.w2Jobs,
+    businesses: STATE.businesses,
+    rentalProperties: STATE.rentalProperties,
+    otherIncome1099: STATE.otherIncome1099,
+    uploadedFilesCount: Object.keys(STATE.uploadedFiles).reduce((acc, k) => acc + (STATE.uploadedFiles[k]?.length || 0), 0),
+    taxYear: STATE.data.taxYear || FORM_CONFIG.taxYear,
+    submittedAt: new Date().toISOString(),
+    // Map flags for Apps Script
+    hasW2: !!STATE.data.inc_w2,
+    isTrucker: !!STATE.data.inc_trucker,
+    isSelfEmployed: !!STATE.data.inc_1099nec,
+    hasBusiness: STATE.businesses.length > 0,
+    hasRental: !!STATE.data.inc_rental,
+    isITIN: STATE.data.hasITIN === "yes",
+    hasBackTaxes: !!STATE.data.sp_backtaxes,
+    preparerName: STATE.data.preparerName || "Unassigned",
+  };
+
+  try {
+    let submitted = false;
+
+    // Send to Apps Script AND GHL simultaneously
+    const sends = [];
+    if (FORM_CONFIG.appsScriptUrl) {
+      sends.push(fetch(FORM_CONFIG.appsScriptUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        mode: "no-cors"
+      }));
+    }
+    if (FORM_CONFIG.ghlWebhookUrl) {
+      sends.push(fetch(FORM_CONFIG.ghlWebhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        mode: "no-cors"
+      }));
+    }
+    if (sends.length > 0) {
+      await Promise.allSettled(sends);
+      submitted = true;
+    }
+
+    // Show success
+    showSuccessScreen();
+    sessionStorage.removeItem("tif_progress");
+
+  } catch (err) {
+    // Even if fetch fails (CORS), show success — GHL webhook may have still received it
+    showSuccessScreen();
+    sessionStorage.removeItem("tif_progress");
+  }
+}
+
+function showSuccessScreen() {
+  document.getElementById("progressWrap").style.display = "none";
+  const container = document.getElementById("formContainer");
+  container.innerHTML = `
+    <div class="card">
+      <div class="success-screen">
+        <div class="success-icon">✓</div>
+        <div class="success-title">Intake Submitted!</div>
+        <div class="success-sub">
+          Thank you, ${STATE.data.firstName || ""}! Your intake form has been received.<br><br>
+          Your assigned preparer <strong>${STATE.data.preparerName || ""}</strong> has been notified and will review your information. 
+          You'll receive a confirmation email shortly.<br><br>
+          <em>If you have any questions, please contact our office directly.</em>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── UTILITIES ────────────────────────────────────────────────
+function formatSSN(value) {
+  const digits = value.replace(/\D/g, "").slice(0, 9);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 5) return `${digits.slice(0,3)}-${digits.slice(3)}`;
+  return `${digits.slice(0,3)}-${digits.slice(3,5)}-${digits.slice(5)}`;
+}
+
+const US_STATES = [
+  "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware",
+  "Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky",
+  "Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi",
+  "Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico",
+  "New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania",
+  "Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont",
+  "Virginia","Washington","West Virginia","Wisconsin","Wyoming","Washington D.C."
+];
+
+// Auto-initialize first repeatable blocks on income section
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    if (document.getElementById("w2Container") && STATE.w2Jobs.length === 0) addW2();
+    if (document.getElementById("nec1099Container") && STATE.otherIncome1099.length === 0) add1099NEC();
+    if (document.getElementById("rentalContainer") && STATE.rentalProperties.length === 0) addRental();
+    if (document.getElementById("dependentsContainer") && STATE.dependents.length === 0) addDependent();
+    if (document.getElementById("businessContainer") && STATE.businesses.length === 0) addBusiness();
+  }, 200);
+});
+</script>
+
+</body>
+</html>

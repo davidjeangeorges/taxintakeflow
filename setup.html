@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxIntakeFlow — Firm Setup</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0d1b2a;--navy-mid:#1b2d42;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.3);
+  --cream:#faf8f3;--white:#fff;
+  --gray-100:#f4f4f6;--gray-200:#e5e4e0;--gray-400:#999490;--gray-600:#55534e;--gray-800:#1e1c18;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.1);--green-border:rgba(34,197,94,0.3);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.1);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.1);
+  --radius:10px;--radius-lg:16px;
+  --font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+  --shadow:0 2px 12px rgba(13,27,42,0.08);--shadow-lg:0 8px 40px rgba(13,27,42,0.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);min-height:100vh}
+
+/* AUTH */
+#authWrap{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px}
+.auth-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-lg);padding:48px 40px;width:100%;max-width:380px;text-align:center}
+.auth-logo{font-family:var(--font-display);font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:28px}
+.auth-title{font-family:var(--font-display);font-size:24px;font-weight:700;color:white;margin-bottom:8px}
+.auth-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:32px}
+.auth-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:12px 16px;font-family:var(--font-body);font-size:14px;color:white;outline:none;transition:border-color 0.2s;margin-bottom:12px}
+.auth-input:focus{border-color:var(--gold)}
+.auth-input::placeholder{color:rgba(255,255,255,0.25)}
+.auth-btn{width:100%;background:var(--gold);color:var(--navy);border:none;border-radius:var(--radius);padding:13px;font-family:var(--font-display);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:4px}
+.auth-btn:hover{background:#e0bc5c}
+.auth-err{color:#f87171;font-size:12px;margin-top:10px;display:none}
+.auth-note{font-size:11px;color:rgba(255,255,255,0.25);margin-top:20px}
+
+/* LAYOUT */
+#app{display:none}
+.topbar{background:var(--navy);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:50}
+.topbar-logo{font-family:var(--font-display);font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.topbar-firm{font-size:13px;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:8px}
+.topbar-firm strong{color:rgba(255,255,255,0.9)}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 60px)}
+
+/* SIDEBAR */
+.sidebar{background:white;border-right:1px solid var(--gray-200);padding:28px 0}
+.sidebar-section{margin-bottom:4px;padding:0 16px}
+.sidebar-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray-400);padding:16px 8px 8px;display:block}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--gray-600);transition:all 0.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.sidebar-item:hover{background:var(--gray-100);color:var(--gray-800)}
+.sidebar-item.active{background:var(--gold-dim);color:var(--navy);font-weight:600}
+.sidebar-item .s-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.sidebar-item .s-badge{margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--red)}
+.sidebar-item .s-check{margin-left:auto;color:var(--green);font-size:14px}
+
+.sidebar-progress{padding:20px 24px;margin-top:16px;border-top:1px solid var(--gray-200)}
+.progress-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400);margin-bottom:10px}
+.progress-bar-wrap{background:var(--gray-200);border-radius:99px;height:6px;margin-bottom:6px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--gold);border-radius:99px;transition:width 0.5s ease}
+.progress-text{font-size:12px;color:var(--gray-400)}
+.progress-text strong{color:var(--navy)}
+
+/* MAIN */
+.main{padding:40px 48px;overflow-y:auto}
+.page{display:none}.page.active{display:block;animation:fadeUp 0.25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.page-title{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--gray-400);margin-bottom:32px}
+
+/* CARDS */
+.card{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:28px;margin-bottom:20px;box-shadow:var(--shadow)}
+.card-title{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.card-sub{font-size:13px;color:var(--gray-400);margin-bottom:24px}
+
+/* FORM FIELDS */
+.field{margin-bottom:20px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.field label{display:block;font-size:12px;font-weight:600;letter-spacing:0.5px;color:var(--gray-600);margin-bottom:7px}
+.field label .req{color:var(--red);margin-left:2px}
+.field label .opt{color:var(--gray-400);font-weight:400;font-size:11px;margin-left:4px}
+.f-input{width:100%;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius);padding:11px 14px;font-family:var(--font-body);font-size:14px;color:var(--gray-800);outline:none;transition:all 0.2s}
+.f-input:focus{background:white;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim)}
+.f-input::placeholder{color:var(--gray-400)}
+.f-input.verified{border-color:var(--green);background:var(--green-dim)}
+.f-input.error{border-color:var(--red);background:var(--red-dim)}
+.f-note{font-size:11px;color:var(--gray-400);margin-top:6px;line-height:1.5}
+.f-error{font-size:12px;color:var(--red);margin-top:5px;display:none}
+.f-error.show{display:block}
+
+/* URL FIELD WITH TEST BUTTON */
+.url-field{position:relative}
+.url-input-wrap{display:flex;gap:8px;align-items:flex-start}
+.url-input-wrap .f-input{flex:1}
+.test-btn{background:var(--navy);color:white;border:none;border-radius:8px;padding:11px 16px;font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s;flex-shrink:0}
+.test-btn:hover{background:var(--navy-mid)}
+.test-btn.testing{opacity:0.7;cursor:wait}
+.test-result{display:none;margin-top:8px;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:500}
+.test-result.ok{display:flex;align-items:center;gap:6px;background:var(--green-dim);color:#14532d;border:1px solid var(--green-border)}
+.test-result.fail{display:flex;align-items:center;gap:6px;background:var(--red-dim);color:#7f1d1d;border:1px solid rgba(239,68,68,0.3)}
+
+/* PREPARERS */
+.preparer-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.preparer-row{display:grid;grid-template-columns:1fr 1fr 120px 40px;gap:10px;align-items:center;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius);padding:12px 14px}
+.preparer-row.header{background:none;border:none;padding:0 14px;margin-bottom:-4px}
+.preparer-row.header span{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400)}
+.p-input{background:white;border:1px solid var(--gray-200);border-radius:6px;padding:8px 10px;font-family:var(--font-body);font-size:13px;color:var(--gray-800);outline:none;width:100%;transition:border-color 0.2s}
+.p-input:focus{border-color:var(--gold)}
+.p-input::placeholder{color:var(--gray-400)}
+.remove-btn{background:none;border:1px solid var(--gray-200);border-radius:6px;color:var(--gray-400);cursor:pointer;padding:7px;font-size:14px;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.remove-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-dim)}
+.add-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px dashed var(--gray-400);border-radius:8px;padding:9px 16px;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:all 0.2s}
+.add-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+
+/* SAVE BUTTON */
+.save-btn{background:var(--navy);color:white;border:none;border-radius:var(--radius);padding:13px 28px;font-family:var(--font-display);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px}
+.save-btn:hover{background:var(--navy-mid);transform:translateY(-1px);box-shadow:0 4px 20px rgba(13,27,42,0.2)}
+.save-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+.save-confirm{display:none;color:var(--green);font-size:13px;font-weight:600;align-items:center;gap:6px;margin-top:12px}
+.save-confirm.show{display:flex}
+
+/* STATUS CARDS */
+.status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:28px}
+.status-card{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px;position:relative;overflow:hidden}
+.status-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--sc-color,var(--gray-200))}
+.status-card.ok{--sc-color:var(--green)}
+.status-card.warn{--sc-color:var(--gold)}
+.status-card.bad{--sc-color:var(--red)}
+.sc-icon{font-size:24px;margin-bottom:10px;display:block}
+.sc-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400);margin-bottom:4px}
+.sc-value{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--navy)}
+.sc-status{font-size:12px;margin-top:6px;display:flex;align-items:center;gap:5px}
+.sc-status.ok{color:var(--green)}.sc-status.warn{color:var(--gold)}.sc-status.bad{color:var(--red)}
+
+/* LINKS SECTION */
+.links-grid{display:flex;flex-direction:column;gap:10px}
+.link-row{display:flex;align-items:center;gap:14px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px 18px}
+.link-icon{font-size:20px;flex-shrink:0}
+.link-info{flex:1;min-width:0}
+.link-name{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:2px}
+.link-url{font-size:11px;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:monospace}
+.link-actions{display:flex;gap:8px;flex-shrink:0}
+.link-btn{background:none;border:1px solid var(--gray-200);border-radius:6px;padding:6px 12px;font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.link-btn:hover{border-color:var(--navy);color:var(--navy)}
+.link-btn.primary{background:var(--navy);color:white;border-color:var(--navy)}
+.link-btn.primary:hover{background:var(--navy-mid)}
+
+/* CALLOUT */
+.callout{border-radius:var(--radius);padding:14px 18px;margin:16px 0;display:flex;gap:10px;font-size:13px;line-height:1.6}
+.callout.info{background:var(--blue-dim);border-left:3px solid var(--blue);color:#1e40af}
+.callout.success{background:var(--green-dim);border-left:3px solid var(--green);color:#14532d}
+.callout.warn{background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;color:#92400e}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:white;border-radius:var(--radius);padding:13px 20px;font-size:13px;font-weight:500;display:none;align-items:center;gap:8px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.25);max-width:300px}
+#toast.show{display:flex}
+#toast.ok{border-left:3px solid var(--green)}
+#toast.err{border-left:3px solid var(--red)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .main{padding:24px 20px}
+  .field-row{grid-template-columns:1fr}
+  .preparer-row{grid-template-columns:1fr 1fr 100px 36px}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="authWrap">
+  <div class="auth-card">
+    <div class="auth-logo">TaxIntakeFlow</div>
+    <div class="auth-title">Firm Setup</div>
+    <div class="auth-sub">Enter your setup password to configure your system</div>
+    <input type="password" class="auth-input" id="authPw" placeholder="Setup password" onkeydown="if(event.key==='Enter')doAuth()">
+    <button class="auth-btn" onclick="doAuth()">Enter Setup &rarr;</button>
+    <div class="auth-err" id="authErr">Incorrect password</div>
+    <div class="auth-note">Default password: TaxSetup2025<br>Change it in Settings after logging in</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo">TaxIntakeFlow</div>
+    <div class="topbar-firm">Firm: <strong id="topFirmName">Not configured</strong></div>
+    <div class="topbar-actions">
+      <span style="font-size:12px;color:rgba(255,255,255,0.4)" id="topSaved"></span>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <span class="sidebar-label">Setup Steps</span>
+      <div class="sidebar-section">
+        <button class="sidebar-item active" onclick="showPage('urls',this)" id="nav_urls">
+          <span class="s-icon">🔗</span> Connect URLs
+          <span class="s-badge" id="badge_urls" style="display:none"></span>
+          <span class="s-check" id="check_urls" style="display:none">✓</span>
+        </button>
+        <button class="sidebar-item" onclick="showPage('firm',this)" id="nav_firm">
+          <span class="s-icon">🏢</span> Firm Info
+          <span class="s-check" id="check_firm" style="display:none">✓</span>
+        </button>
+        <button class="sidebar-item" onclick="showPage('preparers',this)" id="nav_preparers">
+          <span class="s-icon">🧾</span> Preparers
+          <span class="s-check" id="check_prep" style="display:none">✓</span>
+        </button>
+        <button class="sidebar-item" onclick="showPage('links',this)" id="nav_links">
+          <span class="s-icon">🚀</span> Your Links
+        </button>
+      </div>
+
+      <span class="sidebar-label">System</span>
+      <div class="sidebar-section">
+        <button class="sidebar-item" onclick="showPage('status',this)">
+          <span class="s-icon">📊</span> Status Check
+        </button>
+        <button class="sidebar-item" onclick="showPage('settings',this)">
+          <span class="s-icon">⚙️</span> Settings
+        </button>
+      </div>
+
+      <div class="sidebar-progress">
+        <div class="progress-label">Setup Progress</div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="progress-text"><strong id="progressNum">0</strong> of 3 steps complete</div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+      <!-- ── PAGE: CONNECT URLS ──────────────────────────── -->
+      <div class="page active" id="page_urls">
+        <div class="page-title">Connect Your URLs</div>
+        <div class="page-sub">Paste the two URLs that power your intake system. This is the only technical step.</div>
+
+        <div class="card">
+          <div class="card-title">Apps Script URL</div>
+          <div class="card-sub">This connects your intake form to Google Drive and Google Sheets. You get this URL from Google Apps Script after deploying your backend.</div>
+          <div class="field">
+            <label>Apps Script Web App URL <span class="req">*</span></label>
+            <div class="url-input-wrap">
+              <input type="text" class="f-input" id="appsScriptUrl"
+                placeholder="https://script.google.com/macros/s/XXXXXXXX/exec"
+                oninput="onUrlChange()">
+              <button class="test-btn" id="testAppsBtn" onclick="testAppsScript()">Test Connection</button>
+            </div>
+            <div class="test-result" id="appsTestResult"></div>
+            <div class="f-note">
+              How to get this URL: Open <strong>script.google.com</strong> → open your TaxIntakeFlow project → click <strong>Deploy</strong> → <strong>Manage Deployments</strong> → copy the Web App URL.
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">GHL Inbound Webhook URL</div>
+          <div class="card-sub">This connects form submissions to GoHighLevel so contacts are created automatically and your workflows fire.</div>
+          <div class="field">
+            <label>GHL Webhook URL <span class="req">*</span></label>
+            <div class="url-input-wrap">
+              <input type="text" class="f-input" id="ghlWebhookUrl"
+                placeholder="https://services.leadconnectorhq.com/hooks/XXXXXXXX/webhook-trigger/YYYYYY"
+                oninput="onUrlChange()">
+              <button class="test-btn" id="testGhlBtn" onclick="testGHL()">Test Connection</button>
+            </div>
+            <div class="test-result" id="ghlTestResult"></div>
+            <div class="f-note">
+              How to get this URL: In GHL → <strong>Automation → Workflows → TIF — New Intake Received → click the Webhook trigger → copy the Inbound Webhook URL</strong>.
+            </div>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <span>ℹ️</span>
+          <div>You only ever do this once per firm. After saving, the intake form, engagement letter, and dashboard all configure themselves automatically from these two URLs. You never open any code file.</div>
+        </div>
+
+        <button class="save-btn" onclick="saveUrls()">Save URLs &amp; Continue →</button>
+        <div class="save-confirm" id="urlsSaved"><span>✓</span> URLs saved — move to Firm Info</div>
+      </div>
+
+      <!-- ── PAGE: FIRM INFO ─────────────────────────────── -->
+      <div class="page" id="page_firm">
+        <div class="page-title">Firm Information</div>
+        <div class="page-sub">This information appears on the intake form, engagement letter, and client-facing pages.</div>
+
+        <div class="card">
+          <div class="card-title">Basic Info</div>
+          <div class="card-sub">Enter the firm's details exactly as they should appear to clients.</div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Firm Name <span class="req">*</span></label>
+              <input type="text" class="f-input" id="firmName" placeholder="Prosperium Tax &amp; Advisory" oninput="onFirmChange()">
+            </div>
+            <div class="field">
+              <label>Tax Year <span class="req">*</span></label>
+              <input type="text" class="f-input" id="taxYear" placeholder="2025" oninput="onFirmChange()">
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Phone Number</label>
+              <input type="text" class="f-input" id="firmPhone" placeholder="(555) 555-5555">
+            </div>
+            <div class="field">
+              <label>Email Address</label>
+              <input type="text" class="f-input" id="firmEmail" placeholder="info@yourfirm.com">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Website / Booking Link <span class="opt">(optional)</span></label>
+            <input type="text" class="f-input" id="firmWebsite" placeholder="https://yourfirm.com">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Client-Facing Message</div>
+          <div class="card-sub">Shown at the top of the intake form welcome screen.</div>
+          <div class="field">
+            <label>Welcome Message</label>
+            <textarea class="f-input" id="welcomeMsg" rows="3" placeholder="Welcome! Please complete this intake form so we can prepare your taxes accurately. This takes about 10-15 minutes." style="resize:vertical"></textarea>
+          </div>
+        </div>
+
+        <button class="save-btn" onclick="saveFirm()">Save Firm Info &amp; Continue →</button>
+        <div class="save-confirm" id="firmSaved"><span>✓</span> Firm info saved — move to Preparers</div>
+      </div>
+
+      <!-- ── PAGE: PREPARERS ────────────────────────────── -->
+      <div class="page" id="page_preparers">
+        <div class="page-title">Add Preparers</div>
+        <div class="page-sub">Add every preparer at this firm. They will appear in the intake form dropdown automatically. You can add or remove preparers at any time — the form updates immediately.</div>
+
+        <div class="card">
+          <div class="card-title">Preparer List</div>
+          <div class="card-sub">Name and email are required. PTIN is optional but recommended for compliance.</div>
+
+          <div class="preparer-row header">
+            <span>Full Name</span>
+            <span>Email</span>
+            <span>PTIN</span>
+            <span></span>
+          </div>
+
+          <div class="preparer-list" id="preparerList">
+            <!-- Rows added by JS -->
+          </div>
+
+          <button class="add-btn" onclick="addPreparer()">+ Add Preparer</button>
+
+          <div class="callout warn" style="margin-top:20px">
+            <span>⚠️</span>
+            <div>When you save, these preparers are sent to your Google Sheet automatically. The intake form dropdown updates within seconds. You never need to touch the form code.</div>
+          </div>
+        </div>
+
+        <button class="save-btn" onclick="savePreparers()">Save Preparers &amp; Continue →</button>
+        <div class="save-confirm" id="prepSaved"><span>✓</span> Preparers saved to Google Sheet</div>
+      </div>
+
+      <!-- ── PAGE: YOUR LINKS ───────────────────────────── -->
+      <div class="page" id="page_links">
+        <div class="page-title">Your System Links</div>
+        <div class="page-sub">Share these links with the right people. Each link is pre-configured with your firm settings.</div>
+
+        <div class="callout success">
+          <span>🎉</span>
+          <div><strong>Setup complete!</strong> Your TaxIntakeFlow system is live. Share the links below and you're ready to accept your first client.</div>
+        </div>
+
+        <div class="card" style="margin-top:4px">
+          <div class="card-title">Client Links</div>
+          <div class="card-sub">Send these to clients. They are pre-filled with your firm name and tax year.</div>
+          <div class="links-grid" id="clientLinks">
+            <div class="link-row">
+              <div class="link-icon">📋</div>
+              <div class="link-info">
+                <div class="link-name">Tax Intake Form</div>
+                <div class="link-url" id="intakeUrl">Configure URLs first</div>
+              </div>
+              <div class="link-actions">
+                <button class="link-btn" onclick="copyLink('intakeUrl')">Copy</button>
+                <button class="link-btn primary" onclick="openLink('intakeUrl')">Open</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Firm Owner Links</div>
+          <div class="card-sub">Only share these with firm owners and managers.</div>
+          <div class="links-grid">
+            <div class="link-row">
+              <div class="link-icon">📊</div>
+              <div class="link-info">
+                <div class="link-name">Firm Dashboard</div>
+                <div class="link-url" id="dashUrl">dashboard.html</div>
+              </div>
+              <div class="link-actions">
+                <button class="link-btn" onclick="copyLink('dashUrl')">Copy</button>
+                <button class="link-btn primary" onclick="openLink('dashUrl')">Open</button>
+              </div>
+            </div>
+            <div class="link-row">
+              <div class="link-icon">⚙️</div>
+              <div class="link-info">
+                <div class="link-name">This Setup Page</div>
+                <div class="link-url" id="setupUrl">setup.html</div>
+              </div>
+              <div class="link-actions">
+                <button class="link-btn" onclick="copyLink('setupUrl')">Copy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Send Engagement Letter to a Specific Client</div>
+          <div class="card-sub">Generate a pre-filled engagement letter link for any client. GHL does this automatically, but you can also generate one manually here.</div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Client First Name</label>
+              <input type="text" class="f-input" id="engFirst" placeholder="Maria" oninput="buildEngLink()">
+            </div>
+            <div class="field">
+              <label>Client Last Name</label>
+              <input type="text" class="f-input" id="engLast" placeholder="Gonzalez" oninput="buildEngLink()">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Client Email</label>
+              <input type="text" class="f-input" id="engEmail" placeholder="maria@email.com" oninput="buildEngLink()">
+            </div>
+            <div class="field">
+              <label>Assigned Preparer</label>
+              <select class="f-input" id="engPreparer" onchange="buildEngLink()">
+                <option value="">Select preparer...</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Generated Engagement Letter Link</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" class="f-input" id="engLinkOutput" placeholder="Fill in fields above..." readonly style="font-family:monospace;font-size:12px">
+              <button class="link-btn primary" onclick="copyEngLink()" style="flex-shrink:0;padding:11px 16px">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PAGE: STATUS ───────────────────────────────── -->
+      <div class="page" id="page_status">
+        <div class="page-title">System Status</div>
+        <div class="page-sub">Live check of all connections in your intake system.</div>
+
+        <div class="status-grid" id="statusGrid">
+          <div class="status-card" id="sc_apps">
+            <span class="sc-icon">⚙️</span>
+            <div class="sc-label">Apps Script</div>
+            <div class="sc-value" id="sv_apps">Not tested</div>
+            <div class="sc-status" id="ss_apps">Run status check</div>
+          </div>
+          <div class="status-card" id="sc_ghl">
+            <span class="sc-icon">🔗</span>
+            <div class="sc-label">GHL Webhook</div>
+            <div class="sc-value" id="sv_ghl">Not tested</div>
+            <div class="sc-status" id="ss_ghl">Run status check</div>
+          </div>
+          <div class="status-card" id="sc_prep">
+            <span class="sc-icon">🧾</span>
+            <div class="sc-label">Preparers</div>
+            <div class="sc-value" id="sv_prep">—</div>
+            <div class="sc-status" id="ss_prep">Not loaded</div>
+          </div>
+          <div class="status-card" id="sc_firm">
+            <span class="sc-icon">🏢</span>
+            <div class="sc-label">Firm Name</div>
+            <div class="sc-value" id="sv_firm">—</div>
+            <div class="sc-status" id="ss_firm">Not configured</div>
+          </div>
+        </div>
+
+        <button class="save-btn" onclick="runStatusCheck()">▶ Run Full Status Check</button>
+      </div>
+
+      <!-- ── PAGE: SETTINGS ─────────────────────────────── -->
+      <div class="page" id="page_settings">
+        <div class="page-title">Settings</div>
+        <div class="page-sub">Change your setup password and manage saved data.</div>
+
+        <div class="card">
+          <div class="card-title">Security</div>
+          <div class="card-sub">Change the password that protects this setup page.</div>
+          <div class="field-row">
+            <div class="field">
+              <label>New Setup Password</label>
+              <input type="password" class="f-input" id="newPw" placeholder="New password">
+            </div>
+            <div class="field">
+              <label>Confirm Password</label>
+              <input type="password" class="f-input" id="confirmPw" placeholder="Confirm new password">
+            </div>
+          </div>
+          <button class="save-btn" style="padding:10px 20px;font-size:13px" onclick="changePassword()">Change Password</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Data</div>
+          <div class="card-sub">All settings are saved in this browser's local storage.</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="save-btn" style="padding:10px 20px;font-size:13px;background:var(--gray-600)" onclick="exportConfig()">⬇ Export Config JSON</button>
+            <button class="save-btn" style="padding:10px 20px;font-size:13px;background:var(--red)" onclick="if(confirm('Clear all saved settings?')){localStorage.clear();location.reload()}">🗑 Reset Everything</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// TAXINTAKEFLOW — FIRM SETUP PAGE
+// ============================================================
+// This page is the ONLY place a firm ever configures their system.
+// No code files. No HTML editing. Just fill in and save.
+// ============================================================
+
+const DEFAULT_PW = "TaxSetup2025";
+
+// BASE PATHS — these are the filenames of your other pages
+// If you host all files in the same folder, these work as-is.
+// If hosted in subfolders, update these paths.
+const PAGES = {
+  intake:     "intake.html",
+  engagement: "engagement.html",
+  dashboard:  "dashboard.html",
+  setup:      "setup.html",
+};
+
+// ── AUTH ──────────────────────────────────────────────────────
+function doAuth() {
+  const input  = document.getElementById("authPw").value;
+  const stored = localStorage.getItem("tif_setup_pw") || DEFAULT_PW;
+  if (input === stored) {
+    document.getElementById("authWrap").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    localStorage.setItem("tif_setup_ts", Date.now());
+    initSetup();
+  } else {
+    document.getElementById("authErr").style.display = "block";
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("authPw").onkeydown = e => { if (e.key === "Enter") doAuth(); };
+  const ts = parseInt(localStorage.getItem("tif_setup_ts") || "0");
+  if (Date.now() - ts < 4 * 3600000) {
+    document.getElementById("authWrap").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    initSetup();
+  }
+});
+
+// ── INIT ──────────────────────────────────────────────────────
+function initSetup() {
+  loadAll();
+  updateProgress();
+  updatePageLinks();
+  addPreparer(); // Start with one empty row if none exist
+}
+
+function loadAll() {
+  // URLs
+  const appsUrl = localStorage.getItem("tif_appsScriptUrl") || "";
+  const ghlUrl  = localStorage.getItem("tif_ghlWebhookUrl") || "";
+  document.getElementById("appsScriptUrl").value = appsUrl;
+  document.getElementById("ghlWebhookUrl").value = ghlUrl;
+
+  // Firm
+  const firm    = localStorage.getItem("tif_firmName")    || "";
+  const year    = localStorage.getItem("tif_taxYear")     || (new Date().getFullYear() - 1).toString();
+  const phone   = localStorage.getItem("tif_firmPhone")   || "";
+  const email   = localStorage.getItem("tif_firmEmail")   || "";
+  const website = localStorage.getItem("tif_firmWebsite") || "";
+  const welcome = localStorage.getItem("tif_welcomeMsg")  || "";
+  document.getElementById("firmName").value     = firm;
+  document.getElementById("taxYear").value      = year;
+  document.getElementById("firmPhone").value    = phone;
+  document.getElementById("firmEmail").value    = email;
+  document.getElementById("firmWebsite").value  = website;
+  document.getElementById("welcomeMsg").value   = welcome;
+
+  document.getElementById("topFirmName").textContent = firm || "Not configured";
+
+  // Preparers
+  const saved = JSON.parse(localStorage.getItem("tif_preparers") || "[]");
+  const list  = document.getElementById("preparerList");
+  list.innerHTML = "";
+  if (saved.length > 0) {
+    saved.forEach(p => addPreparer(p.name, p.email, p.ptin));
+  }
+
+  // Populate engagement preparer dropdown
+  populateEngPrep(saved);
+}
+
+// ── PREPARERS ─────────────────────────────────────────────────
+let prepId = 0;
+function addPreparer(name = "", email = "", ptin = "") {
+  // Don't add blank row if already have one
+  const list  = document.getElementById("preparerList");
+  const id    = ++prepId;
+
+  const row = document.createElement("div");
+  row.className = "preparer-row";
+  row.id = `prow_${id}`;
+  row.innerHTML = `
+    <input type="text" class="p-input" placeholder="John Smith" value="${name}" id="pname_${id}">
+    <input type="text" class="p-input" placeholder="john@firm.com" value="${email}" id="pemail_${id}">
+    <input type="text" class="p-input" placeholder="P00001" value="${ptin}" id="pptin_${id}">
+    <button class="remove-btn" onclick="document.getElementById('prow_${id}').remove();updateProgress()">🗑</button>`;
+  list.appendChild(row);
+}
+
+function getPreparers() {
+  const rows = document.querySelectorAll(".preparer-row:not(.header)");
+  const result = [];
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll(".p-input");
+    const name   = inputs[0]?.value.trim();
+    const email  = inputs[1]?.value.trim();
+    const ptin   = inputs[2]?.value.trim();
+    if (name) result.push({ name, email, ptin });
+  });
+  return result;
+}
+
+function populateEngPrep(preps) {
+  const sel = document.getElementById("engPreparer");
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">Select preparer...</option>`;
+  preps.forEach(p => {
+    const o = document.createElement("option");
+    o.value = p.name;
+    o.textContent = p.name;
+    if (p.name === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+// ── SAVE FUNCTIONS ────────────────────────────────────────────
+function saveUrls() {
+  const apps = document.getElementById("appsScriptUrl").value.trim();
+  const ghl  = document.getElementById("ghlWebhookUrl").value.trim();
+
+  if (!apps) { toast("Please enter the Apps Script URL", "err"); return; }
+  if (!ghl)  { toast("Please enter the GHL Webhook URL", "err"); return; }
+
+  localStorage.setItem("tif_appsScriptUrl", apps);
+  localStorage.setItem("tif_ghlWebhookUrl", ghl);
+
+  document.getElementById("urlsSaved").classList.add("show");
+  setTimeout(() => document.getElementById("urlsSaved").classList.remove("show"), 3000);
+  updateProgress();
+  updatePageLinks();
+  toast("URLs saved!", "ok");
+
+  // Auto-navigate to next step
+  setTimeout(() => showPage("firm", document.getElementById("nav_firm")), 1200);
+}
+
+function saveFirm() {
+  const firm    = document.getElementById("firmName").value.trim();
+  const year    = document.getElementById("taxYear").value.trim();
+  if (!firm) { toast("Firm name is required", "err"); return; }
+  if (!year) { toast("Tax year is required", "err");  return; }
+
+  localStorage.setItem("tif_firmName",    firm);
+  localStorage.setItem("tif_taxYear",     year);
+  localStorage.setItem("tif_firmPhone",   document.getElementById("firmPhone").value.trim());
+  localStorage.setItem("tif_firmEmail",   document.getElementById("firmEmail").value.trim());
+  localStorage.setItem("tif_firmWebsite", document.getElementById("firmWebsite").value.trim());
+  localStorage.setItem("tif_welcomeMsg",  document.getElementById("welcomeMsg").value.trim());
+
+  document.getElementById("topFirmName").textContent = firm;
+  document.getElementById("firmSaved").classList.add("show");
+  setTimeout(() => document.getElementById("firmSaved").classList.remove("show"), 3000);
+  updateProgress();
+  updatePageLinks();
+  toast("Firm info saved!", "ok");
+
+  setTimeout(() => showPage("preparers", document.getElementById("nav_preparers")), 1200);
+}
+
+async function savePreparers() {
+  const preps = getPreparers();
+  if (!preps.length) { toast("Add at least one preparer", "err"); return; }
+
+  localStorage.setItem("tif_preparers", JSON.stringify(preps));
+  populateEngPrep(preps);
+  updateProgress();
+
+  // Send to Apps Script so Google Sheet is updated
+  const appsUrl = localStorage.getItem("tif_appsScriptUrl");
+  if (appsUrl) {
+    try {
+      const btn = document.querySelector("#page_preparers .save-btn");
+      btn.disabled = true;
+      btn.textContent = "Saving to Google Sheet...";
+
+      await fetch(appsUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "sync_preparers", preparers: preps }),
+        mode: "no-cors",
+      });
+
+      btn.disabled = false;
+      btn.innerHTML = "Save Preparers &amp; Continue →";
+    } catch(e) {
+      // no-cors means we can't read response but it likely went through
+    }
+  }
+
+  document.getElementById("prepSaved").classList.add("show");
+  setTimeout(() => document.getElementById("prepSaved").classList.remove("show"), 3000);
+  toast("Preparers saved!", "ok");
+
+  setTimeout(() => showPage("links", document.getElementById("nav_links")), 1200);
+}
+
+// ── PROGRESS ──────────────────────────────────────────────────
+function updateProgress() {
+  let done = 0;
+
+  const hasUrls = localStorage.getItem("tif_appsScriptUrl") && localStorage.getItem("tif_ghlWebhookUrl");
+  const hasFirm = localStorage.getItem("tif_firmName");
+  const hasPrep = JSON.parse(localStorage.getItem("tif_preparers") || "[]").length > 0;
+
+  if (hasUrls) { done++; setCheck("check_urls", true); } else setCheck("check_urls", false);
+  if (hasFirm) { done++; setCheck("check_firm", true); } else setCheck("check_firm", false);
+  if (hasPrep) { done++; setCheck("check_prep", true); } else setCheck("check_prep", false);
+
+  document.getElementById("progressFill").style.width = Math.round(done / 3 * 100) + "%";
+  document.getElementById("progressNum").textContent = done;
+}
+
+function setCheck(id, on) {
+  document.getElementById(id).style.display = on ? "inline" : "none";
+}
+
+// ── PAGE LINKS ────────────────────────────────────────────────
+function updatePageLinks() {
+  const appsUrl = localStorage.getItem("tif_appsScriptUrl") || "";
+  const ghlUrl  = localStorage.getItem("tif_ghlWebhookUrl") || "";
+  const firm    = encodeURIComponent(localStorage.getItem("tif_firmName")  || "");
+  const year    = encodeURIComponent(localStorage.getItem("tif_taxYear")   || "");
+
+  const base    = window.location.href.replace("setup.html", "");
+
+  // Intake form URL — has firm name, tax year, and both URLs baked in
+  const intakeUrl = `${base}${PAGES.intake}?firm=${firm}&year=${year}&url=${encodeURIComponent(appsUrl)}&ghl=${encodeURIComponent(ghlUrl)}`;
+  const dashUrl   = `${base}${PAGES.dashboard}?url=${encodeURIComponent(appsUrl)}&firm=${firm}`;
+  const setupUrl  = window.location.href;
+
+  document.getElementById("intakeUrl").textContent = intakeUrl;
+  document.getElementById("dashUrl").textContent   = dashUrl;
+  document.getElementById("setupUrl").textContent  = setupUrl;
+
+  document.getElementById("intakeUrl").dataset.url = intakeUrl;
+  document.getElementById("dashUrl").dataset.url   = dashUrl;
+  document.getElementById("setupUrl").dataset.url  = setupUrl;
+}
+
+// ── ENGAGEMENT LETTER LINK BUILDER ────────────────────────────
+function buildEngLink() {
+  const first   = document.getElementById("engFirst").value.trim();
+  const last    = document.getElementById("engLast").value.trim();
+  const email   = document.getElementById("engEmail").value.trim();
+  const prep    = document.getElementById("engPreparer").value;
+  const firm    = localStorage.getItem("tif_firmName")    || "";
+  const year    = localStorage.getItem("tif_taxYear")     || "";
+  const appsUrl = localStorage.getItem("tif_appsScriptUrl") || "";
+  const base    = window.location.href.replace("setup.html", "");
+
+  if (!first || !last) {
+    document.getElementById("engLinkOutput").value = "Fill in first and last name...";
+    return;
+  }
+
+  const url = `${base}${PAGES.engagement}?firstName=${encodeURIComponent(first)}&lastName=${encodeURIComponent(last)}&email=${encodeURIComponent(email)}&preparer=${encodeURIComponent(prep)}&firmName=${encodeURIComponent(firm)}&taxYear=${encodeURIComponent(year)}&appsScriptUrl=${encodeURIComponent(appsUrl)}`;
+  document.getElementById("engLinkOutput").value = url;
+}
+
+function copyEngLink() {
+  const val = document.getElementById("engLinkOutput").value;
+  if (!val || val.includes("Fill in")) { toast("Build the link first", "err"); return; }
+  copy(val);
+  toast("Engagement letter link copied!", "ok");
+}
+
+// ── TEST CONNECTIONS ──────────────────────────────────────────
+async function testAppsScript() {
+  const url = document.getElementById("appsScriptUrl").value.trim();
+  if (!url) { toast("Enter the Apps Script URL first", "err"); return; }
+
+  const btn    = document.getElementById("testAppsBtn");
+  const result = document.getElementById("appsTestResult");
+  btn.textContent = "Testing...";
+  btn.classList.add("testing");
+  result.className = "test-result";
+  result.style.display = "none";
+
+  try {
+    const res  = await fetch(url + "?action=ping", { signal: AbortSignal.timeout(8000) });
+    const data = await res.json();
+    if (data.success) {
+      result.className = "test-result ok";
+      result.innerHTML = "✅ Connected — Apps Script is responding correctly";
+      document.getElementById("appsScriptUrl").classList.add("verified");
+    } else {
+      throw new Error(data.error || "Unexpected response");
+    }
+  } catch(e) {
+    result.className = "test-result fail";
+    result.innerHTML = "❌ Could not connect — check your URL and make sure the script is deployed as a Web App set to 'Anyone'";
+  }
+
+  result.style.display = "flex";
+  btn.textContent = "Test Connection";
+  btn.classList.remove("testing");
+}
+
+async function testGHL() {
+  const url = document.getElementById("ghlWebhookUrl").value.trim();
+  if (!url) { toast("Enter the GHL Webhook URL first", "err"); return; }
+
+  const btn    = document.getElementById("testGhlBtn");
+  const result = document.getElementById("ghlTestResult");
+  btn.textContent = "Testing...";
+  btn.classList.add("testing");
+
+  try {
+    await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "test", source: "TaxIntakeFlow Setup" }),
+      mode: "no-cors",
+      signal: AbortSignal.timeout(6000),
+    });
+    // no-cors means success if no network error
+    result.className = "test-result ok";
+    result.innerHTML = "✅ Request sent — check your GHL workflow history to confirm it arrived";
+  } catch(e) {
+    result.className = "test-result fail";
+    result.innerHTML = "❌ Could not reach webhook — check that the URL is correct and the workflow is active";
+  }
+
+  result.style.display = "flex";
+  btn.textContent = "Test Connection";
+  btn.classList.remove("testing");
+}
+
+// ── STATUS CHECK ──────────────────────────────────────────────
+async function runStatusCheck() {
+  const appsUrl = localStorage.getItem("tif_appsScriptUrl");
+  const firm    = localStorage.getItem("tif_firmName");
+  const preps   = JSON.parse(localStorage.getItem("tif_preparers") || "[]");
+
+  // Firm status
+  setStatus("sc_firm", "sv_firm", "ss_firm",
+    firm ? "ok" : "bad",
+    firm || "Not set",
+    firm ? "✓ Configured" : "⚠ Missing");
+
+  // Preparer status
+  setStatus("sc_prep", "sv_prep", "ss_prep",
+    preps.length > 0 ? "ok" : "bad",
+    preps.length + " preparers",
+    preps.length > 0 ? "✓ " + preps.map(p=>p.name).join(", ") : "⚠ None added");
+
+  // Apps Script
+  if (!appsUrl) {
+    setStatus("sc_apps", "sv_apps", "ss_apps", "bad", "No URL", "⚠ Not configured");
+  } else {
+    setStatus("sc_apps", "sv_apps", "ss_apps", "warn", "Testing...", "Connecting...");
+    try {
+      const res  = await fetch(appsUrl + "?action=ping", { signal: AbortSignal.timeout(8000) });
+      const data = await res.json();
+      setStatus("sc_apps", "sv_apps", "ss_apps",
+        data.success ? "ok" : "bad",
+        data.success ? "Online" : "Error",
+        data.success ? "✓ Responding correctly" : "❌ " + (data.error || "Bad response"));
+    } catch(e) {
+      setStatus("sc_apps", "sv_apps", "ss_apps", "bad", "Offline", "❌ Cannot connect");
+    }
+  }
+
+  // GHL — just check if URL is set (can't actually test without CORS)
+  const ghlUrl = localStorage.getItem("tif_ghlWebhookUrl");
+  setStatus("sc_ghl", "sv_ghl", "ss_ghl",
+    ghlUrl ? "ok" : "bad",
+    ghlUrl ? "Configured" : "Not set",
+    ghlUrl ? "✓ URL saved" : "⚠ Not configured");
+}
+
+function setStatus(cardId, valId, statusId, state, val, status) {
+  const card = document.getElementById(cardId);
+  card.className = "status-card " + state;
+  document.getElementById(valId).textContent = val;
+  const el = document.getElementById(statusId);
+  el.className = "sc-status " + state;
+  el.textContent = status;
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────
+function changePassword() {
+  const np = document.getElementById("newPw").value;
+  const cp = document.getElementById("confirmPw").value;
+  if (!np) { toast("Enter a new password", "err"); return; }
+  if (np !== cp) { toast("Passwords don't match", "err"); return; }
+  localStorage.setItem("tif_setup_pw", np);
+  document.getElementById("newPw").value    = "";
+  document.getElementById("confirmPw").value = "";
+  toast("Password changed!", "ok");
+}
+
+function exportConfig() {
+  const config = {
+    appsScriptUrl: localStorage.getItem("tif_appsScriptUrl") || "",
+    ghlWebhookUrl: localStorage.getItem("tif_ghlWebhookUrl") || "",
+    firmName:      localStorage.getItem("tif_firmName")      || "",
+    taxYear:       localStorage.getItem("tif_taxYear")       || "",
+    firmPhone:     localStorage.getItem("tif_firmPhone")     || "",
+    firmEmail:     localStorage.getItem("tif_firmEmail")     || "",
+    preparers:     JSON.parse(localStorage.getItem("tif_preparers") || "[]"),
+    exported:      new Date().toISOString(),
+  };
+  const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
+  const a    = document.createElement("a");
+  a.href     = URL.createObjectURL(blob);
+  a.download = `TaxIntakeFlow_Config_${localStorage.getItem("tif_firmName") || "firm"}.json`;
+  a.click();
+  toast("Config exported!", "ok");
+}
+
+// ── CHANGE EVENTS ─────────────────────────────────────────────
+function onUrlChange() { updateProgress(); }
+function onFirmChange() {
+  const firm = document.getElementById("firmName").value.trim();
+  document.getElementById("topFirmName").textContent = firm || "Not configured";
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────
+function showPage(id, el) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".sidebar-item").forEach(n => n.classList.remove("active"));
+  document.getElementById("page_" + id)?.classList.add("active");
+  if (el) el.classList.add("active");
+  if (id === "status") runStatusCheck();
+  if (id === "links")  updatePageLinks();
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function copyLink(elId) {
+  const el  = document.getElementById(elId);
+  const url = el.dataset.url || el.textContent;
+  copy(url);
+  toast("Link copied!", "ok");
+}
+
+function openLink(elId) {
+  const el  = document.getElementById(elId);
+  const url = el.dataset.url || el.textContent;
+  if (url && url !== "Configure URLs first") window.open(url, "_blank");
+}
+
+function copy(text) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const el = document.createElement("textarea");
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand("copy");
+    document.body.removeChild(el);
+  });
+}
+
+function toast(msg, type = "ok") {
+  const el = document.getElementById("toast");
+  el.textContent = (type === "ok" ? "✓ " : "⚠ ") + msg;
+  el.className   = "show " + type;
+  el.style.display = "flex";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.display = "none", 3000);
+}
+</script>
+</body>
+</html>

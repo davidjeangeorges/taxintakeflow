@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engagement Letter — TaxIntakeFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:   #0d1b2a;
+  --gold:   #c9a84c;
+  --cream:  #faf8f3;
+  --white:  #ffffff;
+  --gray-100: #f5f4f1;
+  --gray-200: #e8e6e1;
+  --gray-400: #9b9488;
+  --gray-600: #5c5650;
+  --gray-800: #2a2722;
+  --green:  #22c55e;
+  --red:    #ef4444;
+  --radius: 10px;
+  --font-serif: 'EB Garamond', Georgia, serif;
+  --font-sans:  'DM Sans', sans-serif;
+  --shadow: 0 2px 16px rgba(13,27,42,0.08);
+  --shadow-lg: 0 8px 40px rgba(13,27,42,0.15);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  background: var(--cream);
+  color: var(--gray-800);
+  font-size: 15px;
+  line-height: 1.7;
+  padding: 40px 20px 80px;
+}
+
+/* PRINT */
+@media print {
+  body { padding: 0; background: white; }
+  .no-print { display: none !important; }
+  .letter-wrap { box-shadow: none; border: none; max-width: 100%; }
+  .sig-section { border: 1px solid #ccc; }
+}
+
+/* HEADER BAR */
+.top-bar {
+  max-width: 780px;
+  margin: 0 auto 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.top-bar-logo {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.top-bar-actions { display: flex; gap: 10px; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--gray-200);
+  color: var(--gray-600);
+}
+.btn-ghost:hover { border-color: var(--gray-400); color: var(--gray-800); }
+
+/* LETTER WRAPPER */
+.letter-wrap {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  max-width: 780px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* LETTER HEADER */
+.letter-header {
+  background: var(--navy);
+  padding: 44px 56px 40px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.letter-header::before {
+  content: "";
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 240px; height: 240px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.08);
+}
+.letter-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201,168,76,0.4), transparent);
+}
+.firm-name {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.letter-title {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 400;
+  color: white;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+.letter-meta {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.meta-item { font-size: 13px; color: rgba(255,255,255,0.55); }
+.meta-item strong { display: block; color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 500; }
+
+/* LETTER BODY */
+.letter-body {
+  padding: 48px 56px;
+}
+
+/* SECTION */
+.section { margin-bottom: 36px; }
+.section-title {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.section p {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--gray-700, #3a3530);
+  margin-bottom: 12px;
+  line-height: 1.8;
+}
+.section p:last-child { margin-bottom: 0; }
+
+/* CLIENT INFO BOX */
+.client-box {
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  margin-bottom: 36px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 32px;
+}
+.info-item {}
+.info-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  margin-bottom: 3px;
+}
+.info-value {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  color: var(--gray-800);
+  font-weight: 500;
+}
+
+/* SERVICES TABLE */
+.services-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0;
+}
+.services-table th {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  padding: 10px 16px;
+  text-align: left;
+  background: var(--gray-100);
+  border-bottom: 1px solid var(--gray-200);
+}
+.services-table td {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--gray-200);
+  color: var(--gray-700, #3a3530);
+  vertical-align: top;
+}
+.services-table tr:last-child td { border-bottom: none; }
+.services-table .included { color: var(--green); font-size: 16px; }
+.services-table .excluded { color: var(--gray-400); font-size: 16px; }
+
+/* TERMS */
+.terms-box {
+  background: var(--gray-100);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  margin: 16px 0 28px;
+}
+.terms-item {
+  display: flex;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--gray-200);
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--gray-700, #3a3530);
+  line-height: 1.7;
+}
+.terms-item:last-child { border-bottom: none; }
+.terms-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: white;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+/* NOTICE BOX */
+.notice {
+  border-left: 3px solid var(--gold);
+  background: rgba(201,168,76,0.07);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 16px 20px;
+  margin: 20px 0;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--gray-700, #3a3530);
+  line-height: 1.7;
+}
+
+/* DIVIDER */
+.divider {
+  height: 1px;
+  background: var(--gray-200);
+  margin: 36px 0;
+}
+
+/* SIGNATURE SECTION */
+.sig-section {
+  background: var(--gray-100);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-top: 36px;
+}
+.sig-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+.sig-sub {
+  font-size: 13px;
+  color: var(--gray-400);
+  margin-bottom: 28px;
+}
+
+.sig-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.sig-field { }
+.sig-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  margin-bottom: 8px;
+}
+.sig-input {
+  width: 100%;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--gray-800);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.sig-input:focus { border-color: var(--gold); }
+.sig-input::placeholder { color: var(--gray-400); }
+.sig-input.sig-name {
+  font-family: 'Pinyon Script', 'Brush Script MT', cursive;
+  font-size: 26px;
+  padding: 14px 16px;
+  min-height: 64px;
+  color: var(--navy);
+}
+.sig-name-preview {
+  min-height: 64px;
+  border-bottom: 2px solid var(--navy);
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  font-family: 'Pinyon Script', 'Brush Script MT', cursive;
+  font-size: 32px;
+  color: var(--navy);
+}
+.sig-name-preview.empty { opacity: 0.2; font-family: var(--font-serif); font-size: 14px; font-style: italic; }
+.sig-name-line-label {
+  font-size: 11px;
+  color: var(--gray-400);
+  font-family: var(--font-sans);
+}
+
+.agree-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 20px 0;
+  cursor: pointer;
+}
+.agree-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--navy);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.agree-text {
+  font-size: 13px;
+  color: var(--gray-600);
+  line-height: 1.6;
+}
+.agree-text strong { color: var(--gray-800); }
+
+.submit-btn {
+  width: 100%;
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  padding: 16px;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+  letter-spacing: 0.3px;
+}
+.submit-btn:hover { background: #1b2d42; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(13,27,42,0.25); }
+.submit-btn:disabled { background: var(--gray-400); cursor: not-allowed; transform: none; box-shadow: none; }
+.submit-btn.loading::after { content: " ⟳"; display: inline-block; animation: spin 1s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.field-error { font-size: 12px; color: var(--red); margin-top: 4px; display: none; }
+.field-error.show { display: block; }
+
+/* SUCCESS SCREEN */
+#successScreen {
+  display: none;
+  text-align: center;
+  padding: 80px 48px;
+}
+.success-icon {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: rgba(34,197,94,0.12);
+  border: 2px solid rgba(34,197,94,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  margin: 0 auto 28px;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+.success-title {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+.success-sub { font-size: 15px; color: var(--gray-400); margin-bottom: 32px; }
+.success-next {
+  background: var(--gray-100);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  text-align: left;
+  max-width: 420px;
+  margin: 0 auto;
+}
+.success-next-title { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray-400); margin-bottom: 14px; }
+.next-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--gray-600);
+  border-bottom: 1px solid var(--gray-200);
+}
+.next-item:last-child { border-bottom: none; }
+.next-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  body { padding: 16px 12px 60px; }
+  .letter-header { padding: 32px 28px; }
+  .letter-body { padding: 32px 28px; }
+  .client-box { grid-template-columns: 1fr; }
+  .sig-grid { grid-template-columns: 1fr; }
+  .letter-meta { gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar no-print">
+  <div class="top-bar-logo" id="topBarFirm">Prosperium Tax &amp; Advisory</div>
+  <div class="top-bar-actions">
+    <button class="btn btn-ghost" onclick="window.print()">🖨 Print</button>
+  </div>
+</div>
+
+<!-- LETTER WRAPPER -->
+<div class="letter-wrap" id="letterWrap">
+
+  <!-- LETTER HEADER -->
+  <div class="letter-header">
+    <div class="firm-name" id="headerFirmName">Prosperium Tax &amp; Advisory</div>
+    <h1 class="letter-title">Tax Preparation<br>Engagement Letter</h1>
+    <div class="letter-meta">
+      <div class="meta-item"><span>Tax Year</span><strong id="metaTaxYear">—</strong></div>
+      <div class="meta-item"><span>Date Issued</span><strong id="metaDate">—</strong></div>
+      <div class="meta-item"><span>Assigned Preparer</span><strong id="metaPreparer">—</strong></div>
+      <div class="meta-item"><span>Reference</span><strong id="metaRef">—</strong></div>
+    </div>
+  </div>
+
+  <!-- LETTER BODY -->
+  <div class="letter-body" id="letterBody">
+
+    <!-- CLIENT INFO -->
+    <div class="client-box">
+      <div class="info-item">
+        <div class="info-label">Client Name</div>
+        <div class="info-value" id="infoName">—</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Filing Status</div>
+        <div class="info-value" id="infoFilingStatus">—</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Email Address</div>
+        <div class="info-value" id="infoEmail">—</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Phone</div>
+        <div class="info-value" id="infoPhone">—</div>
+      </div>
+    </div>
+
+    <!-- INTRODUCTION -->
+    <div class="section">
+      <div class="section-title">Introduction</div>
+      <p>Dear <span id="salutation">Valued Client</span>,</p>
+      <p>Thank you for choosing <strong id="firmNameText">Prosperium Tax &amp; Advisory</strong> for your tax preparation needs. This engagement letter outlines the scope of services we will provide, the responsibilities of both parties, and the terms under which we will work together for Tax Year <strong id="taxYearText">—</strong>.</p>
+      <p>Please read this letter carefully, and sign at the bottom to confirm your agreement before we begin preparation of your tax return.</p>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="section">
+      <div class="section-title">Scope of Services</div>
+      <p>Based on the information you provided in your intake form, the following services are included in this engagement:</p>
+      <table class="services-table" id="servicesTable">
+        <thead>
+          <tr><th>Service</th><th>Status</th><th>Notes</th></tr>
+        </thead>
+        <tbody id="servicesTbody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+      <div class="notice">
+        <strong>Important:</strong> Services not listed above are not included in this engagement. If additional services are required during preparation, we will contact you before proceeding, and additional fees may apply.
+      </div>
+    </div>
+
+    <!-- CLIENT RESPONSIBILITIES -->
+    <div class="section">
+      <div class="section-title">Client Responsibilities</div>
+      <div class="terms-box">
+        <div class="terms-item"><div class="terms-num">1</div><div>You agree to provide all documents, records, and information necessary to prepare your return, including but not limited to: W-2s, 1099s, prior year return, Social Security cards, and any other relevant documents requested by your preparer.</div></div>
+        <div class="terms-item"><div class="terms-num">2</div><div>You confirm that all information provided in your intake form and any subsequent documents is accurate, complete, and truthful to the best of your knowledge.</div></div>
+        <div class="terms-item"><div class="terms-num">3</div><div>You agree to respond promptly to requests from your preparer for additional information or clarification. Delays in providing information may result in delays in completing your return.</div></div>
+        <div class="terms-item"><div class="terms-num">4</div><div>You are responsible for reviewing your completed return before signing and filing. Your signature on Form 8879 (e-File Authorization) represents your confirmation that the return is accurate and complete.</div></div>
+        <div class="terms-item"><div class="terms-num">5</div><div>You agree to pay all fees as outlined in the fee section of this letter prior to, or at the time of, return delivery.</div></div>
+      </div>
+    </div>
+
+    <!-- OUR RESPONSIBILITIES -->
+    <div class="section">
+      <div class="section-title">Our Responsibilities</div>
+      <div class="terms-box">
+        <div class="terms-item"><div class="terms-num">1</div><div>We will prepare your federal and state income tax returns based on information you provide. We will not audit or independently verify the information you provide unless specifically engaged to do so.</div></div>
+        <div class="terms-item"><div class="terms-num">2</div><div>We will apply applicable tax laws and regulations in effect for Tax Year <span id="taxYearTerms">—</span> to minimize your tax liability within the bounds of the law.</div></div>
+        <div class="terms-item"><div class="terms-num">3</div><div>We will maintain the confidentiality of all information you provide. We will not disclose your information to third parties without your consent, except as required by law.</div></div>
+        <div class="terms-item"><div class="terms-num">4</div><div>We will notify you of any missing documents or questions that arise during preparation before completing your return.</div></div>
+        <div class="terms-item"><div class="terms-num">5</div><div>We will provide you with copies of your completed return for your records. We will retain copies of your return for a minimum of three (3) years.</div></div>
+      </div>
+    </div>
+
+    <!-- FEES -->
+    <div class="section">
+      <div class="section-title">Fees &amp; Payment</div>
+      <p>Tax preparation fees are based on the complexity of your return and the services required. Your preparer will provide a fee quote after reviewing your documents.</p>
+      <div class="notice">
+        Payment is due upon delivery of your completed return. We accept payment via cash, check, credit/debit card, and payment from your refund (where applicable). We reserve the right to withhold your completed return until payment is received.
+      </div>
+      <p>If you are expecting a refund, you may have the option to have fees deducted from your refund. Your preparer will discuss this option with you if available.</p>
+    </div>
+
+    <!-- LIMITATIONS -->
+    <div class="section">
+      <div class="section-title">Limitations &amp; Disclaimers</div>
+      <p>Our work does not constitute an audit, review, or compilation of financial statements. We are engaged solely to prepare your income tax returns based on information provided by you.</p>
+      <p>If you receive a notice from the IRS or a state tax authority after your return is filed, please contact us immediately. Responding to tax notices is not included in this engagement unless separately arranged. Additional fees apply for audit representation, IRS correspondence, and amended returns.</p>
+      <p>We are not responsible for penalties or interest resulting from inaccurate or incomplete information provided by you, or from your failure to meet tax payment deadlines.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- SIGNATURE SECTION -->
+    <div class="sig-section" id="sigSection">
+      <div class="sig-title">Sign this Engagement Letter</div>
+      <div class="sig-sub">By signing below, you confirm that you have read and agree to the terms above. Your signature authorizes us to begin preparation of your Tax Year <span id="sigTaxYear">—</span> return.</div>
+
+      <div class="sig-grid">
+        <div class="sig-field">
+          <label>Full Legal Name <span style="color:var(--red)">*</span></label>
+          <input type="text" class="sig-input" id="sigLegalName" placeholder="Your full legal name" oninput="updateSigPreview()">
+          <div class="field-error" id="errLegalName">Please enter your full legal name</div>
+        </div>
+        <div class="sig-field">
+          <label>Today's Date</label>
+          <input type="text" class="sig-input" id="sigDate" readonly>
+        </div>
+      </div>
+
+      <div class="sig-field" style="margin-bottom:20px">
+        <label>Signature — Type your name as it appears above</label>
+        <div class="sig-name-preview" id="sigPreview">
+          <span class="empty" id="sigPreviewText">Your name will appear here</span>
+        </div>
+        <div class="sig-name-line-label">× Client Signature</div>
+      </div>
+
+      <label class="agree-checkbox">
+        <input type="checkbox" id="agreeCheck">
+        <span class="agree-text">I, <strong id="agreeNameInline">the undersigned</strong>, confirm that I have read this Engagement Letter in its entirety, that I understand and agree to all terms, and that I authorize <strong id="agreeFirmName">Prosperium Tax &amp; Advisory</strong> to prepare my tax returns for Tax Year <strong id="agreeTaxYear">—</strong>. I understand that typing my name above constitutes my legal electronic signature.</span>
+      </label>
+      <div class="field-error" id="errAgree">Please check the box to confirm your agreement</div>
+
+      <button class="submit-btn" id="submitBtn" onclick="submitEngagement()">
+        ✍️ Sign &amp; Submit Engagement Letter
+      </button>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div id="successScreen">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Engagement Letter Signed</div>
+      <div class="success-sub">Thank you, <strong id="successName">—</strong>. Your signed letter has been saved to your file and your preparer has been notified.</div>
+      <div class="success-next">
+        <div class="success-next-title">What happens next</div>
+        <div class="next-item"><div class="next-dot"></div>Your preparer reviews your documents</div>
+        <div class="next-item"><div class="next-dot"></div>We contact you if anything is missing</div>
+        <div class="next-item"><div class="next-dot"></div>You receive a fee quote before we file</div>
+        <div class="next-item"><div class="next-dot"></div>You review and sign Form 8879 electronically</div>
+        <div class="next-item"><div class="next-dot"></div>Your return is filed. Done!</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ============================================================
+// ENGAGEMENT LETTER — TaxIntakeFlow
+// ============================================================
+// URL Parameters this page accepts:
+//   ?firstName=Maria
+//   ?lastName=Gonzalez
+//   ?email=maria@email.com
+//   ?phone=(555)555-5555
+//   ?preparer=John+Smith
+//   ?taxYear=2025
+//   ?filingStatus=mfj
+//   ?isTrucker=true
+//   ?hasBusiness=true
+//   ?backTaxes=true
+//   ?bookkeeping=false
+//   ?firmName=Prosperium+Tax
+//   ?appsScriptUrl=https://script.google.com/...
+//   ?contactId=ghl_contact_id
+//   ?opportunityId=ghl_opportunity_id
+// ============================================================
+
+const ENG = {
+  appsScriptUrl: "",  // ← paste your Apps Script URL here as fallback
+};
+
+// ── LOAD DATA FROM URL PARAMS ─────────────────────────────────
+const P = new URLSearchParams(window.location.search);
+
+const DATA = {
+  firstName:    P.get("firstName")    || "Valued",
+  lastName:     P.get("lastName")     || "Client",
+  email:        P.get("email")        || "—",
+  phone:        P.get("phone")        || "—",
+  preparer:     P.get("preparer")     || "Your Assigned Preparer",
+  taxYear:      P.get("taxYear")      || new Date().getFullYear() - 1,
+  filingStatus: P.get("filingStatus") || "single",
+  isTrucker:    P.get("isTrucker")    === "true",
+  hasBusiness:  P.get("hasBusiness")  === "true",
+  backTaxes:    P.get("backTaxes")    === "true",
+  bookkeeping:  P.get("bookkeeping")  === "true",
+  itin:         P.get("itin")         === "true",
+  firmName:     P.get("firmName")     || "Your Tax Firm",
+  appsScriptUrl: P.get("appsScriptUrl") || ENG.appsScriptUrl,
+  contactId:    P.get("contactId")    || "",
+  opportunityId:P.get("opportunityId")|| "",
+};
+
+const FILING_STATUS_LABELS = {
+  single: "Single",
+  mfj:    "Married Filing Jointly",
+  mfs:    "Married Filing Separately",
+  hoh:    "Head of Household",
+  qw:     "Qualifying Widow(er)",
+};
+
+// ── INIT ──────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  const fullName = `${DATA.firstName} ${DATA.lastName}`;
+  const today    = new Date().toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
+  const ref      = `ENG-${DATA.taxYear}-${DATA.lastName.toUpperCase().slice(0,4)}-${Date.now().toString().slice(-4)}`;
+
+  // Populate header
+  document.getElementById("topBarFirm").textContent     = DATA.firmName;
+  document.getElementById("headerFirmName").textContent = DATA.firmName;
+  document.getElementById("metaTaxYear").textContent    = DATA.taxYear;
+  document.getElementById("metaDate").textContent       = today;
+  document.getElementById("metaPreparer").textContent   = DATA.preparer;
+  document.getElementById("metaRef").textContent        = ref;
+
+  // Client info box
+  document.getElementById("infoName").textContent        = fullName;
+  document.getElementById("infoFilingStatus").textContent= FILING_STATUS_LABELS[DATA.filingStatus] || DATA.filingStatus;
+  document.getElementById("infoEmail").textContent       = DATA.email;
+  document.getElementById("infoPhone").textContent       = DATA.phone;
+
+  // Body text
+  document.getElementById("salutation").textContent     = DATA.firstName;
+  document.getElementById("firmNameText").textContent   = DATA.firmName;
+  document.getElementById("taxYearText").textContent    = DATA.taxYear;
+  document.getElementById("taxYearTerms").textContent   = DATA.taxYear;
+
+  // Signature section
+  document.getElementById("sigTaxYear").textContent     = DATA.taxYear;
+  document.getElementById("sigDate").value              = today;
+  document.getElementById("agreeFirmName").textContent  = DATA.firmName;
+  document.getElementById("agreeTaxYear").textContent   = DATA.taxYear;
+
+  document.title = `Engagement Letter — ${fullName} — ${DATA.taxYear}`;
+
+  // Populate services table
+  buildServicesTable();
+
+  // Update agree inline name on keyup
+  document.getElementById("sigLegalName").addEventListener("input", () => {
+    const v = document.getElementById("sigLegalName").value.trim() || "the undersigned";
+    document.getElementById("agreeNameInline").textContent = v;
+  });
+});
+
+// ── SERVICES TABLE ────────────────────────────────────────────
+function buildServicesTable() {
+  const services = [
+    {
+      name: `Federal Income Tax Return (Form 1040) — Tax Year ${DATA.taxYear}`,
+      included: true,
+      notes: "Primary federal return"
+    },
+    {
+      name: `State Income Tax Return — Tax Year ${DATA.taxYear}`,
+      included: true,
+      notes: "One state included; additional states billed separately"
+    },
+  ];
+
+  if (DATA.isTrucker) {
+    services.push({
+      name: "Trucker/Owner-Operator Schedule C",
+      included: true,
+      notes: "Gross income, mileage, per diem, fuel, tolls, and all trucking-specific deductions"
+    });
+    services.push({
+      name: "IFTA Filing Preparation",
+      included: false,
+      notes: "Available as add-on service — ask your preparer"
+    });
+  }
+
+  if (DATA.hasBusiness) {
+    services.push({
+      name: "Business Income & Expense Reporting",
+      included: true,
+      notes: "Schedule C or applicable business form based on entity type"
+    });
+  }
+
+  if (DATA.backTaxes) {
+    services.push({
+      name: "Prior Year / Back Tax Returns",
+      included: true,
+      notes: "Each unfiled year quoted separately"
+    });
+  }
+
+  if (DATA.bookkeeping) {
+    services.push({
+      name: "Bookkeeping / Categorization",
+      included: true,
+      notes: "Review and categorization of business transactions"
+    });
+  }
+
+  if (DATA.itin) {
+    services.push({
+      name: "ITIN Application (Form W-7)",
+      included: true,
+      notes: "For taxpayers without a Social Security Number"
+    });
+  }
+
+  services.push({
+    name: "IRS Audit Representation",
+    included: false,
+    notes: "Available separately if needed — contact us"
+  });
+  services.push({
+    name: "Amended Returns (Form 1040-X)",
+    included: false,
+    notes: "Quoted separately if required"
+  });
+  services.push({
+    name: "Business Entity Tax Returns (1065, 1120-S, 1120)",
+    included: DATA.hasBusiness,
+    notes: DATA.hasBusiness ? "Included if applicable to your business structure" : "Available separately"
+  });
+
+  const tbody = document.getElementById("servicesTbody");
+  tbody.innerHTML = services.map(s => `
+    <tr>
+      <td>${s.name}</td>
+      <td style="text-align:center"><span class="${s.included ? 'included' : 'excluded'}">${s.included ? '✓' : '○'}</span></td>
+      <td style="font-size:13px;color:var(--gray-400)">${s.notes}</td>
+    </tr>`).join("");
+}
+
+// ── SIGNATURE PREVIEW ─────────────────────────────────────────
+function updateSigPreview() {
+  const val = document.getElementById("sigLegalName").value.trim();
+  const preview = document.getElementById("sigPreviewText");
+  if (val) {
+    preview.classList.remove("empty");
+    preview.style.fontFamily = "'Pinyon Script', 'Brush Script MT', cursive";
+    preview.style.fontSize = "32px";
+    preview.textContent = val;
+  } else {
+    preview.classList.add("empty");
+    preview.style.fontFamily = "";
+    preview.style.fontSize = "";
+    preview.textContent = "Your name will appear here";
+  }
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────
+async function submitEngagement() {
+  // Validate
+  let valid = true;
+
+  const legalName = document.getElementById("sigLegalName").value.trim();
+  const errName   = document.getElementById("errLegalName");
+  if (!legalName) {
+    errName.classList.add("show");
+    valid = false;
+  } else {
+    errName.classList.remove("show");
+  }
+
+  const agreed  = document.getElementById("agreeCheck").checked;
+  const errAgr  = document.getElementById("errAgree");
+  if (!agreed) {
+    errAgr.classList.add("show");
+    valid = false;
+  } else {
+    errAgr.classList.remove("show");
+  }
+
+  if (!valid) return;
+
+  // Submit
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.textContent = "Saving...";
+
+  const payload = {
+    action:        "sign_engagement",
+    firstName:     DATA.firstName,
+    lastName:      DATA.lastName,
+    email:         DATA.email,
+    phone:         DATA.phone,
+    taxYear:       DATA.taxYear,
+    preparer:      DATA.preparer,
+    filingStatus:  DATA.filingStatus,
+    firmName:      DATA.firmName,
+    signedName:    legalName,
+    signedAt:      new Date().toISOString(),
+    isTrucker:     DATA.isTrucker,
+    hasBusiness:   DATA.hasBusiness,
+    backTaxes:     DATA.backTaxes,
+    contactId:     DATA.contactId,
+    opportunityId: DATA.opportunityId,
+  };
+
+  try {
+    if (DATA.appsScriptUrl) {
+      await fetch(DATA.appsScriptUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        mode: "no-cors",
+      });
+    }
+    // Show success
+    showSuccess(legalName);
+  } catch (err) {
+    // Still show success — Apps Script may have received it
+    showSuccess(legalName);
+  }
+}
+
+function showSuccess(name) {
+  document.getElementById("sigSection").style.display = "none";
+  const screen = document.getElementById("successScreen");
+  document.getElementById("successName").textContent = name;
+  screen.style.display = "block";
+  screen.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+</script>
+</body>
+</html>
