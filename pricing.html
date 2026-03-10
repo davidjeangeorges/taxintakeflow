@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxIntakeFlow — Pricing</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0d1b2a;--navy-mid:#1b2d42;--navy-light:#243b55;
+  --gold:#c9a84c;--gold-light:#e8c96d;--gold-dim:rgba(201,168,76,0.12);
+  --cream:#faf8f3;--white:#fff;
+  --gray-100:#f4f4f6;--gray-200:#e5e4e0;--gray-400:#99948e;--gray-600:#55534e;--gray-800:#1e1c18;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.1);
+  --font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+  --radius:10px;--radius-lg:16px;--shadow:0 2px 12px rgba(13,27,42,0.08);--shadow-lg:0 8px 40px rgba(13,27,42,0.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);line-height:1.6}
+
+/* NAV */
+nav{background:var(--navy);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--font-display);font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.nav-links{display:flex;gap:8px;align-items:center}
+.nav-link{color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;font-weight:500;padding:8px 14px;border-radius:8px;transition:all 0.2s}
+.nav-link:hover{color:white;background:rgba(255,255,255,0.08)}
+.nav-cta{background:var(--gold);color:var(--navy);font-weight:700;font-size:13px;padding:9px 20px;border-radius:8px;text-decoration:none;transition:all 0.2s}
+.nav-cta:hover{background:var(--gold-light)}
+
+/* HERO */
+.hero{background:var(--navy);padding:80px 40px 72px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% -20%,rgba(201,168,76,0.15),transparent 65%);pointer-events:none}
+.hero-badge{display:inline-block;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:6px 16px;border-radius:99px;margin-bottom:20px}
+.hero-title{font-family:var(--font-display);font-size:48px;font-weight:800;color:white;line-height:1.1;margin-bottom:16px}
+.hero-title span{color:var(--gold)}
+.hero-sub{font-size:16px;color:rgba(255,255,255,0.55);max-width:500px;margin:0 auto 40px}
+
+/* INTERVAL TOGGLE */
+.interval-toggle{display:inline-flex;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:99px;padding:4px;margin-bottom:16px;gap:2px}
+.interval-btn{padding:9px 22px;border-radius:99px;border:none;background:none;font-family:var(--font-body);font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);cursor:pointer;transition:all 0.2s;position:relative}
+.interval-btn.active{background:var(--gold);color:var(--navy)}
+.save-badge{position:absolute;top:-10px;right:-8px;background:var(--green);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:99px;letter-spacing:0.5px}
+
+/* PRICING GRID */
+.pricing-section{max-width:1100px;margin:0 auto;padding:64px 24px 40px}
+.section-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:12px}
+.section-title{font-family:var(--font-display);font-size:32px;font-weight:700;color:var(--navy);text-align:center;margin-bottom:8px}
+.section-sub{font-size:15px;color:var(--gray-400);text-align:center;margin-bottom:48px}
+
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:16px}
+
+.plan-card{background:white;border:2px solid var(--gray-200);border-radius:var(--radius-lg);padding:32px;position:relative;transition:all 0.2s}
+.plan-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.plan-card.popular{border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-dim)}
+.popular-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;padding:4px 16px;border-radius:99px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+
+.plan-tier{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.plan-name{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.plan-desc{font-size:13px;color:var(--gray-400);margin-bottom:24px}
+
+.plan-price{margin-bottom:6px}
+.plan-price .amount{font-family:var(--font-display);font-size:44px;font-weight:800;color:var(--navy)}
+.plan-price .period{font-size:14px;color:var(--gray-400)}
+.plan-billed{font-size:12px;color:var(--gray-400);margin-bottom:8px;min-height:18px}
+.plan-save{font-size:12px;font-weight:700;color:var(--green);margin-bottom:24px;min-height:18px}
+
+.plan-divider{height:1px;background:var(--gray-200);margin-bottom:20px}
+
+.plan-features{list-style:none;margin-bottom:28px}
+.plan-features li{display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:13px;color:var(--gray-600);border-bottom:1px solid var(--gray-100)}
+.plan-features li:last-child{border-bottom:none}
+.plan-features li::before{content:"✓";color:var(--green);font-weight:700;font-size:14px;flex-shrink:0;margin-top:1px}
+.plan-features li.na{color:var(--gray-400)}
+.plan-features li.na::before{content:"—";color:var(--gray-400)}
+
+.plan-cta{display:block;width:100%;background:var(--navy);color:white;border:none;border-radius:var(--radius);padding:13px;font-family:var(--font-display);font-size:14px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:all 0.2s}
+.plan-cta:hover{background:var(--navy-mid);transform:translateY(-1px)}
+.plan-card.popular .plan-cta{background:var(--gold);color:var(--navy)}
+.plan-card.popular .plan-cta:hover{background:var(--gold-light)}
+
+/* ESTIMATOR */
+.estimator-wrap{background:var(--navy);border-radius:var(--radius-lg);padding:40px;margin:48px 0;position:relative;overflow:hidden}
+.estimator-wrap::before{content:"";position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:rgba(201,168,76,0.06);pointer-events:none}
+.est-title{font-family:var(--font-display);font-size:22px;font-weight:700;color:white;margin-bottom:6px}
+.est-sub{font-size:14px;color:rgba(255,255,255,0.45);margin-bottom:32px}
+
+.est-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:32px}
+
+.est-field label{display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px}
+.est-select,.est-input{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:12px 14px;font-family:var(--font-body);font-size:14px;color:white;outline:none;transition:border-color 0.2s;appearance:none}
+.est-select:focus,.est-input:focus{border-color:var(--gold)}
+.est-select option{background:var(--navy);color:white}
+
+/* range slider */
+.slider-wrap{position:relative}
+.est-range{width:100%;accent-color:var(--gold);height:4px;cursor:pointer}
+.slider-val{font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--gold);margin-top:8px}
+.slider-val span{font-size:13px;font-weight:400;color:rgba(255,255,255,0.4)}
+
+/* result */
+.est-result{background:rgba(255,255,255,0.05);border:1px solid rgba(201,168,76,0.25);border-radius:var(--radius-lg);padding:28px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0}
+.est-result-item{padding:0 24px;border-right:1px solid rgba(255,255,255,0.08);text-align:center}
+.est-result-item:first-child{padding-left:0;text-align:left}
+.est-result-item:last-child{border-right:none;text-align:right}
+.er-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px}
+.er-value{font-family:var(--font-display);font-size:28px;font-weight:800;color:white}
+.er-value.gold{color:var(--gold)}
+.er-value.green{color:var(--green)}
+.er-note{font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px}
+
+/* FEATURES TABLE */
+.features-section{max-width:860px;margin:0 auto;padding:0 24px 80px}
+.features-table{width:100%;border-collapse:collapse;margin-top:32px}
+.features-table th{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400);padding:14px 20px;text-align:center;border-bottom:2px solid var(--gray-200)}
+.features-table th:first-child{text-align:left}
+.features-table td{padding:14px 20px;font-size:14px;color:var(--gray-600);border-bottom:1px solid var(--gray-100);text-align:center}
+.features-table td:first-child{text-align:left;font-weight:500;color:var(--gray-800)}
+.features-table tr:last-child td{border-bottom:none}
+.features-table .check{color:var(--green);font-size:16px;font-weight:700}
+.features-table .dash{color:var(--gray-400)}
+.features-table .group-row td{background:var(--gray-100);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);padding:10px 20px}
+.features-table .group-row td{text-align:left}
+
+/* FAQ */
+.faq-section{background:white;padding:64px 24px}
+.faq-inner{max-width:680px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--gray-200);padding:20px 0}
+.faq-q{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--navy);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq-icon{font-size:18px;color:var(--gold);flex-shrink:0;transition:transform 0.2s}
+.faq-a{font-size:14px;color:var(--gray-600);line-height:1.7;max-height:0;overflow:hidden;transition:max-height 0.3s ease,padding 0.3s}
+.faq-item.open .faq-a{max-height:200px;padding-top:12px}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+
+/* BOTTOM CTA */
+.bottom-cta{background:var(--navy);padding:80px 24px;text-align:center}
+.bottom-cta h2{font-family:var(--font-display);font-size:36px;font-weight:800;color:white;margin-bottom:12px}
+.bottom-cta h2 span{color:var(--gold)}
+.bottom-cta p{font-size:15px;color:rgba(255,255,255,0.5);margin-bottom:32px}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.cta-primary{background:var(--gold);color:var(--navy);font-family:var(--font-display);font-size:15px;font-weight:700;padding:14px 32px;border-radius:var(--radius);text-decoration:none;transition:all 0.2s}
+.cta-primary:hover{background:var(--gold-light);transform:translateY(-2px)}
+.cta-secondary{background:rgba(255,255,255,0.08);color:white;font-family:var(--font-display);font-size:15px;font-weight:600;padding:14px 32px;border-radius:var(--radius);text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:all 0.2s}
+.cta-secondary:hover{background:rgba(255,255,255,0.14)}
+
+@media(max-width:768px){
+  .plans-grid{grid-template-columns:1fr}
+  .est-grid{grid-template-columns:1fr}
+  .est-result{grid-template-columns:1fr 1fr;gap:16px}
+  .est-result-item{border-right:none;border-bottom:1px solid rgba(255,255,255,0.08);padding:0 0 16px;text-align:left}
+  .hero-title{font-size:32px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">TaxIntakeFlow</div>
+  <div class="nav-links">
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <a href="#features" class="nav-link">Features</a>
+    <a href="auth.html" class="nav-link">Log In</a>
+    <a href="auth.html?mode=signup" class="nav-cta">Start Free Trial</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Simple, transparent pricing</div>
+  <h1 class="hero-title">The complete intake system<br>for <span>serious tax firms</span></h1>
+  <p class="hero-sub">14-day free trial. No credit card required. Cancel anytime.</p>
+  <div class="interval-toggle">
+    <button class="interval-btn active" onclick="setInterval('monthly')">Monthly</button>
+    <button class="interval-btn" onclick="setInterval('6month')">6 Months<span class="save-badge">SAVE 30%</span></button>
+    <button class="interval-btn" onclick="setInterval('12month')">Annual<span class="save-badge">SAVE 50%</span></button>
+  </div>
+</div>
+
+<!-- PRICING GRID -->
+<div class="pricing-section" id="pricing">
+  <div class="plans-grid" id="plansGrid">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- ESTIMATOR -->
+<div class="pricing-section" style="padding-top:0">
+  <div class="estimator-wrap">
+    <div class="est-title">💰 Estimate Your Monthly Cost</div>
+    <div class="est-sub">Choose your plan, billing cycle, and expected client volume to see your exact cost.</div>
+
+    <div class="est-grid">
+      <div class="est-field">
+        <label>Plan</label>
+        <select class="est-select" id="estTier" onchange="calcEstimate()">
+          <option value="starter">Starter — up to 50 clients</option>
+          <option value="growth">Growth — up to 150 clients</option>
+          <option value="pro">Pro — Unlimited</option>
+        </select>
+      </div>
+      <div class="est-field">
+        <label>Billing Cycle</label>
+        <select class="est-select" id="estInterval" onchange="calcEstimate()">
+          <option value="monthly">Monthly</option>
+          <option value="6month">6-Month Commit</option>
+          <option value="12month">12-Month Commit</option>
+        </select>
+      </div>
+      <div class="est-field">
+        <label>Expected Clients / Month</label>
+        <div class="slider-wrap">
+          <input type="range" class="est-range" id="estClients" min="1" max="300" value="30" oninput="calcEstimate()">
+          <div class="slider-val"><span id="estClientsVal">30</span> <span>clients</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="est-result" id="estResult">
+      <div class="est-result-item">
+        <div class="er-label">Base Plan</div>
+        <div class="er-value gold" id="erBase">$79</div>
+        <div class="er-note" id="erBasePer">/month</div>
+      </div>
+      <div class="est-result-item">
+        <div class="er-label">Add-on Clients</div>
+        <div class="er-value" id="erAddon">$0</div>
+        <div class="er-note" id="erAddonNote">0 extra clients</div>
+      </div>
+      <div class="est-result-item">
+        <div class="er-label">Total / Month</div>
+        <div class="er-value gold" id="erTotal">$79</div>
+        <div class="er-note" id="erBilled">billed monthly</div>
+      </div>
+      <div class="est-result-item">
+        <div class="er-label">You Save</div>
+        <div class="er-value green" id="erSave">$0</div>
+        <div class="er-note">vs monthly billing</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES TABLE -->
+<div class="features-section" id="features">
+  <div class="section-label">What's included</div>
+  <div class="section-title">Everything you need to run your firm</div>
+  <table class="features-table">
+    <thead>
+      <tr>
+        <th style="text-align:left">Feature</th>
+        <th>Starter</th>
+        <th>Growth</th>
+        <th>Pro</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="group-row"><td colspan="4">Core System</td></tr>
+      <tr><td>Client intake form (12-step)</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Electronic engagement letter</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Firm owner dashboard</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Pipeline stages (13)</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr class="group-row"><td colspan="4">Integrations</td></tr>
+      <tr><td>GHL webhook connection</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Google Drive auto-folders</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Google Sheet tracker</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr class="group-row"><td colspan="4">Team</td></tr>
+      <tr><td>Preparers</td><td>Up to 3</td><td>Up to 10</td><td>Unlimited</td></tr>
+      <tr><td>Preparer management (add/remove)</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr class="group-row"><td colspan="4">Support</td></tr>
+      <tr><td>Email support</td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Priority support</td><td><span class="dash">—</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
+      <tr><td>Onboarding call</td><td><span class="dash">—</span></td><td><span class="dash">—</span></td><td><span class="check">✓</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+  <div class="faq-inner">
+    <div class="section-label" style="text-align:center">FAQ</div>
+    <div class="section-title" style="text-align:center;margin-bottom:32px">Common questions</div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What happens after my free trial? <span class="faq-icon">+</span></div>
+      <div class="faq-a">After 14 days you'll be prompted to enter a payment method. If you don't, your account is paused — your data is never deleted. You can reactivate any time.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I change plans later? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes. You can upgrade at any time and the difference is prorated. Downgrading takes effect at the end of your current billing period.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What counts as a client? <span class="faq-icon">+</span></div>
+      <div class="faq-a">A client is any person who submits your intake form. If the same person submits for two different tax years, that counts as two clients. Add-on pricing applies if you go over your plan's limit.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Do I need to be technical to set this up? <span class="faq-icon">+</span></div>
+      <div class="faq-a">No. You set up your firm in under 10 minutes — firm name, GHL webhook URL, and your preparers. That's it. No code, no servers, no technical skills required.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What is the GHL webhook and do I need it? <span class="faq-icon">+</span></div>
+      <div class="faq-a">GHL (GoHighLevel) is a CRM platform. The webhook connects your intake form to GHL so client submissions automatically create contacts and fire your automated workflows. It's optional — the intake form and Drive automation work without it — but highly recommended if you use GHL.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I cancel my annual commitment early? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Annual and 6-month plans are commitments — you're billed for the full period upfront. You can cancel to prevent renewal but the current period is non-refundable.</div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM CTA -->
+<div class="bottom-cta">
+  <h2>Ready to modernize your<br><span>tax firm intake?</span></h2>
+  <p>14-day free trial. No credit card. Setup in 10 minutes.</p>
+  <div class="cta-btns">
+    <a href="auth.html?mode=signup" class="cta-primary">Start Free Trial →</a>
+    <a href="#pricing" class="cta-secondary">View Pricing</a>
+  </div>
+</div>
+
+<script>
+// ── PRICING DATA ────────────────────────────────────────────
+// In production this loads from Supabase pricing_plans table
+// You change prices in Supabase — this page reloads automatically
+const PLANS = {
+  starter: {
+    name: "Starter", desc: "Perfect for solo preparers and small firms",
+    limit: 50, maxPreparers: 3,
+    monthly:  { price: 79,  billed: 79,   addon: 5   },
+    "6month": { price: 55,  billed: 330,  addon: 3   },
+    "12month":{ price: 39,  billed: 468,  addon: 1.5 },
+  },
+  growth: {
+    name: "Growth", desc: "For growing firms with multiple preparers",
+    limit: 150, maxPreparers: 10,
+    monthly:  { price: 129, billed: 129,  addon: 4   },
+    "6month": { price: 89,  billed: 534,  addon: 2.5 },
+    "12month":{ price: 64,  billed: 768,  addon: 1.25},
+  },
+  pro: {
+    name: "Pro", desc: "Unlimited everything for high-volume firms",
+    limit: null, maxPreparers: null,
+    monthly:  { price: 179, billed: 179,  addon: 0 },
+    "6month": { price: 124, billed: 744,  addon: 0 },
+    "12month":{ price: 89,  billed: 1068, addon: 0 },
+  },
+};
+
+const FEATURES = {
+  starter: ["Up to 50 clients/mo", "3 preparers", "Full intake form", "Engagement letter", "GHL webhook", "Drive automation", "Email support"],
+  growth:  ["Up to 150 clients/mo", "10 preparers", "Full intake form", "Engagement letter", "GHL webhook", "Drive automation", "Priority support"],
+  pro:     ["Unlimited clients", "Unlimited preparers", "Full intake form", "Engagement letter", "GHL webhook", "Drive automation", "Onboarding call"],
+};
+
+let currentInterval = "monthly";
+
+function setInterval(val) {
+  currentInterval = val;
+  document.querySelectorAll(".interval-btn").forEach((b,i) => {
+    b.classList.toggle("active", ["monthly","6month","12month"][i] === val);
+  });
+  renderPlans();
+  calcEstimate();
+  document.getElementById("estInterval").value = val;
+}
+
+function renderPlans() {
+  const grid = document.getElementById("plansGrid");
+  const tiers = ["starter","growth","pro"];
+  grid.innerHTML = tiers.map(tier => {
+    const p   = PLANS[tier];
+    const prc = p[currentInterval];
+    const mon = PLANS[tier].monthly;
+    const save= currentInterval !== "monthly" ? Math.round((1 - prc.price / mon.price) * 100) : 0;
+    const popular = tier === "growth";
+
+    const billedStr = currentInterval === "monthly"
+      ? `billed $${prc.billed}/mo`
+      : currentInterval === "6month"
+      ? `billed $${prc.billed} every 6 months`
+      : `billed $${prc.billed}/year`;
+
+    const saveStr = save > 0 ? `Save ${save}% vs monthly` : "&nbsp;";
+
+    const addonStr = prc.addon > 0
+      ? `$${prc.addon}/extra client`
+      : "No add-ons needed";
+
+    return `
+    <div class="plan-card${popular ? " popular" : ""}">
+      ${popular ? `<div class="popular-badge">Most Popular</div>` : ""}
+      <div class="plan-tier">${tier}</div>
+      <div class="plan-name">${p.name}</div>
+      <div class="plan-desc">${p.desc}</div>
+      <div class="plan-price">
+        <span class="amount">$${prc.price}</span>
+        <span class="period">/mo</span>
+      </div>
+      <div class="plan-billed">${billedStr}</div>
+      <div class="plan-save">${saveStr}</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        ${FEATURES[tier].map(f => `<li>${f}</li>`).join("")}
+        <li>${addonStr}</li>
+      </ul>
+      <a href="auth.html?mode=signup&plan=${tier}&interval=${currentInterval}" class="plan-cta">
+        Start Free Trial
+      </a>
+    </div>`;
+  }).join("");
+}
+
+// ── ESTIMATOR ───────────────────────────────────────────────
+function calcEstimate() {
+  const tier     = document.getElementById("estTier").value;
+  const interval = document.getElementById("estInterval").value;
+  const clients  = parseInt(document.getElementById("estClients").value);
+  document.getElementById("estClientsVal").textContent = clients;
+
+  const p      = PLANS[tier][interval];
+  const mon    = PLANS[tier]["monthly"];
+  const limit  = PLANS[tier].limit;
+
+  const extra      = limit ? Math.max(0, clients - limit) : 0;
+  const addonCost  = extra * p.addon;
+  const totalMo    = p.price + addonCost;
+
+  // What they'd pay monthly (no commit) for same usage
+  const baselineMo = mon.price + Math.max(0, clients - (limit||0)) * mon.addon;
+  const periods    = interval === "monthly" ? 1 : interval === "6month" ? 6 : 12;
+  const saveMo     = interval !== "monthly" ? (baselineMo - totalMo) : 0;
+
+  const billedStr = interval === "monthly"
+    ? "billed monthly"
+    : interval === "6month"
+    ? `$${((p.price + addonCost) * 6).toFixed(0)} billed every 6 months`
+    : `$${((p.price + addonCost) * 12).toFixed(0)} billed annually`;
+
+  document.getElementById("erBase").textContent    = `$${p.price}`;
+  document.getElementById("erBasePer").textContent = "/month";
+  document.getElementById("erAddon").textContent   = `$${addonCost.toFixed(2) === "0.00" ? "0" : addonCost.toFixed(0)}`;
+  document.getElementById("erAddonNote").textContent = extra > 0 ? `${extra} extra clients` : "No add-ons";
+  document.getElementById("erTotal").textContent   = `$${totalMo % 1 === 0 ? totalMo : totalMo.toFixed(2)}`;
+  document.getElementById("erBilled").textContent  = billedStr;
+  document.getElementById("erSave").textContent    = saveMo > 0 ? `$${saveMo.toFixed(0)}/mo` : "$0";
+}
+
+// ── FAQ ─────────────────────────────────────────────────────
+function toggleFaq(el) {
+  el.closest(".faq-item").classList.toggle("open");
+}
+
+// ── INIT ────────────────────────────────────────────────────
+renderPlans();
+calcEstimate();
+
+// Sync estimator interval with toggle
+document.getElementById("estInterval").addEventListener("change", function() {
+  setInterval(this.value);
+});
+</script>
+</body>
+</html>
