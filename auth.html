@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaxIntakeFlow — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#0d1b2a;--gold:#c9a84c;--gold-light:#d9b85c;--gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.3);--red-dim:rgba(239,68,68,0.1);--font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;--radius:10px;--shadow-lg:0 8px 40px rgba(13,27,42,0.25)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--navy);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden}
+body::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(201,168,76,0.08),transparent 60%),radial-gradient(ellipse at 70% 20%,rgba(59,130,246,0.05),transparent 50%);pointer-events:none}
+.auth-wrap{width:100%;max-width:420px;position:relative;z-index:1}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo-text{font-family:var(--font-display);font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.auth-logo-sub{font-size:12px;color:rgba(255,255,255,0.28);margin-top:5px}
+.auth-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:36px 40px;backdrop-filter:blur(20px);box-shadow:var(--shadow-lg)}
+.auth-tabs{display:flex;background:rgba(255,255,255,0.05);border-radius:10px;padding:4px;margin-bottom:28px;gap:4px}
+.auth-tab{flex:1;padding:9px;border:none;background:none;font-family:var(--font-display);font-size:13px;font-weight:700;color:rgba(255,255,255,0.4);cursor:pointer;border-radius:7px;transition:all 0.2s}
+.auth-tab.active{background:var(--gold);color:#0d1b2a}
+.form-title{font-family:var(--font-display);font-size:22px;font-weight:700;color:white;margin-bottom:6px}
+.form-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:24px;line-height:1.5}
+.google-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:white;border:none;border-radius:var(--radius);padding:13px;font-family:var(--font-body);font-size:14px;font-weight:600;color:#1e1c18;cursor:pointer;transition:all 0.2s;margin-bottom:4px}
+.google-btn:hover{background:#f0ede8;transform:translateY(-1px)}
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:rgba(255,255,255,0.08)}
+.divider span{font-size:12px;color:rgba(255,255,255,0.22)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.38);margin-bottom:8px}
+.f-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:12px 16px;font-family:var(--font-body);font-size:14px;color:white;outline:none;transition:all 0.2s}
+.f-input:focus{border-color:var(--gold);background:rgba(255,255,255,0.09)}
+.f-input::placeholder{color:rgba(255,255,255,0.2)}
+.forgot-row{text-align:right;margin-top:-8px;margin-bottom:18px}
+.forgot-row a{font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none}
+.forgot-row a:hover{color:var(--gold)}
+.submit-btn{width:100%;background:var(--gold);color:#0d1b2a;border:none;border-radius:var(--radius);padding:14px;font-family:var(--font-display);font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:6px}
+.submit-btn:hover{background:var(--gold-light);transform:translateY(-1px)}
+.submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.plan-badge{display:none;align-items:center;gap:10px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:var(--radius);padding:12px 14px;margin-bottom:20px}
+.plan-badge.show{display:flex}
+.plan-badge span{font-size:13px;color:rgba(255,255,255,0.65)}
+.plan-badge span strong{color:var(--gold)}
+.terms{font-size:11px;color:rgba(255,255,255,0.22);text-align:center;margin-top:14px;line-height:1.7}
+.terms a{color:rgba(255,255,255,0.35);text-decoration:none}
+.error-msg{background:var(--red-dim);border:1px solid rgba(239,68,68,0.25);border-radius:var(--radius);padding:11px 14px;font-size:13px;color:#fca5a5;margin-bottom:16px;display:none}
+.error-msg.show{display:block}
+.success-screen{display:none;text-align:center;padding:16px 0}
+.success-icon{font-size:44px;margin-bottom:14px}
+.success-title{font-family:var(--font-display);font-size:22px;font-weight:700;color:white;margin-bottom:8px}
+.success-sub{font-size:14px;color:rgba(255,255,255,0.42);line-height:1.65}
+.back-link{text-align:center;margin-top:22px}
+.back-link a{font-size:13px;color:rgba(255,255,255,0.28);text-decoration:none}
+.back-link a:hover{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-logo">
+    <div class="auth-logo-text">TaxIntakeFlow</div>
+    <div class="auth-logo-sub">The complete intake system for tax firms</div>
+  </div>
+  <div class="auth-card">
+    <div class="auth-tabs" id="authTabs">
+      <button class="auth-tab active" onclick="showTab('login')">Log In</button>
+      <button class="auth-tab" onclick="showTab('signup')">Sign Up</button>
+    </div>
+    <div class="error-msg" id="errorMsg"></div>
+
+    <!-- LOGIN -->
+    <div id="loginForm">
+      <div class="form-title">Welcome back</div>
+      <div class="form-sub">Log in to your firm dashboard</div>
+      <button class="google-btn" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
+      <div class="divider"><span>or sign in with email</span></div>
+      <div class="field"><label>Email</label><input type="email" class="f-input" id="loginEmail" placeholder="you@yourfirm.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="field"><label>Password</label><input type="password" class="f-input" id="loginPw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="forgot-row"><a href="#" onclick="showForgot(event)">Forgot password?</a></div>
+      <button class="submit-btn" id="loginBtn" onclick="doLogin()">Log In →</button>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signupForm" style="display:none">
+      <div class="form-title">Start your free trial</div>
+      <div class="form-sub">14 days free. No credit card required.</div>
+      <div class="plan-badge" id="planBadge">
+        <span>🚀</span><span>Starting on <strong id="planBadgeText">Growth — Monthly</strong></span>
+      </div>
+      <button class="google-btn" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Sign up with Google
+      </button>
+      <div class="divider"><span>or sign up with email</span></div>
+      <div class="field"><label>Firm Name</label><input type="text" class="f-input" id="signupFirm" placeholder="Prosperium Tax & Advisory"></div>
+      <div class="field"><label>Your Email</label><input type="email" class="f-input" id="signupEmail" placeholder="you@yourfirm.com"></div>
+      <div class="field"><label>Password</label><input type="password" class="f-input" id="signupPw" placeholder="At least 8 characters" onkeydown="if(event.key==='Enter')doSignup()"></div>
+      <button class="submit-btn" id="signupBtn" onclick="doSignup()">Create Account & Start Trial →</button>
+      <div class="terms">By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></div>
+    </div>
+
+    <!-- FORGOT -->
+    <div id="forgotForm" style="display:none">
+      <div class="form-title">Reset password</div>
+      <div class="form-sub">Enter your email and we'll send a reset link</div>
+      <div class="field"><label>Email</label><input type="email" class="f-input" id="forgotEmail" placeholder="you@yourfirm.com" onkeydown="if(event.key==='Enter')doForgot()"></div>
+      <button class="submit-btn" onclick="doForgot()">Send Reset Link →</button>
+      <div class="divider"><span>or</span></div>
+      <div style="text-align:center"><a href="#" onclick="showTab('login')" style="font-size:13px;color:rgba(255,255,255,0.3);text-decoration:none">← Back to login</a></div>
+    </div>
+
+    <!-- GOOGLE NEW USER -->
+    <div id="googleFirmForm" style="display:none">
+      <div class="form-title">One last thing</div>
+      <div class="form-sub">What's the name of your tax firm?</div>
+      <div class="field"><label>Firm Name</label><input type="text" class="f-input" id="googleFirmName" placeholder="Prosperium Tax & Advisory" onkeydown="if(event.key==='Enter')saveGoogleFirm()"></div>
+      <button class="submit-btn" onclick="saveGoogleFirm()">Complete Setup →</button>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">✅</div>
+      <div class="success-title" id="successTitle">Account created!</div>
+      <div class="success-sub" id="successSub">Check your email to confirm your account, then log back in.</div>
+    </div>
+  </div>
+  <div class="back-link"><a href="pricing.html">← Back to pricing</a></div>
+</div>
+
+<script>
+const SUPABASE_URL  = "https://yyobsleksxryuwxenvnb.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+const P        = new URLSearchParams(window.location.search);
+const mode     = P.get("mode")     || "login";
+const plan     = P.get("plan")     || "growth";
+const interval = P.get("interval") || "monthly";
+
+// ── INIT ─────────────────────────────────────────────────────
+// Only redirect if already logged in AND this is NOT a fresh page load after logout
+(async () => {
+  // If URL has error param (e.g. from a bad OAuth), don't redirect
+  if (P.get("error")) return;
+
+  // Don't redirect if user just logged out
+  if (P.get("logout")) return;
+
+  const hashParams = new URLSearchParams(window.location.hash.replace("#",""));
+  const isOAuthCallback = hashParams.get("access_token") || P.get("code");
+  if (isOAuthCallback) return; // let onAuthStateChange handle OAuth redirects
+
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    window.location.href = "portal.html";
+  }
+})();
+
+// Init UI
+if (mode === "signup") showTab("signup");
+document.getElementById("planBadgeText").textContent =
+  ({starter:"Starter",growth:"Growth",pro:"Pro"}[plan]||"Growth") + " — " +
+  ({monthly:"Monthly","6month":"6-Month","12month":"Annual"}[interval]||"Monthly");
+if (mode === "signup") document.getElementById("planBadge").classList.add("show");
+
+// ── OAUTH STATE CHANGE — only for Google redirect callbacks ──
+// We only want this to fire for actual OAuth redirects, not email logins
+let handlingOAuth = false;
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (event !== "SIGNED_IN" || !session) return;
+  if (handlingOAuth) return; // email login handles its own redirect
+  
+  // Only run if we got here via OAuth (URL has code/token)
+  const hashParams = new URLSearchParams(window.location.hash.replace("#",""));
+  const isOAuthCallback = hashParams.get("access_token") || P.get("code");
+  if (!isOAuthCallback) return;
+
+  const { data: firm } = await sb.from("firms")
+    .select("id").eq("owner_id", session.user.id).single();
+
+  if (firm) {
+    window.location.href = "portal.html";
+  } else {
+    document.getElementById("authTabs").style.display = "none";
+    ["loginForm","signupForm"].forEach(id =>
+      document.getElementById(id).style.display = "none");
+    document.getElementById("googleFirmForm").style.display = "block";
+  }
+});
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function showTab(tab) {
+  ["loginForm","signupForm","forgotForm","googleFirmForm"].forEach(id =>
+    document.getElementById(id).style.display = "none");
+  document.getElementById(tab+"Form").style.display = "block";
+  document.querySelectorAll(".auth-tab").forEach((b,i) =>
+    b.classList.toggle("active",(i===0&&tab==="login")||(i===1&&tab==="signup")));
+  clearError();
+}
+function showForgot(e) {
+  if (e) e.preventDefault();
+  ["loginForm","signupForm"].forEach(id =>
+    document.getElementById(id).style.display = "none");
+  document.getElementById("forgotForm").style.display = "block";
+  document.querySelectorAll(".auth-tab").forEach(b => b.classList.remove("active"));
+  clearError();
+}
+
+// ── GOOGLE ───────────────────────────────────────────────────
+async function loginWithGoogle() {
+  const base = window.location.href.replace(/auth\.html.*/, "");
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: base + "portal.html" }
+  });
+  if (error) showError(error.message);
+}
+
+// ── EMAIL LOGIN ──────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const pw    = document.getElementById("loginPw").value;
+  if (!email || !pw) { showError("Please enter your email and password"); return; }
+
+  const btn = document.getElementById("loginBtn");
+  btn.disabled = true; btn.textContent = "Logging in...";
+  handlingOAuth = true; // block onAuthStateChange from interfering
+
+  const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+
+  if (error) {
+    handlingOAuth = false;
+    showError(error.message === "Invalid login credentials"
+      ? "Incorrect email or password. Try again or use Forgot password."
+      : error.message);
+    btn.disabled = false; btn.textContent = "Log In →";
+  } else {
+    window.location.href = "portal.html";
+  }
+}
+
+// ── SIGNUP ───────────────────────────────────────────────────
+async function doSignup() {
+  const firmName = document.getElementById("signupFirm").value.trim();
+  const email    = document.getElementById("signupEmail").value.trim();
+  const pw       = document.getElementById("signupPw").value;
+
+  if (!firmName)    { showError("Please enter your firm name"); return; }
+  if (!email)       { showError("Please enter your email"); return; }
+  if (pw.length < 8){ showError("Password must be at least 8 characters"); return; }
+
+  const btn = document.getElementById("signupBtn");
+  btn.disabled = true; btn.textContent = "Creating account...";
+  handlingOAuth = true;
+
+  const { data, error } = await sb.auth.signUp({ email, password: pw,
+    options: { data: { firm_name: firmName } }
+  });
+
+  if (error) {
+    handlingOAuth = false;
+    showError(error.message);
+    btn.disabled = false; btn.textContent = "Create Account & Start Trial →";
+    return;
+  }
+
+  if (data.user) {
+    await sb.from("firms").insert({
+      owner_id: data.user.id, firm_name: firmName, email,
+      plan_tier: plan, plan_interval: interval, plan_status: "trialing"
+    });
+  }
+
+  document.getElementById("authTabs").style.display   = "none";
+  document.getElementById("signupForm").style.display = "none";
+  document.getElementById("successScreen").style.display = "block";
+}
+
+// ── GOOGLE FIRM NAME ─────────────────────────────────────────
+async function saveGoogleFirm() {
+  const firmName = document.getElementById("googleFirmName").value.trim();
+  if (!firmName) { showError("Please enter your firm name"); return; }
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return;
+  await sb.from("firms").insert({
+    owner_id: session.user.id, firm_name: firmName,
+    email: session.user.email || "",
+    plan_tier: plan, plan_interval: interval, plan_status: "trialing"
+  });
+  window.location.href = "portal.html";
+}
+
+// ── FORGOT PASSWORD ──────────────────────────────────────────
+async function doForgot() {
+  const email = document.getElementById("forgotEmail").value.trim();
+  if (!email) { showError("Please enter your email"); return; }
+
+  const base = "https://davidjeangeorges.github.io/taxintakeflow/";
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: base + "auth.html?mode=reset"
+  });
+
+  if (error) { showError(error.message); return; }
+
+  document.getElementById("forgotForm").style.display    = "none";
+  document.getElementById("successScreen").style.display = "block";
+  document.getElementById("successTitle").textContent    = "Reset link sent!";
+  document.getElementById("successSub").textContent      =
+    "Check your email (including spam folder) for a password reset link. It expires in 1 hour.";
+}
+
+// ── UTILS ────────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById("errorMsg");
+  el.textContent = msg; el.classList.add("show");
+}
+function clearError() {
+  document.getElementById("errorMsg").classList.remove("show");
+}
+</script>
+</body>
+</html>
