@@ -784,6 +784,7 @@ select {
 // ── CONFIGURATION ──────────────────────────────────────────
 const FORM_CONFIG = {
   firmName:      "Your Tax Firm",  // Override via URL param ?firm=Name
+  firmId:        "",               // Loaded from URL param ?firmId=xxx
   taxYear:       "2026",
 
   // ↓ THE ONLY THING YOU EVER EDIT IN THIS FILE
@@ -793,6 +794,12 @@ const FORM_CONFIG = {
 
   preparers:     [],               // Loaded automatically from Google Sheet — do not touch
 };
+
+// ── SUPABASE CLIENT ──────────────────────────────────────────
+const _sb = supabase.createClient(
+  'https://yyobsleksxryuwxenvnb.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY'
+);
 
 // ── STEP DEFINITIONS ───────────────────────────────────────
 const STEPS = [
@@ -829,6 +836,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Read URL params
   const params = new URLSearchParams(window.location.search);
   if (params.get("firm"))     FORM_CONFIG.firmName      = params.get("firm");
+  if (params.get("firmId"))   FORM_CONFIG.firmId        = params.get("firmId");
   if (params.get("url"))      FORM_CONFIG.appsScriptUrl = params.get("url");
   if (params.get("ghl"))      FORM_CONFIG.ghlWebhookUrl = params.get("ghl");
   if (params.get("year"))     FORM_CONFIG.taxYear       = params.get("year");
@@ -919,6 +927,10 @@ function showStep(index) {
   STATE.currentStep = index;
   updateProgressBar();
   saveProgress();
+  // Build review content when reaching the review step
+  if (STEPS[index] && STEPS[index].id === "review") {
+    buildReviewContent();
+  }
 }
 
 function nextStep() {
@@ -1114,7 +1126,7 @@ function buildWelcomeSection() {
     <div class="section-divider">Assign Your Preparer</div>
     <div class="field-row full">
       <div class="field-group">
-        <label>Who is your tax preparer? <span class="req">*</span></label>
+        <label>Who is your tax preparer? <span style="font-size:11px;color:#9b9488;font-weight:400">(optional — firm will assign if blank)</span></label>
         <select id="assignedPreparer" onchange="setData('preparerName', this.options[this.selectedIndex].text); setData('preparerId', this.value);">
           ${FORM_CONFIG.preparers.map(p =>
             `<option value="${p.id}" ${STATE.selectedPreparerId === p.id ? "selected" : ""}>${p.name}</option>`
@@ -3629,14 +3641,7 @@ function buildReviewContent() {
     </div>` : ""}`;
 }
 
-// Override showStep to build review content when reaching review
-const _origShowStep = showStep;
-function showStep(index) {
-  _origShowStep(index);
-  if (STEPS[index].id === "review") {
-    buildReviewContent();
-  }
-}
+// Review content is built inside showStep directly — see showStep function above
 
 // ── FORM SUBMISSION ──────────────────────────────────────────
 async function submitForm() {
@@ -3701,33 +3706,144 @@ async function submitForm() {
       submitted = true;
     }
 
+    // ── SAVE TO SUPABASE ──────────────────────────────────
+    let submissionId = null;
+    try {
+      const { data: sub, error: subErr } = await _sb.from("submissions").insert({
+        firm_id:              FORM_CONFIG.firmId     || null,
+        first_name:           STATE.data.firstName   || "",
+        last_name:            STATE.data.lastName    || "",
+        email:                STATE.data.email       || "",
+        phone:                STATE.data.phone       || "",
+        dob:                  STATE.data.dob         || "",
+        ssn_last4:            (STATE.data.ssn || "").slice(-4),
+        address:              STATE.data.address     || "",
+        city:                 STATE.data.city        || "",
+        state:                STATE.data.state       || "",
+        zip:                  STATE.data.zip         || "",
+        tax_year:             STATE.data.taxYear     || FORM_CONFIG.taxYear,
+        filing_status:        STATE.data.filingStatus || "",
+        preparer_name:        STATE.data.preparerName || "Unassigned",
+        preparer_id:          STATE.data.preparerId   || "",
+        is_trucker:           !!(STATE.data.inc_trucker),
+        has_business:         STATE.businesses.length > 0,
+        has_rental:           !!(STATE.data.inc_rental),
+        has_back_taxes:       !!(STATE.data.sp_backtaxes),
+        has_bookkeeping:      !!(STATE.data.bookkeeping),
+        is_itin:              STATE.data.hasITIN === "yes",
+        is_new_client:        STATE.data.firstTime === "yes",
+        form_data:            STATE.data,
+        dependents:           STATE.dependents,
+        w2_jobs:              STATE.w2Jobs,
+        businesses:           STATE.businesses,
+        rental_props:         STATE.rentalProperties,
+        other_income:         STATE.otherIncome1099,
+        uploaded_files_count: Object.keys(STATE.uploadedFiles).reduce((acc, k) => acc + (STATE.uploadedFiles[k]?.length || 0), 0),
+        status:               "new",
+        submitted_at:         new Date().toISOString(),
+      }).select("id").single();
+
+      if (!subErr && sub) {
+        submissionId = sub.id;
+
+        // ── UPLOAD FILES TO SUPABASE STORAGE ──────────────
+        const allFiles = [];
+        Object.keys(STATE.uploadedFiles).forEach(cat => {
+          (STATE.uploadedFiles[cat] || []).forEach(file => {
+            allFiles.push({ file, cat });
+          });
+        });
+
+        if (allFiles.length > 0) {
+          const firmFolder  = FORM_CONFIG.firmId || "no-firm";
+          const clientSlug  = `${STATE.data.lastName || "client"}-${STATE.data.firstName || ""}`.toLowerCase().replace(/[^a-z0-9]/g, "-");
+          const dateSlug    = new Date().toISOString().slice(0, 10);
+          const basePath    = `${firmFolder}/${clientSlug}-${dateSlug}-${submissionId.slice(0,8)}`;
+
+          await Promise.allSettled(
+            allFiles.map(({ file, cat }) => {
+              const path = `${basePath}/${cat}/${file.name}`;
+              return _sb.storage.from("intake-files").upload(path, file, { upsert: true });
+            })
+          );
+
+          // Update submission with storage path
+          await _sb.from("submissions").update({ storage_path: basePath }).eq("id", submissionId);
+        }
+
+        // ── TRIGGER EDGE FUNCTION (Drive PDF + email) ─────
+        fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/process-submission", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ submissionId, firmId: FORM_CONFIG.firmId }),
+        }).catch(() => {}); // non-blocking — fire and forget
+      }
+    } catch (sbErr) {
+      console.warn("Supabase save error:", sbErr.message);
+      // Don't block the user — continue to show success
+    }
+
+    // Fire email notifications (non-blocking — don't wait)
+    sendEmailNotification({
+      type:          "intake_submitted",
+      firstName:     STATE.data.firstName    || "",
+      lastName:      STATE.data.lastName     || "",
+      clientEmail:   STATE.data.email        || "",
+      phone:         STATE.data.phone        || "",
+      preparerName:  STATE.data.preparerName || "",
+      taxYear:       STATE.data.taxYear      || FORM_CONFIG.taxYear,
+      filingStatus:  STATE.data.filingStatus || "single",
+      isTrucker:     !!(STATE.data.inc_trucker),
+      hasBusiness:   STATE.businesses.length > 0,
+      backTaxes:     !!(STATE.data.sp_backtaxes),
+      additionalNotes: STATE.data.additionalNotes || "",
+      firmId:        FORM_CONFIG.firmId      || "",
+      firmName:      FORM_CONFIG.firmName    || "",
+      submittedAt:   new Date().toISOString(),
+      submissionId:  submissionId || "",
+    }).catch(() => {}); // silent fail — emails are best-effort
+
     // Show success
     showSuccessScreen();
     sessionStorage.removeItem("tif_progress");
 
   } catch (err) {
-    // Even if fetch fails (CORS), show success — GHL webhook may have still received it
+    // Even if fetch fails (CORS), show success — data may still have saved
     showSuccessScreen();
     sessionStorage.removeItem("tif_progress");
   }
 }
 
+// ── EMAIL NOTIFICATION ────────────────────────────────────────────────────────
+async function sendEmailNotification(data) {
+  const EDGE_URL = "https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/send-intake-email";
+  await fetch(EDGE_URL, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ type: data.type || "intake_submitted", data }),
+  });
+}
+
 function showSuccessScreen() {
-  document.getElementById("progressWrap").style.display = "none";
-  const container = document.getElementById("formContainer");
-  container.innerHTML = `
-    <div class="card">
-      <div class="success-screen">
-        <div class="success-icon">✓</div>
-        <div class="success-title">Intake Submitted!</div>
-        <div class="success-sub">
-          Thank you, ${STATE.data.firstName || ""}! Your intake form has been received.<br><br>
-          Your assigned preparer <strong>${STATE.data.preparerName || ""}</strong> has been notified and will review your information. 
-          You'll receive a confirmation email shortly.<br><br>
-          <em>If you have any questions, please contact our office directly.</em>
-        </div>
-      </div>
-    </div>`;
+  // Build confirmation page URL with all client data
+  const confirmParams = new URLSearchParams({
+    firstName:     STATE.data.firstName    || "",
+    lastName:      STATE.data.lastName     || "",
+    email:         STATE.data.email        || "",
+    phone:         STATE.data.phone        || "",
+    preparer:      STATE.data.preparerName || "",
+    taxYear:       STATE.data.taxYear      || FORM_CONFIG.taxYear,
+    filingStatus:  STATE.data.filingStatus || "single",
+    isTrucker:     !!(STATE.data.inc_trucker),
+    hasBusiness:   STATE.businesses.length > 0,
+    backTaxes:     !!(STATE.data.sp_backtaxes),
+    bookkeeping:   !!(STATE.data.bookkeeping),
+    itin:          STATE.data.hasITIN === "yes",
+    firmId:        FORM_CONFIG.firmId      || "",
+    firmName:      FORM_CONFIG.firmName    || "",
+    appsScriptUrl: FORM_CONFIG.appsScriptUrl || "",
+  });
+  window.location.href = "confirmation.html?" + confirmParams.toString();
 }
 
 // ── UTILITIES ────────────────────────────────────────────────
