@@ -677,6 +677,11 @@ function goBack(step) {
 }
 
 function skip(step) {
+  // Step 4 is the last data-entry step — skipping it must still save the firm
+  if (step === 4) {
+    finishOnboarding();
+    return;
+  }
   setStep(step + 1 > totalSteps ? step : step + 1);
   if (step === totalSteps) finishOnboarding();
 }
@@ -804,8 +809,13 @@ async function testWebhook() {
 }
 
 // ── FINISH ────────────────────────────────────────────
+let onboardingSubmitting = false;
+
 async function finishOnboarding() {
-  collectStep(4);
+  if (onboardingSubmitting) return;  // prevent double-submit
+  onboardingSubmitting = true;
+
+  collectStep(currentStep); // collect whatever step we're on (4 or skipped)
 
   const btn = document.getElementById('finishBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Setting up...'; }
@@ -859,6 +869,7 @@ async function finishOnboarding() {
     setStep(5);
 
   } catch (err) {
+    onboardingSubmitting = false;  // allow retry
     console.error("ONBOARDING ERROR:", err);
     if (btn) { btn.disabled = false; btn.textContent = 'Finish Setup →'; }
     // Show persistent visible error
