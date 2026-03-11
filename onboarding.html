@@ -859,8 +859,18 @@ async function finishOnboarding() {
     setStep(5);
 
   } catch (err) {
+    console.error("ONBOARDING ERROR:", err);
     if (btn) { btn.disabled = false; btn.textContent = 'Finish Setup →'; }
-    showToast('Error: ' + err.message, 'error');
+    // Show persistent visible error
+    let errBox = document.getElementById('onboardErrorBox');
+    if (!errBox) {
+      errBox = document.createElement('div');
+      errBox.id = 'onboardErrorBox';
+      errBox.style.cssText = 'background:#dc2626;color:white;padding:16px 20px;border-radius:10px;margin:16px 0;font-size:14px;font-weight:600;line-height:1.6';
+      const activeStep = document.querySelector('.step.active');
+      if (activeStep) activeStep.prepend(errBox);
+    }
+    errBox.innerHTML = '❌ Setup failed — please copy this error and share it:<br><code style="font-size:12px;font-weight:400;word-break:break-all">' + JSON.stringify(err) + '</code>';
   }
 }
 
