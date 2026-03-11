@@ -24,7 +24,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);
 
 /* TOPBAR */
 .topbar{background:var(--navy);height:60px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.tb-logo{font-family:var(--font-display);font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.tb-logo{font-family:'Instrument Serif',serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
 .tb-firm{font-size:13px;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:8px}
 .tb-firm strong{color:white}
 .tb-actions{display:flex;align-items:center;gap:12px}
@@ -58,7 +58,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);
 .page.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-.page-title{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.page-title{font-family:'Instrument Serif',serif;font-size:24px;font-weight:700;color:var(--navy);margin-bottom:4px}
 .page-sub{font-size:14px;color:var(--gray-400);margin-bottom:28px}
 
 /* STAT CARDS */
@@ -71,12 +71,12 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);
 .stat-card.green{--sc-accent:var(--green)}
 .stat-card.gold{--sc-accent:var(--gold)}
 .sc-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400);margin-bottom:8px}
-.sc-value{font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--navy)}
+.sc-value{font-family:'Instrument Serif',serif;font-size:32px;font-weight:800;color:var(--navy)}
 
 /* CLIENTS TABLE */
 .table-wrap{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
 .table-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--gray-200);gap:12px;flex-wrap:wrap}
-.table-title{font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--navy)}
+.table-title{font-family:'Instrument Serif',serif;font-size:15px;font-weight:700;color:var(--navy)}
 .table-actions{display:flex;gap:8px;align-items:center}
 .search-input{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;padding:8px 12px;font-family:var(--font-body);font-size:13px;color:var(--gray-800);outline:none;width:200px;transition:border-color 0.2s}
 .search-input:focus{border-color:var(--gold)}
@@ -112,7 +112,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
 /* SETTINGS */
 .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .card{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow)}
-.card-title{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.card-title{font-family:'Instrument Serif',serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px}
 .card-sub{font-size:13px;color:var(--gray-400);margin-bottom:22px}
 .full-width{grid-column:1/-1}
 
@@ -145,18 +145,18 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
 .add-prep-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px dashed var(--gray-400);border-radius:8px;padding:8px 14px;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:all 0.2s}
 .add-prep-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
 
-.save-btn{background:var(--navy);color:white;border:none;border-radius:var(--radius);padding:11px 24px;font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.save-btn{background:var(--navy);color:white;border:none;border-radius:var(--radius);padding:11px 24px;font-family:'Instrument Serif',serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
 .save-btn:hover{background:var(--navy-mid);transform:translateY(-1px)}
 .save-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .save-ok{color:var(--green);font-size:12px;font-weight:600;margin-left:10px;display:none}
 
 /* SUBSCRIPTION CARD */
 .sub-card{background:var(--navy);border-radius:var(--radius-lg);padding:24px;color:white}
-.sub-plan{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--gold);margin-bottom:4px}
+.sub-plan{font-family:'Instrument Serif',serif;font-size:20px;font-weight:700;color:var(--gold);margin-bottom:4px}
 .sub-status{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px}
 .sub-detail{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:6px}
 .sub-detail strong{color:white}
-.manage-btn{background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:9px 20px;font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;margin-top:16px;transition:all 0.2s}
+.manage-btn{background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:9px 20px;font-family:'Instrument Serif',serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:16px;transition:all 0.2s}
 .manage-btn:hover{background:#d9b85c}
 
 /* TOAST */
@@ -177,7 +177,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
 .modal-overlay.open{display:flex}
 .modal-drawer{background:white;width:min(700px,95vw);height:100vh;overflow-y:auto;box-shadow:-8px 0 40px rgba(0,0,0,0.2);display:flex;flex-direction:column}
 .modal-header{background:var(--navy);color:white;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;flex-shrink:0}
-.modal-title{font-family:var(--font-display);font-size:18px;font-weight:700}
+.modal-title{font-family:'Instrument Serif',serif;font-size:18px;font-weight:700}
 .modal-sub{font-size:11px;color:rgba(255,255,255,0.5);margin-top:3px}
 .modal-close{background:rgba(255,255,255,0.12);border:none;color:white;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .modal-body{padding:24px;flex:1}
@@ -217,7 +217,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="tb-logo">TaxIntakeFlow</div>
-  <div class="tb-firm">Firm: <strong id="tbFirmName">Loading...</strong></div>
+  <div class="tb-firm">Firm: <strong id="tbFirmName"> </strong></div>
   <div class="tb-actions">
     <span class="tb-plan" id="tbPlan">Starter</span>
     <button class="tb-logout" onclick="doLogout()">Log out</button>
@@ -366,6 +366,14 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
           <div class="f-field">
             <label>Email</label>
             <input type="text" class="f-input" id="setEmail" placeholder="info@yourfirm.com">
+          </div>
+          <div class="f-field">
+            <label>Business Address <span class="opt">(optional)</span></label>
+            <input type="text" class="f-input" id="setAddress" placeholder="123 Main St, Miami FL 33101">
+          </div>
+          <div class="f-field">
+            <label>Website <span class="opt">(optional)</span></label>
+            <input type="text" class="f-input" id="setWebsite" placeholder="https://yourfirm.com">
           </div>
           <button class="save-btn" onclick="saveFirmInfo()">Save Firm Info</button>
           <span class="save-ok" id="firmInfoOk">✓ Saved</span>
@@ -612,12 +620,12 @@ async function init() {
     .eq("owner_id", session.user.id)
     .single();
 
-  if (!firm) { window.location.href = "auth.html"; return; }
+  if (!firm) { window.location.href = "onboarding.html"; return; }
   FIRM = firm;
 
   // Update UI
   document.getElementById("tbFirmName").textContent = firm.firm_name;
-  document.getElementById("tbPlan").textContent = firm.plan_tier.charAt(0).toUpperCase() + firm.plan_tier.slice(1);
+  document.getElementById("tbPlan").textContent = firm.plan_tier ? firm.plan_tier.charAt(0).toUpperCase() + firm.plan_tier.slice(1) : "Starter";
   document.getElementById("dashYear").textContent = firm.tax_year || "2025";
 
   // Trial banner
@@ -632,12 +640,14 @@ async function init() {
   document.getElementById("setTaxYear").value    = firm.tax_year  || "2025";
   document.getElementById("setPhone").value      = firm.phone     || "";
   document.getElementById("setEmail").value      = firm.email     || "";
+  if(document.getElementById("setAddress")) document.getElementById("setAddress").value = firm.address || "";
+  if(document.getElementById("setWebsite")) document.getElementById("setWebsite").value = firm.website || "";
   document.getElementById("setGhlWebhook").value    = firm.ghl_webhook_url  || "";
   document.getElementById("setOwnerEmail").value    = firm.owner_email      || "";
   document.getElementById("setDriveFolderId").value = firm.drive_folder_id  || "";
 
   // Billing
-  document.getElementById("subPlanName").textContent = `${firm.plan_tier} — ${firm.plan_interval}`;
+  document.getElementById("subPlanName").textContent = `${firm.plan_tier || "Starter"} — ${firm.plan_interval || "Monthly"}`;
   document.getElementById("subStatus").textContent   = firm.plan_status === "trialing" ? "Free Trial" : "Active";
 
   // Load preparers
@@ -736,6 +746,8 @@ async function saveFirmInfo() {
     firm_name: document.getElementById("setFirmName").value.trim(),
     tax_year:  document.getElementById("setTaxYear").value.trim(),
     phone:     document.getElementById("setPhone").value.trim(),
+    address:   document.getElementById("setAddress")?.value.trim() || "",
+    website:   document.getElementById("setWebsite")?.value.trim() || "",
     email:     document.getElementById("setEmail").value.trim(),
   };
   if (!updates.firm_name) { toast("Firm name required", "err"); return; }
@@ -985,9 +997,8 @@ async function saveNotes() {
 // ── INTAKE LINK ──────────────────────────────────────────────
 function updateIntakeLink() {
   if (!FIRM) return;
-  const base    = window.location.href.replace("portal.html", "");
-  const appsUrl = localStorage.getItem("tif_appsScriptUrl") || "";
-  const link    = `${base}intake.html?firm=${encodeURIComponent(FIRM.firm_name)}&year=${FIRM.tax_year || "2025"}&firmId=${FIRM.id}&url=${encodeURIComponent(appsUrl)}&ghl=${encodeURIComponent(FIRM.ghl_webhook_url || "")}`;
+  const base = "https://taxintakeflow.com/";
+  const link = `${base}intake.html?firmId=${FIRM.id}`;
 
   document.getElementById("intakeLinkDisplay").textContent = link;
   const full = document.getElementById("intakeLinkFull");
@@ -1135,4 +1146,19 @@ function copy(text) {
   navigator.clipboard.writeText(text).catch(() => {
     const el = Object.assign(document.createElement("textarea"),{value:text});
     document.body.appendChild(el); el.select(); document.execCommand("copy"); el.remove();
-  
+  });
+}
+
+function toast(msg, type="ok") {
+  const t = document.getElementById("toast");
+  if (!t) return;
+  t.textContent = msg;
+  t.className = "toast show " + (type === "err" ? "err" : "");
+  clearTimeout(t._to);
+  t._to = setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+init();
+</script>
+</body>
+</html>
