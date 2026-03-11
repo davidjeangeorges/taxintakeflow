@@ -405,7 +405,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
             <input type="text" class="f-input" id="setDriveFolderId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
             <div class="f-note">
               1. Create a folder in your Google Drive<br>
-              2. Share it with <strong>taxintakeflow@taxintakeflow-app.iam.gserviceaccount.com</strong> (Editor access)<br>
+              2. Share it with <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7703160f1e1903161c12111b18003703160f1e1903161c12111b18005a160707591e161a5910041205011e1412161414180219035914181a">[email&#160;protected]</a></strong> (Editor access)<br>
               3. Copy the folder ID from the URL: drive.google.com/drive/folders/<strong>THIS_PART</strong>
             </div>
           </div>
@@ -586,7 +586,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
 
 <div id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── SUPABASE CONFIG ──────────────────────────────────────────
 // REPLACE with your actual values
 const SUPABASE_URL  = "https://yyobsleksxryuwxenvnb.supabase.co";
@@ -1115,7 +1115,8 @@ function showPage(id, el) {
 // ── LOGOUT ───────────────────────────────────────────────────
 async function doLogout() {
   await sb.auth.signOut();
-  window.location.href = "auth.html";
+  // Pass ?logout=1 so auth.html knows not to auto-redirect back
+  window.location.href = "auth.html?logout=1";
 }
 
 // ── STRIPE ───────────────────────────────────────────────────
@@ -1134,12 +1135,4 @@ function copy(text) {
   navigator.clipboard.writeText(text).catch(() => {
     const el = Object.assign(document.createElement("textarea"),{value:text});
     document.body.appendChild(el); el.select(); document.execCommand("copy"); el.remove();
-  });
-}
-function toast(msg, type = "ok") {
-  const el = document.getElementById("toast");
-  el.textContent = (type==="ok"?"✓ ":"⚠ ") + msg;
-  el.className   = "show " + type;
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.style.display = "none", 3000);
-  el.
+  

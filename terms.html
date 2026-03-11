@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — TaxIntakeFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0d1b2a;--navy-mid:#132639;
+  --gold:#c9a84c;--gold-light:#e8c96a;--gold-dim:rgba(201,168,76,0.12);
+  --white:#ffffff;--off-white:#f9f7f3;
+  --gray-100:#f3f1ed;--gray-200:#e4e1da;--gray-400:#9b9488;--gray-600:#5c5650;
+  --radius:10px;--radius-lg:16px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--off-white);color:var(--navy);overflow-x:hidden;line-height:1.7}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;padding:0 40px;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,27,42,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(201,168,76,0.15)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo-mark{width:32px;height:32px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--navy)}
+.nav-logo-text{font-family:'Instrument Serif',serif;font-size:18px;color:var(--white)}
+.nav-back{font-size:13px;font-weight:500;color:rgba(255,255,255,0.55);text-decoration:none;transition:color 0.2s}
+.nav-back:hover{color:var(--white)}
+
+/* HERO */
+.hero{background:var(--navy);padding:72px 40px 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% -10%,rgba(201,168,76,0.1),transparent 65%);pointer-events:none}
+.hero-inner{max-width:760px;margin:0 auto;position:relative}
+.hero-label{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.hero-title{font-family:'Instrument Serif',serif;font-size:clamp(36px,5vw,54px);color:var(--white);line-height:1.1;margin-bottom:16px}
+.hero-meta{font-size:13px;color:rgba(255,255,255,0.4);display:flex;gap:20px;flex-wrap:wrap}
+
+/* CONTENT */
+.content-wrap{max-width:760px;margin:0 auto;padding:60px 40px 80px}
+.toc{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:28px 32px;margin-bottom:48px}
+.toc-title{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.toc ol{padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.toc a{font-size:14px;color:var(--navy);text-decoration:none;font-weight:500;transition:color 0.2s}
+.toc a:hover{color:var(--gold)}
+
+.section{margin-bottom:48px}
+.section-num{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.section-title{font-family:'Instrument Serif',serif;font-size:26px;color:var(--navy);margin-bottom:16px}
+.section p{font-size:15px;color:var(--gray-600);line-height:1.8;margin-bottom:14px}
+.section p:last-child{margin-bottom:0}
+.section ul,.section ol{padding-left:22px;margin-bottom:14px;display:flex;flex-direction:column;gap:8px}
+.section li{font-size:15px;color:var(--gray-600);line-height:1.7}
+.section strong{color:var(--navy);font-weight:600}
+.highlight-box{background:var(--white);border:1px solid var(--gray-200);border-left:4px solid var(--gold);border-radius:0 var(--radius) var(--radius) 0;padding:18px 22px;margin:20px 0;font-size:14px;color:var(--gray-600);line-height:1.7}
+.divider{height:1px;background:var(--gray-200);margin:48px 0}
+
+/* FOOTER */
+footer{background:#08111a;padding:40px;border-top:1px solid rgba(255,255,255,0.05)}
+.footer-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-copy{font-size:12px;color:rgba(255,255,255,0.25)}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:12px;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s}
+.footer-links a:hover{color:var(--white)}
+
+@media(max-width:768px){
+  nav{padding:0 20px}
+  .hero{padding:60px 24px 48px}
+  .content-wrap{padding:40px 24px 60px}
+  footer{padding:32px 24px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-mark">TF</div>
+    <span class="nav-logo-text">TaxIntakeFlow</span>
+  </a>
+  <a class="nav-back" href="index.html">← Back to Home</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-label">Legal</div>
+    <h1 class="hero-title">Terms of Service</h1>
+    <div class="hero-meta">
+      <span>Last updated: March 2025</span>
+      <span>Effective: March 1, 2025</span>
+    </div>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#acceptance">Acceptance of Terms</a></li>
+      <li><a href="#services">Description of Services</a></li>
+      <li><a href="#accounts">Accounts & Registration</a></li>
+      <li><a href="#subscriptions">Subscriptions & Billing</a></li>
+      <li><a href="#data">Data & Privacy</a></li>
+      <li><a href="#acceptable-use">Acceptable Use</a></li>
+      <li><a href="#intellectual-property">Intellectual Property</a></li>
+      <li><a href="#disclaimer">Disclaimers</a></li>
+      <li><a href="#limitation">Limitation of Liability</a></li>
+      <li><a href="#termination">Termination</a></li>
+      <li><a href="#governing-law">Governing Law</a></li>
+      <li><a href="#changes">Changes to Terms</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ol>
+  </div>
+
+  <div class="highlight-box">
+    Please read these Terms of Service carefully before using TaxIntakeFlow. By creating an account or using our services, you agree to be bound by these terms. If you do not agree, do not use TaxIntakeFlow.
+  </div>
+
+  <div class="section" id="acceptance">
+    <div class="section-num">01</div>
+    <h2 class="section-title">Acceptance of Terms</h2>
+    <p>These Terms of Service ("Terms") constitute a legally binding agreement between you ("Firm," "you," or "User") and Prosperium LLC, doing business as TaxIntakeFlow ("TaxIntakeFlow," "we," "us," or "our"), governing your access to and use of the TaxIntakeFlow platform, website, and related services (collectively, the "Services").</p>
+    <p>By registering for an account, accessing the platform, or using any part of our Services, you confirm that you are at least 18 years old, have the authority to enter into this agreement on behalf of yourself or your business entity, and agree to be bound by these Terms and our Privacy Policy.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="services">
+    <div class="section-num">02</div>
+    <h2 class="section-title">Description of Services</h2>
+    <p>TaxIntakeFlow is a software-as-a-service (SaaS) platform designed for independent tax preparers and tax firms. Our Services include:</p>
+    <ul>
+      <li>Client intake form creation and management</li>
+      <li>Secure document collection and storage</li>
+      <li>Automated Google Drive folder organization</li>
+      <li>Digital engagement letter generation and delivery</li>
+      <li>Email notifications to preparers and clients</li>
+      <li>Integration with third-party CRM platforms including GoHighLevel / HighLevel</li>
+      <li>Client pipeline management dashboard</li>
+      <li>Multi-preparer account management</li>
+    </ul>
+    <p>We reserve the right to modify, suspend, or discontinue any feature of the Services at any time with reasonable notice. We will not be liable to you or any third party for any modification, suspension, or discontinuation of Services.</p>
+    <div class="highlight-box">
+      <strong>Google Drive Integration:</strong> Use of the Google Drive integration requires a Google Workspace Enterprise plan for data security compliance. TaxIntakeFlow is not responsible for data security issues arising from use of non-Enterprise Google accounts.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="accounts">
+    <div class="section-num">03</div>
+    <h2 class="section-title">Accounts & Registration</h2>
+    <p>To access TaxIntakeFlow, you must register for an account by providing accurate and complete information. You are responsible for:</p>
+    <ul>
+      <li>Maintaining the confidentiality of your account credentials</li>
+      <li>All activity that occurs under your account</li>
+      <li>Promptly notifying us of any unauthorized use of your account</li>
+      <li>Ensuring all information you provide remains accurate and up to date</li>
+    </ul>
+    <p>Each account is for use by a single tax firm or business entity. You may not share your account credentials with individuals outside your firm. You are permitted to add multiple preparers within your firm using the preparer management features built into the platform.</p>
+    <p>We reserve the right to suspend or terminate accounts that violate these Terms, engage in fraudulent activity, or are inactive for extended periods without notice.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="subscriptions">
+    <div class="section-num">04</div>
+    <h2 class="section-title">Subscriptions & Billing</h2>
+    <p><strong>Free Trial:</strong> New accounts receive 3 free submissions at no charge and without requiring a credit card. After your free submissions are used, you must select a paid plan to continue using the Services.</p>
+    <p><strong>Paid Plans:</strong> TaxIntakeFlow offers the following subscription tiers:</p>
+    <ul>
+      <li><strong>Starter</strong> — $49/month (or $35/month billed every 6 months, or $27/month billed annually). Includes 75 client submissions per year. Additional submissions billed at $1.50 each.</li>
+      <li><strong>Growth</strong> — $97/month (or $69/month billed every 6 months, or $49/month billed annually). Includes 200 client submissions per year. Additional submissions billed at $1.00 each.</li>
+      <li><strong>Pro</strong> — $147/month (or $99/month billed every 6 months, or $79/month billed annually). Unlimited client submissions. No per-submission fees.</li>
+    </ul>
+    <p><strong>Billing:</strong> Subscriptions are billed in advance for the selected billing period (monthly, 6-month, or annual). By providing payment information, you authorize us to charge your payment method automatically at the start of each billing period.</p>
+    <p><strong>Cancellation:</strong> You may cancel your subscription at any time. Cancellation takes effect at the end of your current billing period. We do not provide refunds for unused portions of a billing period.</p>
+    <p><strong>Price Changes:</strong> We reserve the right to modify pricing with at least 30 days' written notice to your registered email address. Continued use of the Services after the effective date constitutes acceptance of the new pricing.</p>
+    <p><strong>Taxes:</strong> Prices listed do not include applicable taxes. You are responsible for all taxes, duties, and similar charges associated with your use of the Services.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="data">
+    <div class="section-num">05</div>
+    <h2 class="section-title">Data & Privacy</h2>
+    <p><strong>Your Data:</strong> You retain ownership of all data you and your clients submit through TaxIntakeFlow ("Your Data"). We do not claim any ownership rights over Your Data.</p>
+    <p><strong>Your Clients' Data:</strong> As a tax firm using TaxIntakeFlow, you are responsible for obtaining appropriate consent from your clients to collect, process, and store their information through our platform. You represent and warrant that you have all necessary rights, permissions, and consents to submit your clients' data to TaxIntakeFlow.</p>
+    <p><strong>Our Use of Data:</strong> We use Your Data solely to provide, maintain, and improve the Services. We do not sell, rent, or share your data or your clients' data with third parties for marketing or advertising purposes. See our Privacy Policy for full details.</p>
+    <p><strong>Data Security:</strong> We implement industry-standard security measures to protect data stored on our platform. However, no method of transmission or storage is 100% secure. You are responsible for maintaining appropriate security practices on your end, including keeping your account credentials confidential.</p>
+    <p><strong>Sensitive Information:</strong> TaxIntakeFlow collects sensitive personal and financial information including Social Security Numbers, tax identification numbers, and financial records. You agree to use the platform only for its intended purpose and to comply with all applicable laws regarding the handling of such sensitive information.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="acceptable-use">
+    <div class="section-num">06</div>
+    <h2 class="section-title">Acceptable Use</h2>
+    <p>You agree not to use TaxIntakeFlow for any purpose that is unlawful or prohibited by these Terms. Specifically, you agree not to:</p>
+    <ul>
+      <li>Use the Services for any purpose other than legitimate tax preparation and related professional services</li>
+      <li>Attempt to gain unauthorized access to any part of the platform or its related systems</li>
+      <li>Upload malicious code, viruses, or any software designed to harm the platform or its users</li>
+      <li>Collect or harvest data from other firms or users on the platform</li>
+      <li>Impersonate any person or entity or falsely represent your affiliation</li>
+      <li>Use the Services to send unsolicited communications or spam</li>
+      <li>Violate any applicable federal, state, or local laws, including those governing the handling of sensitive personal and financial data</li>
+      <li>Resell, sublicense, or otherwise transfer access to the Services to third parties without our written consent</li>
+    </ul>
+    <p>Violation of these acceptable use policies may result in immediate suspension or termination of your account without refund.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="intellectual-property">
+    <div class="section-num">07</div>
+    <h2 class="section-title">Intellectual Property</h2>
+    <p>The TaxIntakeFlow platform, including its software, design, features, branding, and content (excluding Your Data), is owned by Prosperium LLC and protected by applicable intellectual property laws.</p>
+    <p>We grant you a limited, non-exclusive, non-transferable, revocable license to access and use the Services during your subscription term, solely for your internal business purposes in accordance with these Terms.</p>
+    <p>You may not copy, modify, distribute, sell, or create derivative works based on any part of the TaxIntakeFlow platform without our prior written consent.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="disclaimer">
+    <div class="section-num">08</div>
+    <h2 class="section-title">Disclaimers</h2>
+    <p>THE SERVICES ARE PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.</p>
+    <p>We do not warrant that the Services will be uninterrupted, error-free, or completely secure. We are not responsible for any interruptions, delays, or errors in the Services caused by circumstances beyond our reasonable control.</p>
+    <p><strong>Not Tax or Legal Advice:</strong> TaxIntakeFlow is a technology platform and does not provide tax, legal, accounting, or financial advice. The platform is a tool for tax professionals to collect client information — it does not validate the accuracy of information submitted, make tax determinations, or constitute professional advice of any kind.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="limitation">
+    <div class="section-num">09</div>
+    <h2 class="section-title">Limitation of Liability</h2>
+    <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, PROSPERIUM LLC AND ITS OFFICERS, DIRECTORS, EMPLOYEES, AND AGENTS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, OR GOODWILL, ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF THE SERVICES.</p>
+    <p>OUR TOTAL CUMULATIVE LIABILITY TO YOU FOR ANY CLAIMS ARISING UNDER THESE TERMS SHALL NOT EXCEED THE GREATER OF (A) THE TOTAL FEES PAID BY YOU TO US IN THE TWELVE MONTHS PRECEDING THE CLAIM, OR (B) ONE HUNDRED DOLLARS ($100).</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="termination">
+    <div class="section-num">10</div>
+    <h2 class="section-title">Termination</h2>
+    <p>Either party may terminate this agreement at any time. You may terminate by canceling your subscription and ceasing use of the Services. We may terminate or suspend your account immediately, without prior notice or liability, for any reason including breach of these Terms.</p>
+    <p>Upon termination, your right to access the Services will immediately cease. Your data will be retained for 90 days following termination, during which you may request an export. After 90 days, your data may be permanently deleted.</p>
+    <p>Provisions that by their nature should survive termination shall survive, including ownership provisions, warranty disclaimers, indemnity obligations, and limitations of liability.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="governing-law">
+    <div class="section-num">11</div>
+    <h2 class="section-title">Governing Law</h2>
+    <p>These Terms shall be governed by and construed in accordance with the laws of the State of Florida, without regard to its conflict of law provisions. Any disputes arising under these Terms shall be resolved exclusively in the state or federal courts located in Florida, and you consent to the personal jurisdiction of such courts.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="changes">
+    <div class="section-num">12</div>
+    <h2 class="section-title">Changes to Terms</h2>
+    <p>We reserve the right to update these Terms at any time. When we make material changes, we will notify you by email to your registered address and update the "Last Updated" date at the top of this page. Your continued use of the Services after the effective date of any changes constitutes your acceptance of the revised Terms.</p>
+    <p>We encourage you to review these Terms periodically to stay informed of any updates.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section" id="contact">
+    <div class="section-num">13</div>
+    <h2 class="section-title">Contact</h2>
+    <p>If you have questions about these Terms of Service, please contact us:</p>
+    <ul>
+      <li><strong>Email:</strong> support@taxintakeflow.com</li>
+      <li><strong>Business:</strong> Prosperium LLC</li>
+      <li><strong>Website:</strong> taxintakeflow.com</li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-copy">© 2025 TaxIntakeFlow — A product of Prosperium LLC</span>
+    <div class="footer-links">
+      <a href="terms.html">Terms of Service</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="index.html">Home</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

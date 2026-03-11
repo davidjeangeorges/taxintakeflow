@@ -301,12 +301,18 @@ function clearError() {
 }
 
 // Check if already logged in
-sb.auth.getSession().then(async ({ data: { session } }) => {
-  if (session) {
-    const { data: firm } = await sb.from("firms").select("id").eq("owner_id", session.user.id).single();
-    window.location.href = firm ? "portal.html" : "onboarding.html";
-  }
-});
+// Only auto-redirect if NOT coming from a logout
+const urlParams = new URLSearchParams(window.location.search);
+const fromLogout = urlParams.get("logout") === "1";
+
+if (!fromLogout) {
+  sb.auth.getSession().then(async ({ data: { session } }) => {
+    if (session) {
+      const { data: firm } = await sb.from("firms").select("id").eq("owner_id", session.user.id).single();
+      window.location.href = firm ? "portal.html" : "onboarding.html";
+    }
+  });
+}
 </script>
 </body>
 </html>
