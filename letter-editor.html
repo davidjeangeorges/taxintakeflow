@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letter Editor — TaxIntakeFlow</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #f6f7f9;
+  --white: #ffffff;
+  --navy: #0d1b2a;
+  --gold: #c9a84c;
+  --border: #e2e4e9;
+  --text: #1a1f2e;
+  --muted: #7a8394;
+  --accent: #3b5bdb;
+  --success: #2f9e44;
+  --danger: #e03131;
+  --radius: 10px;
+  --sans: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* TOP BAR */
+.topbar {
+  background: var(--navy);
+  padding: 0 28px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.topbar-brand { font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); }
+.topbar-title { font-size: 14px; color: rgba(255,255,255,0.7); }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 7px;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; transition: all 0.15s;
+  text-decoration: none;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { opacity: 0.88; }
+.btn-ghost { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.15); }
+.btn-ghost:hover { background: rgba(255,255,255,0.18); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-light { background: var(--white); color: var(--text); border: 1px solid var(--border); }
+.btn-light:hover { border-color: #aaa; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* LAYOUT */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 56px);
+}
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  padding: 20px 0;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 16px 20px 8px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  border-left: 3px solid transparent;
+  transition: all 0.12s;
+}
+.nav-item:hover { color: var(--text); background: #f0f2f5; }
+.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: #eef2ff; font-weight: 500; }
+.nav-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.nav-item.active .nav-dot { background: var(--accent); }
+.nav-item.modified .nav-dot { background: var(--gold); }
+
+/* MAIN EDITOR */
+.editor-main {
+  padding: 32px;
+  max-width: 860px;
+}
+
+.editor-section { display: none; }
+.editor-section.active { display: block; }
+
+.section-header {
+  margin-bottom: 24px;
+}
+.section-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.section-header p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* FIELD */
+.field { margin-bottom: 20px; }
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.field textarea, .field input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  resize: vertical;
+  line-height: 1.6;
+}
+.field textarea:focus, .field input[type="text"]:focus { border-color: var(--accent); }
+.field-hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.field-hint code { background: #f0f2f5; padding: 1px 5px; border-radius: 4px; font-family: var(--mono); font-size: 11px; }
+
+/* TERMS EDITOR */
+.terms-list { display: flex; flex-direction: column; gap: 12px; }
+
+.term-row {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.term-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.term-input {
+  flex: 1;
+  background: none;
+  border: none;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  resize: none;
+  line-height: 1.6;
+  min-height: 60px;
+  padding: 0;
+}
+.term-del {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.12s;
+  flex-shrink: 0;
+}
+.term-del:hover { color: var(--danger); background: #fff0f0; }
+
+.add-term-btn {
+  width: 100%;
+  padding: 12px;
+  background: #f6f7f9;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.12s;
+  margin-top: 4px;
+}
+.add-term-btn:hover { background: #eef2ff; border-color: var(--accent); color: var(--accent); }
+
+/* PREVIEW PANEL */
+.preview-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.preview-toggle span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* SAVE BAR */
+.save-bar {
+  position: fixed;
+  bottom: 0; left: 260px; right: 0;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+.save-status { font-size: 13px; color: var(--muted); }
+.save-status.saved { color: var(--success); }
+.save-status.unsaved { color: var(--gold); }
+
+.pb-80 { padding-bottom: 80px; }
+
+/* NOTICE BOX PREVIEW */
+.notice-preview {
+  border-left: 3px solid var(--gold);
+  background: rgba(201,168,76,0.07);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #3a3530;
+  margin-top: 8px;
+  line-height: 1.6;
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 80px; right: 24px;
+  background: var(--text); color: #fff;
+  padding: 12px 18px; border-radius: 8px;
+  font-size: 13px; z-index: 999;
+  display: none; align-items: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.toast.show { display: flex; }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+
+/* LOGIN */
+#login-screen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--bg);
+}
+.login-box {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 40px; width: 380px; text-align: center;
+}
+.login-box h1 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+.login-box p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+.login-box input { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-family: var(--sans); font-size: 14px; outline: none; margin-bottom: 10px; }
+.login-box input:focus { border-color: var(--accent); }
+.login-box .btn { width: 100%; justify-content: center; margin-top: 4px; padding: 11px; }
+#login-error { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+
+/* VARIABLE HINT */
+.var-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.var-chip { background: #eef2ff; color: var(--accent); font-size: 11px; font-family: var(--mono); padding: 3px 9px; border-radius: 20px; cursor: pointer; }
+.var-chip:hover { background: #dde5ff; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>Letter Editor</h1>
+    <p>Sign in to customize your engagement letter</p>
+    <input type="email" id="login-email" placeholder="Your email" />
+    <input type="password" id="login-password" placeholder="Password" />
+    <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+    <div id="login-error">Invalid email or password</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-brand">TaxIntakeFlow</div>
+      <div class="topbar-title">/ Engagement Letter Editor</div>
+    </div>
+    <div class="topbar-right">
+      <a class="btn btn-ghost" href="portal.html">← Back to Portal</a>
+      <a class="btn btn-ghost" id="previewBtn" href="#" target="_blank">👁 Preview Letter</a>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR NAV -->
+    <div class="sidebar">
+      <div class="sidebar-section-label">Letter Sections</div>
+      <div class="nav-item active" onclick="showSection('firm-info', this)">
+        <div class="nav-dot"></div> Firm Contact Info
+      </div>
+      <div class="nav-item" onclick="showSection('intro', this)">
+        <div class="nav-dot"></div> Introduction
+      </div>
+      <div class="nav-item" onclick="showSection('scope', this)">
+        <div class="nav-dot"></div> Scope of Services
+      </div>
+      <div class="nav-item" onclick="showSection('client-resp', this)">
+        <div class="nav-dot"></div> Client Responsibilities
+      </div>
+      <div class="nav-item" onclick="showSection('our-resp', this)">
+        <div class="nav-dot"></div> Our Responsibilities
+      </div>
+      <div class="nav-item" onclick="showSection('fees', this)">
+        <div class="nav-dot"></div> Fees &amp; Payment
+      </div>
+      <div class="nav-item" onclick="showSection('limitations', this)">
+        <div class="nav-dot"></div> Limitations &amp; Disclaimers
+      </div>
+
+      <div class="sidebar-section-label" style="margin-top:8px">Actions</div>
+      <div class="nav-item" onclick="resetToDefaults()">
+        <div class="nav-dot"></div> Reset to Defaults
+      </div>
+    </div>
+
+    <!-- EDITOR MAIN -->
+    <div class="editor-main pb-80">
+
+      <!-- FIRM INFO -->
+      <div class="editor-section active" id="sec-firm-info">
+        <div class="section-header">
+          <h2>Firm Contact Information</h2>
+          <p>This information appears on your engagement letter so clients know how to reach you. All fields are optional.</p>
+        </div>
+        <div class="field">
+          <label>Business Address</label>
+          <input type="text" id="firm_address" placeholder="123 Main St, Orlando, FL 32801" oninput="markUnsaved()" />
+        </div>
+        <div class="field">
+          <label>Phone Number</label>
+          <input type="text" id="firm_phone" placeholder="(407) 555-0100" oninput="markUnsaved()" />
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input type="text" id="firm_email" placeholder="info@yourfirm.com" oninput="markUnsaved()" />
+        </div>
+        <div class="field">
+          <label>Website</label>
+          <input type="text" id="firm_website" placeholder="https://yourfirm.com" oninput="markUnsaved()" />
+        </div>
+      </div>
+
+      <!-- INTRO -->
+      <div class="editor-section" id="sec-intro">
+        <div class="section-header">
+          <h2>Introduction Paragraph</h2>
+          <p>This is the opening paragraph of your letter, right after the "Dear [Client]," greeting. Use <code>{firmName}</code> and <code>{taxYear}</code> as placeholders — they'll be replaced automatically.</p>
+        </div>
+        <div class="var-chips">
+          <div class="var-chip" onclick="insertVar('intro_paragraph', '{firmName}')">{firmName}</div>
+          <div class="var-chip" onclick="insertVar('intro_paragraph', '{taxYear}')">{taxYear}</div>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label>Introduction Text</label>
+          <textarea id="intro_paragraph" rows="5" oninput="markUnsaved()"></textarea>
+        </div>
+      </div>
+
+      <!-- SCOPE -->
+      <div class="editor-section" id="sec-scope">
+        <div class="section-header">
+          <h2>Scope of Services — Notice</h2>
+          <p>This notice appears below the services table. It reminds the client that unlisted services are not included.</p>
+        </div>
+        <div class="field">
+          <label>Notice Text (supports basic HTML like &lt;strong&gt;)</label>
+          <textarea id="scope_notice" rows="4" oninput="markUnsaved(); updateNoticePreview('scope_notice','scope-preview')"></textarea>
+          <div class="field-hint">Preview:</div>
+          <div class="notice-preview" id="scope-preview"></div>
+        </div>
+      </div>
+
+      <!-- CLIENT RESPONSIBILITIES -->
+      <div class="editor-section" id="sec-client-resp">
+        <div class="section-header">
+          <h2>Client Responsibilities</h2>
+          <p>Each item is a numbered obligation for the client. Drag to reorder (coming soon). Use <code>{firmName}</code> and <code>{taxYear}</code> as needed.</p>
+        </div>
+        <div class="terms-list" id="clientTermsList"></div>
+        <button class="add-term-btn" onclick="addTerm('client')">+ Add Item</button>
+      </div>
+
+      <!-- OUR RESPONSIBILITIES -->
+      <div class="editor-section" id="sec-our-resp">
+        <div class="section-header">
+          <h2>Our Responsibilities</h2>
+          <p>What your firm commits to. Use <code>{taxYear}</code> where needed.</p>
+        </div>
+        <div class="terms-list" id="ourTermsList"></div>
+        <button class="add-term-btn" onclick="addTerm('our')">+ Add Item</button>
+      </div>
+
+      <!-- FEES -->
+      <div class="editor-section" id="sec-fees">
+        <div class="section-header">
+          <h2>Fees &amp; Payment</h2>
+          <p>The main fee description paragraph, a highlighted payment notice box, and a closing paragraph.</p>
+        </div>
+        <div class="field">
+          <label>Main Fee Paragraph</label>
+          <textarea id="fee_paragraph" rows="3" oninput="markUnsaved()"></textarea>
+        </div>
+        <div class="field">
+          <label>Payment Notice Box (highlighted)</label>
+          <textarea id="fee_notice" rows="3" oninput="markUnsaved(); updateNoticePreview('fee_notice','fee-preview')"></textarea>
+          <div class="field-hint">Preview:</div>
+          <div class="notice-preview" id="fee-preview"></div>
+        </div>
+        <div class="field">
+          <label>Closing Fee Paragraph</label>
+          <textarea id="fee_paragraph_after" rows="3" oninput="markUnsaved()"></textarea>
+        </div>
+      </div>
+
+      <!-- LIMITATIONS -->
+      <div class="editor-section" id="sec-limitations">
+        <div class="section-header">
+          <h2>Limitations &amp; Disclaimers</h2>
+          <p>Each item becomes a paragraph in the Limitations section. Add or remove as needed.</p>
+        </div>
+        <div class="terms-list" id="limitTermsList"></div>
+        <button class="add-term-btn" onclick="addTerm('limit')">+ Add Paragraph</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SAVE BAR -->
+  <div class="save-bar">
+    <div class="save-status" id="saveStatus">All changes saved</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-light" onclick="loadTemplate()">↺ Discard Changes</button>
+      <button class="btn btn-success" id="saveBtn" onclick="saveTemplate()">💾 Save Letter</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL  = 'https://yyobsleksxryuwxenvnb.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY';
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let currentUser = null;
+let firmId      = null;
+let unsaved     = false;
+
+const DEFAULTS = {
+  intro_paragraph: "Thank you for choosing {firmName} for your tax preparation needs. This engagement letter outlines the scope of services we will provide, the responsibilities of both parties, and the terms under which we will work together for Tax Year {taxYear}.",
+  client_responsibilities: [
+    "You agree to provide all documents, records, and information necessary to prepare your return, including but not limited to: W-2s, 1099s, prior year return, Social Security cards, and any other relevant documents requested by your preparer.",
+    "You confirm that all information provided in your intake form and any subsequent documents is accurate, complete, and truthful to the best of your knowledge.",
+    "You agree to respond promptly to requests from your preparer for additional information or clarification. Delays in providing information may result in delays in completing your return.",
+    "You are responsible for reviewing your completed return before signing and filing. Your signature on Form 8879 (e-File Authorization) represents your confirmation that the return is accurate and complete.",
+    "You agree to pay all fees as outlined in the fee section of this letter prior to, or at the time of, return delivery."
+  ],
+  our_responsibilities: [
+    "We will prepare your federal and state income tax returns based on information you provide. We will not audit or independently verify the information you provide unless specifically engaged to do so.",
+    "We will apply applicable tax laws and regulations in effect for Tax Year {taxYear} to minimize your tax liability within the bounds of the law.",
+    "We will maintain the confidentiality of all information you provide. We will not disclose your information to third parties without your consent, except as required by law.",
+    "We will notify you of any missing documents or questions that arise during preparation before completing your return.",
+    "We will provide you with copies of your completed return for your records. We will retain copies of your return for a minimum of three (3) years."
+  ],
+  fee_paragraph: "Tax preparation fees are based on the complexity of your return and the services required. Your preparer will provide a fee quote after reviewing your documents.",
+  fee_notice: "Payment is due upon delivery of your completed return. We accept payment via cash, check, credit/debit card, and payment from your refund (where applicable). We reserve the right to withhold your completed return until payment is received.",
+  fee_paragraph_after: "If you are expecting a refund, you may have the option to have fees deducted from your refund. Your preparer will discuss this option with you if available.",
+  limitations_paragraphs: [
+    "Our work does not constitute an audit, review, or compilation of financial statements. We are engaged solely to prepare your income tax returns based on information provided by you.",
+    "If you receive a notice from the IRS or a state tax authority after your return is filed, please contact us immediately. Responding to tax notices is not included in this engagement unless separately arranged. Additional fees apply for audit representation, IRS correspondence, and amended returns.",
+    "We are not responsible for penalties or interest resulting from inaccurate or incomplete information provided by you, or from your failure to meet tax payment deadlines."
+  ],
+  scope_notice: "<strong>Important:</strong> Services not listed above are not included in this engagement. If additional services are required during preparation, we will contact you before proceeding, and additional fees may apply.",
+  firm_address: "", firm_phone: "", firm_email: "", firm_website: ""
+};
+
+// ── AUTH ──────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { document.getElementById('login-error').style.display = 'block'; return; }
+  currentUser = data.user;
+  await initApp();
+}
+
+async function initApp() {
+  // Find firm for this user
+  const { data: firm } = await sb.from('firms').select('id, firm_name').eq('owner_id', currentUser.id).single();
+  if (!firm) {
+    // Try by email
+    const { data: firm2 } = await sb.from('firms').select('id, firm_name').eq('email', currentUser.email).single();
+    if (firm2) { firmId = firm2.id; }
+  } else {
+    firmId = firm.id;
+  }
+
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // Update preview link
+  document.getElementById('previewBtn').href = `engagement.html?firmId=${firmId}&firstName=John&lastName=Doe&email=john@example.com&taxYear=2024`;
+
+  await loadTemplate();
+}
+
+// ── LOAD ─────────────────────────────────────────────
+async function loadTemplate() {
+  let T = JSON.parse(JSON.stringify(DEFAULTS));
+
+  if (firmId) {
+    const { data } = await sb.from('engagement_templates').select('*').eq('firm_id', firmId).single();
+    if (data) {
+      Object.keys(T).forEach(k => { if (data[k] !== null && data[k] !== undefined) T[k] = data[k]; });
+    }
+  }
+
+  // Populate fields
+  document.getElementById('firm_address').value      = T.firm_address || '';
+  document.getElementById('firm_phone').value        = T.firm_phone || '';
+  document.getElementById('firm_email').value        = T.firm_email || '';
+  document.getElementById('firm_website').value      = T.firm_website || '';
+  document.getElementById('intro_paragraph').value   = T.intro_paragraph || '';
+  document.getElementById('scope_notice').value      = T.scope_notice || '';
+  document.getElementById('fee_paragraph').value     = T.fee_paragraph || '';
+  document.getElementById('fee_notice').value        = T.fee_notice || '';
+  document.getElementById('fee_paragraph_after').value = T.fee_paragraph_after || '';
+
+  // Render terms lists
+  renderTermsList('clientTermsList', T.client_responsibilities, 'client');
+  renderTermsList('ourTermsList',    T.our_responsibilities,    'our');
+  renderTermsList('limitTermsList',  T.limitations_paragraphs,  'limit');
+
+  // Previews
+  updateNoticePreview('scope_notice', 'scope-preview');
+  updateNoticePreview('fee_notice', 'fee-preview');
+
+  markSaved();
+}
+
+// ── TERMS LISTS ───────────────────────────────────────
+function renderTermsList(containerId, items, type) {
+  const list = document.getElementById(containerId);
+  list.innerHTML = '';
+  (items || []).forEach((text, i) => {
+    list.appendChild(makeTermRow(i + 1, text, type));
+  });
+}
+
+function makeTermRow(num, text, type) {
+  const row = document.createElement('div');
+  row.className = 'term-row';
+  row.dataset.type = type;
+  row.innerHTML = `
+    <div class="term-num">${num}</div>
+    <textarea class="term-input" rows="2" oninput="markUnsaved(); renumberTerms('${type}')">${text}</textarea>
+    <button class="term-del" onclick="deleteTerm(this, '${type}')" title="Remove">×</button>
+  `;
+  // Auto-resize textarea
+  const ta = row.querySelector('textarea');
+  ta.style.height = 'auto';
+  setTimeout(() => { ta.style.height = ta.scrollHeight + 'px'; }, 10);
+  ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; });
+  return row;
+}
+
+function addTerm(type) {
+  const listId = type === 'client' ? 'clientTermsList' : type === 'our' ? 'ourTermsList' : 'limitTermsList';
+  const list   = document.getElementById(listId);
+  const num    = list.children.length + 1;
+  list.appendChild(makeTermRow(num, '', type));
+  markUnsaved();
+  list.lastChild.querySelector('textarea').focus();
+}
+
+function deleteTerm(btn, type) {
+  btn.closest('.term-row').remove();
+  renumberTerms(type);
+  markUnsaved();
+}
+
+function renumberTerms(type) {
+  const listId = type === 'client' ? 'clientTermsList' : type === 'our' ? 'ourTermsList' : 'limitTermsList';
+  const rows   = document.getElementById(listId).querySelectorAll('.term-row');
+  rows.forEach((row, i) => { row.querySelector('.term-num').textContent = i + 1; });
+}
+
+function getTermsValues(listId) {
+  return Array.from(document.getElementById(listId).querySelectorAll('.term-input'))
+    .map(ta => ta.value.trim())
+    .filter(v => v.length > 0);
+}
+
+// ── SAVE ─────────────────────────────────────────────
+async function saveTemplate() {
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  const payload = {
+    firm_id:                firmId,
+    intro_paragraph:        document.getElementById('intro_paragraph').value.trim(),
+    scope_notice:           document.getElementById('scope_notice').value.trim(),
+    fee_paragraph:          document.getElementById('fee_paragraph').value.trim(),
+    fee_notice:             document.getElementById('fee_notice').value.trim(),
+    fee_paragraph_after:    document.getElementById('fee_paragraph_after').value.trim(),
+    firm_address:           document.getElementById('firm_address').value.trim(),
+    firm_phone:             document.getElementById('firm_phone').value.trim(),
+    firm_email:             document.getElementById('firm_email').value.trim(),
+    firm_website:           document.getElementById('firm_website').value.trim(),
+    client_responsibilities: getTermsValues('clientTermsList'),
+    our_responsibilities:    getTermsValues('ourTermsList'),
+    limitations_paragraphs:  getTermsValues('limitTermsList'),
+    updated_at:             new Date().toISOString(),
+  };
+
+  const { error } = await sb.from('engagement_templates')
+    .upsert(payload, { onConflict: 'firm_id' });
+
+  btn.disabled = false;
+  btn.textContent = '💾 Save Letter';
+
+  if (error) { showToast('Error saving: ' + error.message, 'error'); return; }
+  markSaved();
+  showToast('Letter saved successfully!', 'success');
+}
+
+async function resetToDefaults() {
+  if (!confirm('Reset all sections to the default template? Your current changes will be lost.')) return;
+  const { error } = await sb.from('engagement_templates').delete().eq('firm_id', firmId);
+  if (error) { showToast('Error resetting', 'error'); return; }
+  await loadTemplate();
+  showToast('Reset to defaults', 'success');
+}
+
+// ── UI HELPERS ────────────────────────────────────────
+function showSection(id, el) {
+  document.querySelectorAll('.editor-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+function markUnsaved() {
+  unsaved = true;
+  const el = document.getElementById('saveStatus');
+  el.textContent = '● Unsaved changes';
+  el.className = 'save-status unsaved';
+}
+
+function markSaved() {
+  unsaved = false;
+  const el = document.getElementById('saveStatus');
+  el.textContent = '✓ All changes saved';
+  el.className = 'save-status saved';
+}
+
+function updateNoticePreview(inputId, previewId) {
+  const val = document.getElementById(inputId).value;
+  document.getElementById(previewId).innerHTML = val || '<em style="color:#aaa">Preview will appear here</em>';
+}
+
+function insertVar(fieldId, variable) {
+  const el = document.getElementById(fieldId);
+  const start = el.selectionStart;
+  const end   = el.selectionEnd;
+  el.value = el.value.slice(0, start) + variable + el.value.slice(end);
+  el.selectionStart = el.selectionEnd = start + variable.length;
+  el.focus();
+  markUnsaved();
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Warn before leaving with unsaved changes
+window.addEventListener('beforeunload', e => {
+  if (unsaved) { e.preventDefault(); e.returnValue = ''; }
+});
+
+// ── INIT ─────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await initApp();
+  }
+})();
+</script>
+</body>
+</html>
