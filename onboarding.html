@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to TaxIntakeFlow — Setup Your Firm</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #0d1b2a;
+  --gold:    #c9a84c;
+  --accent:  #3b5bdb;
+  --success: #2f9e44;
+  --danger:  #e03131;
+  --bg:      #f4f6fb;
+  --white:   #ffffff;
+  --border:  #e2e4ec;
+  --text:    #1a1e2e;
+  --muted:   #7a8299;
+  --sans:    'DM Sans', sans-serif;
+  --mono:    'DM Mono', monospace;
+  --radius:  12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px 80px;
+}
+
+/* HEADER */
+.top-logo {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 36px;
+}
+
+/* PROGRESS BAR */
+.progress-wrap {
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 32px;
+}
+
+.progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.progress-line {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+.step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s;
+}
+
+.step-dot.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.step-dot.done {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.step-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  width: 80px;
+  margin-left: -24px;
+}
+
+.step-label:first-child { margin-left: 0; }
+.step-label:last-child  { margin-right: 0; text-align: right; }
+.step-label.active { color: var(--accent); font-weight: 600; }
+.step-label.done   { color: var(--success); }
+
+/* CARD */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+.card-icon {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+.card-icon.blue   { background: #eef2ff; }
+.card-icon.gold   { background: rgba(201,168,76,0.12); }
+.card-icon.green  { background: rgba(47,158,68,0.1); }
+.card-icon.purple { background: rgba(134,82,226,0.1); }
+.card-icon.teal   { background: rgba(20,184,166,0.1); }
+
+.card h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.card .subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+/* STEP */
+.step { display: none; }
+.step.active { display: block; }
+
+/* FIELDS */
+.field { margin-bottom: 18px; }
+
+.field label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.field label .required { color: var(--danger); }
+.field label .optional { color: var(--border); font-weight: 400; font-size: 11px; text-transform: none; letter-spacing: 0; }
+
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="url"],
+.field input[type="number"],
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--accent);
+  background: var(--white);
+}
+
+.field-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* PREPARER ROWS */
+.preparer-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
+
+.preparer-row {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  position: relative;
+}
+
+.preparer-row-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.del-preparer {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.12s;
+}
+.del-preparer:hover { color: var(--danger); background: #fff0f0; }
+
+.preparer-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.preparer-fields input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+}
+.preparer-fields input:focus { border-color: var(--accent); }
+
+.add-preparer-btn {
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.add-preparer-btn:hover { background: #eef2ff; border-color: var(--accent); color: var(--accent); }
+
+/* WEBHOOK TEST */
+.webhook-test {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.webhook-test input { flex: 1; }
+
+.test-result {
+  margin-top: 8px;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 7px;
+  display: none;
+}
+.test-result.success { background: rgba(47,158,68,0.1); color: var(--success); display: block; }
+.test-result.error   { background: rgba(224,49,49,0.1); color: var(--danger); display: block; }
+.test-result.testing { background: #f0f2f5; color: var(--muted); display: block; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 22px; border-radius: 8px;
+  font-family: var(--sans); font-size: 14px; font-weight: 600;
+  cursor: pointer; border: none; transition: all 0.15s;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.btn-ghost:hover:not(:disabled) { border-color: #aaa; color: var(--text); }
+.btn-success { background: var(--success); color: white; }
+
+.btn-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+  gap: 12px;
+}
+
+.skip-link {
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: underline;
+  background: none; border: none; font-family: var(--sans);
+}
+.skip-link:hover { color: var(--text); }
+
+/* SUCCESS STEP */
+.success-wrap { text-align: center; padding: 12px 0; }
+
+.success-checkmark {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: rgba(47,158,68,0.12);
+  border: 2px solid rgba(47,158,68,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px;
+  margin: 0 auto 24px;
+  animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+
+.success-wrap h2 {
+  font-size: 24px; font-weight: 700; margin-bottom: 8px;
+}
+
+.success-wrap p {
+  font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.6;
+}
+
+.links-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.link-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: left;
+}
+
+.link-card .link-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.link-card .link-url {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  word-break: break-all;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.link-card .link-url:hover { color: var(--navy); }
+
+.copy-hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* ERROR */
+.field-error { font-size: 12px; color: var(--danger); margin-top: 5px; display: none; }
+.field-error.show { display: block; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  padding: 12px 18px; border-radius: 8px;
+  font-size: 13px; font-family: var(--sans);
+  z-index: 999; display: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.toast.show { display: block; }
+.toast.success { background: var(--success); color: white; }
+.toast.error   { background: var(--danger); color: white; }
+</style>
+</head>
+<body>
+
+<div class="top-logo">TaxIntakeFlow</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-steps">
+    <div class="progress-line"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="step-dot active" id="dot-1">1</div>
+    <div class="step-dot" id="dot-2">2</div>
+    <div class="step-dot" id="dot-3">3</div>
+    <div class="step-dot" id="dot-4">4</div>
+    <div class="step-dot" id="dot-5">✓</div>
+  </div>
+  <div class="progress-labels">
+    <div class="step-label active" id="lbl-1">Firm Info</div>
+    <div class="step-label" id="lbl-2">Contact</div>
+    <div class="step-label" id="lbl-3">Preparers</div>
+    <div class="step-label" id="lbl-4">GHL</div>
+    <div class="step-label" id="lbl-5">Done</div>
+  </div>
+</div>
+
+<!-- CARD -->
+<div class="card">
+
+  <!-- STEP 1: FIRM INFO -->
+  <div class="step active" id="step-1">
+    <div class="card-icon blue">🏢</div>
+    <h1>Tell us about your firm</h1>
+    <p class="subtitle">This info appears on your intake forms and engagement letters. You can update it anytime in your portal.</p>
+
+    <div class="field">
+      <label>Firm Name <span class="required">*</span></label>
+      <input type="text" id="firm_name" placeholder="e.g. Smith Tax Services" />
+      <div class="field-error" id="err-firm_name">Firm name is required</div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Tax Year <span class="required">*</span></label>
+        <select id="tax_year">
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2025">2025</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Business Type</label>
+        <select id="business_type">
+          <option value="individual">Individual Preparer</option>
+          <option value="small_firm">Small Firm (2–5)</option>
+          <option value="medium_firm">Medium Firm (6–15)</option>
+          <option value="large_firm">Large Firm (15+)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Specializations <span class="optional">(optional)</span></label>
+      <select id="specialization">
+        <option value="general">General Tax Preparation</option>
+        <option value="truckers">Truckers / Owner-Operators</option>
+        <option value="small_business">Small Business Owners</option>
+        <option value="both">Truckers + Small Business</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="btn-row">
+      <div></div>
+      <button class="btn btn-primary" onclick="goNext(1)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: CONTACT INFO -->
+  <div class="step" id="step-2">
+    <div class="card-icon gold">📍</div>
+    <h1>Contact Information</h1>
+    <p class="subtitle">So clients know how to reach you. This appears in your engagement letter.</p>
+
+    <div class="field">
+      <label>Business Address <span class="optional">(optional)</span></label>
+      <input type="text" id="firm_address" placeholder="123 Main St, Orlando, FL 32801" />
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Phone <span class="optional">(optional)</span></label>
+        <input type="text" id="firm_phone" placeholder="(407) 555-0100" />
+      </div>
+      <div class="field">
+        <label>Business Email <span class="optional">(optional)</span></label>
+        <input type="email" id="firm_contact_email" placeholder="info@yourfirm.com" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Website <span class="optional">(optional)</span></label>
+      <input type="url" id="firm_website" placeholder="https://yourfirm.com" />
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goBack(2)">← Back</button>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="skip-link" onclick="skip(2)">Skip for now</button>
+        <button class="btn btn-primary" onclick="goNext(2)">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: PREPARERS -->
+  <div class="step" id="step-3">
+    <div class="card-icon purple">👥</div>
+    <h1>Add Your Preparers</h1>
+    <p class="subtitle">Add yourself and any team members. Preparers appear as dropdown options when you send intake forms to clients.</p>
+
+    <div class="preparer-list" id="preparerList"></div>
+    <button class="add-preparer-btn" onclick="addPreparer()">+ Add Another Preparer</button>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goBack(3)">← Back</button>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="skip-link" onclick="skip(3)">Skip for now</button>
+        <button class="btn btn-primary" onclick="goNext(3)">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: GHL WEBHOOK -->
+  <div class="step" id="step-4">
+    <div class="card-icon teal">⚡</div>
+    <h1>Connect GoHighLevel</h1>
+    <p class="subtitle">Paste your GHL inbound webhook URL to automatically create contacts and move pipeline stages when a client submits their intake form.</p>
+
+    <div class="field">
+      <label>GHL Webhook URL <span class="optional">(optional)</span></label>
+      <div class="webhook-test">
+        <input type="url" id="ghl_webhook" placeholder="https://services.leadconnectorhq.com/hooks/..." />
+        <button class="btn btn-ghost" onclick="testWebhook()" id="testBtn" style="flex-shrink:0;padding:12px 16px">Test</button>
+      </div>
+      <div class="test-result" id="testResult"></div>
+      <div class="field-hint">Don't have this yet? Skip it — you can add it anytime in your portal settings.</div>
+    </div>
+
+    <div style="background:#f8f9ff;border:1px solid #dde5ff;border-radius:10px;padding:18px;margin-top:4px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#3b5bdb;margin-bottom:10px">How to get your webhook URL</div>
+      <div style="font-size:13px;color:#5a6480;line-height:1.7">
+        1. In GHL, go to <strong>Automation → Workflows</strong><br>
+        2. Create a new workflow → Trigger: <strong>Inbound Webhook</strong><br>
+        3. Copy the webhook URL GHL generates<br>
+        4. Paste it here
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goBack(4)">← Back</button>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="skip-link" onclick="skip(4)">Skip for now</button>
+        <button class="btn btn-primary" onclick="goNext(4)" id="finishBtn">Finish Setup →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5: SUCCESS -->
+  <div class="step" id="step-5">
+    <div class="success-wrap">
+      <div class="success-checkmark">🎉</div>
+      <h2>You're all set!</h2>
+      <p>Your firm is live on TaxIntakeFlow. Here are your links — share the intake form with your clients to get started.</p>
+
+      <div class="links-grid">
+        <div class="link-card">
+          <div class="link-label">📋 Intake Form</div>
+          <div class="link-url" id="intakeLink" onclick="copyLink('intakeLink')">—</div>
+          <div class="copy-hint">Click to copy</div>
+        </div>
+        <div class="link-card">
+          <div class="link-label">✍️ Engagement Letter</div>
+          <div class="link-url" id="engagementLink" onclick="copyLink('engagementLink')">—</div>
+          <div class="copy-hint">Click to copy</div>
+        </div>
+        <div class="link-card">
+          <div class="link-label">🔤 Letter Editor</div>
+          <div class="link-url" onclick="window.open('letter-editor.html')">letter-editor.html</div>
+          <div class="copy-hint">Customize your letter</div>
+        </div>
+        <div class="link-card">
+          <div class="link-label">⚙️ Portal</div>
+          <div class="link-url" onclick="window.location.href='portal.html'">portal.html</div>
+          <div class="copy-hint">Manage your firm</div>
+        </div>
+      </div>
+
+      <button class="btn btn-success" style="width:100%;padding:14px" onclick="window.location.href='portal.html'">
+        Go to My Portal →
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL  = 'https://yyobsleksxryuwxenvnb.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY';
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let currentStep = 1;
+let totalSteps  = 4;
+let currentUser = null;
+let firmId      = null;
+
+const formData = {
+  firm_name: '', tax_year: '2024', business_type: 'individual', specialization: 'general',
+  firm_address: '', firm_phone: '', firm_contact_email: '', firm_website: '',
+  ghl_webhook: '', preparers: []
+};
+
+// ── AUTH CHECK ────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    window.location.href = 'auth.html';
+    return;
+  }
+  currentUser = session.user;
+
+  // Check if firm already exists (onboarding already done)
+  const { data: existing } = await sb.from('firms').select('id').eq('owner_id', currentUser.id).single();
+  if (existing) {
+    window.location.href = 'portal.html';
+    return;
+  }
+
+  // Pre-fill email
+  document.getElementById('firm_contact_email').value = currentUser.email || '';
+
+  // Add first preparer row
+  addPreparer();
+})();
+
+// ── NAVIGATION ────────────────────────────────────────
+function goNext(step) {
+  if (!validate(step)) return;
+  collectStep(step);
+  if (step === totalSteps) {
+    finishOnboarding();
+    return;
+  }
+  setStep(step + 1);
+}
+
+function goBack(step) {
+  collectStep(step);
+  setStep(step - 1);
+}
+
+function skip(step) {
+  setStep(step + 1 > totalSteps ? step : step + 1);
+  if (step === totalSteps) finishOnboarding();
+}
+
+function setStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+
+  for (let i = 1; i <= 5; i++) {
+    const dot = document.getElementById('dot-' + i);
+    const lbl = document.getElementById('lbl-' + i);
+    dot.classList.remove('active', 'done');
+    lbl.classList.remove('active', 'done');
+    if (i < n)      { dot.classList.add('done'); dot.textContent = '✓'; lbl.classList.add('done'); }
+    else if (i === n) { dot.classList.add('active'); dot.textContent = i < 5 ? i : '✓'; lbl.classList.add('active'); }
+    else             { dot.textContent = i < 5 ? i : '✓'; }
+  }
+
+  // Progress fill: 0%, 25%, 50%, 75%, 100%
+  document.getElementById('progressFill').style.width = ((n - 1) / 4 * 100) + '%';
+  currentStep = n;
+}
+
+// ── VALIDATION ────────────────────────────────────────
+function validate(step) {
+  let ok = true;
+  if (step === 1) {
+    const name = document.getElementById('firm_name').value.trim();
+    const err  = document.getElementById('err-firm_name');
+    if (!name) { err.classList.add('show'); ok = false; } else { err.classList.remove('show'); }
+  }
+  return ok;
+}
+
+// ── COLLECT ───────────────────────────────────────────
+function collectStep(step) {
+  if (step === 1) {
+    formData.firm_name      = document.getElementById('firm_name').value.trim();
+    formData.tax_year       = document.getElementById('tax_year').value;
+    formData.business_type  = document.getElementById('business_type').value;
+    formData.specialization = document.getElementById('specialization').value;
+  }
+  if (step === 2) {
+    formData.firm_address       = document.getElementById('firm_address').value.trim();
+    formData.firm_phone         = document.getElementById('firm_phone').value.trim();
+    formData.firm_contact_email = document.getElementById('firm_contact_email').value.trim();
+    formData.firm_website       = document.getElementById('firm_website').value.trim();
+  }
+  if (step === 3) {
+    formData.preparers = getPreparers();
+  }
+  if (step === 4) {
+    formData.ghl_webhook = document.getElementById('ghl_webhook').value.trim();
+  }
+}
+
+// ── PREPARERS ─────────────────────────────────────────
+let prepCount = 0;
+
+function addPreparer() {
+  prepCount++;
+  const id   = 'prep-' + prepCount;
+  const list = document.getElementById('preparerList');
+  const row  = document.createElement('div');
+  row.className = 'preparer-row';
+  row.id = id;
+  row.innerHTML = `
+    <div class="preparer-row-header">
+      Preparer #${list.children.length + 1}
+      ${list.children.length > 0 ? `<button class="del-preparer" onclick="removePreparer('${id}')">×</button>` : ''}
+    </div>
+    <div class="preparer-fields">
+      <input type="text" placeholder="Full Name *" class="prep-name" />
+      <input type="text" placeholder="PTIN (P12345678)" class="prep-ptin" />
+      <input type="email" placeholder="Email" class="prep-email" style="grid-column:1/-1" />
+    </div>
+  `;
+  list.appendChild(row);
+}
+
+function removePreparer(id) {
+  document.getElementById(id).remove();
+  // Renumber
+  document.querySelectorAll('.preparer-row').forEach((row, i) => {
+    row.querySelector('.preparer-row-header').childNodes[0].textContent = `Preparer #${i + 1}\n`;
+  });
+}
+
+function getPreparers() {
+  return Array.from(document.querySelectorAll('.preparer-row')).map(row => ({
+    name:  row.querySelector('.prep-name').value.trim(),
+    ptin:  row.querySelector('.prep-ptin').value.trim(),
+    email: row.querySelector('.prep-email').value.trim(),
+  })).filter(p => p.name);
+}
+
+// ── WEBHOOK TEST ──────────────────────────────────────
+async function testWebhook() {
+  const url = document.getElementById('ghl_webhook').value.trim();
+  const res = document.getElementById('testResult');
+  const btn = document.getElementById('testBtn');
+
+  if (!url) { res.className = 'test-result error'; res.textContent = 'Please enter a webhook URL first.'; return; }
+
+  res.className = 'test-result testing';
+  res.textContent = 'Sending test ping...';
+  btn.disabled = true;
+
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ test: true, source: 'TaxIntakeFlow', timestamp: new Date().toISOString() }),
+      mode: 'no-cors',
+    });
+    res.className = 'test-result success';
+    res.textContent = '✓ Test ping sent! Check your GHL workflow history to confirm it arrived.';
+  } catch (e) {
+    res.className = 'test-result error';
+    res.textContent = '✕ Could not reach that URL. Double-check and try again.';
+  }
+
+  btn.disabled = false;
+}
+
+// ── FINISH ────────────────────────────────────────────
+async function finishOnboarding() {
+  collectStep(4);
+
+  const btn = document.getElementById('finishBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Setting up...'; }
+
+  try {
+    // 1. Create firm record
+    const { data: firm, error: firmErr } = await sb.from('firms').insert({
+      owner_id:      currentUser.id,
+      email:         currentUser.email,
+      firm_name:     formData.firm_name,
+      plan:          'trial',
+      status:        'active',
+      tax_year:      formData.tax_year,
+      business_type: formData.business_type,
+      specialization: formData.specialization,
+      ghl_webhook:   formData.ghl_webhook || null,
+      created_at:    new Date().toISOString(),
+    }).select().single();
+
+    if (firmErr) throw firmErr;
+    firmId = firm.id;
+
+    // 2. Save contact info to engagement_templates
+    if (formData.firm_address || formData.firm_phone || formData.firm_contact_email || formData.firm_website) {
+      await sb.from('engagement_templates').upsert({
+        firm_id:      firmId,
+        firm_address: formData.firm_address,
+        firm_phone:   formData.firm_phone,
+        firm_email:   formData.firm_contact_email,
+        firm_website: formData.firm_website,
+        updated_at:   new Date().toISOString(),
+      }, { onConflict: 'firm_id' });
+    }
+
+    // 3. Save preparers
+    if (formData.preparers.length > 0) {
+      const prepRows = formData.preparers.map(p => ({
+        firm_id: firmId,
+        name:    p.name,
+        ptin:    p.ptin || null,
+        email:   p.email || null,
+      }));
+      await sb.from('preparers').insert(prepRows);
+    }
+
+    // 4. Show success screen with links
+    const base = 'https://taxintakeflow.com';
+    document.getElementById('intakeLink').textContent     = `${base}/intake.html?firmId=${firmId}`;
+    document.getElementById('engagementLink').textContent = `${base}/engagement.html?firmId=${firmId}`;
+
+    setStep(5);
+
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Finish Setup →'; }
+    showToast('Error: ' + err.message, 'error');
+  }
+}
+
+// ── COPY LINK ─────────────────────────────────────────
+function copyLink(elId) {
+  const text = document.getElementById(elId).textContent;
+  navigator.clipboard.writeText(text);
+  showToast('Link copied!', 'success');
+}
+
+// ── TOAST ─────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
