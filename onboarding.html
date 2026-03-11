@@ -627,7 +627,7 @@ const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let currentStep = 1;
-let totalSteps  = 4;
+let totalSteps  = 5;
 let currentUser = null;
 let firmId      = null;
 
@@ -729,7 +729,8 @@ function collectStep(step) {
     formData.preparers = getPreparers();
   }
   if (step === 4) {
-    formData.ghl_webhook = document.getElementById('ghl_webhook').value.trim();
+    formData.ghl_webhook_url = document.getElementById('ghl_webhook').value.trim();
+    formData.ghl_webhook = formData.ghl_webhook_url;
   }
 }
 
@@ -815,12 +816,13 @@ async function finishOnboarding() {
       owner_id:      currentUser.id,
       email:         currentUser.email,
       firm_name:     formData.firm_name,
-      plan:          'trial',
+      plan_tier:     'starter',
+      plan_status:   'trialing',
       status:        'active',
       tax_year:      formData.tax_year,
       business_type: formData.business_type,
       specialization: formData.specialization,
-      ghl_webhook:   formData.ghl_webhook || null,
+      ghl_webhook_url: formData.ghl_webhook || null,
       created_at:    new Date().toISOString(),
     }).select().single();
 
