@@ -171,8 +171,8 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);
       </div>
       <div class="success-body">
 
-        <div class="verify-notice">
-          📧 <strong>Check your inbox</strong> — we sent a verification link to <strong id="successEmail"></strong>. Verify your email, then log in at <a href="auth.html" style="color:var(--gold);font-weight:700">taxintakeflow.com</a>.
+        <div style="background:var(--green-dim);border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#14532d;line-height:1.6">
+          ✅ <strong>You're all set!</strong> Log in now at <a href="auth.html" style="color:#14532d;font-weight:700">taxintakeflow.com</a> with your email and password.
         </div>
 
         <div class="link-box">
@@ -186,10 +186,9 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);
 
         <div class="next-steps">
           <div class="next-steps-title">What Happens Next</div>
-          <div class="next-step"><span class="step-num">1</span><span>Verify your email by clicking the link we just sent you</span></div>
-          <div class="next-step"><span class="step-num">2</span><span>Log in at <a href="auth.html" style="color:var(--navy);font-weight:600">taxintakeflow.com</a> with your new credentials</span></div>
-          <div class="next-step"><span class="step-num">3</span><span>Share your personal intake link with clients to start receiving submissions</span></div>
-          <div class="next-step"><span class="step-num">4</span><span>Your firm owner will confirm your access — you'll appear in their Preparers list</span></div>
+          <div class="next-step"><span class="step-num">1</span><span>Log in at <a href="auth.html" style="color:var(--navy);font-weight:600">taxintakeflow.com</a> with your new credentials</span></div>
+          <div class="next-step"><span class="step-num">2</span><span>Copy your personal intake link above and share it with clients</span></div>
+          <div class="next-step"><span class="step-num">3</span><span>Clients who use your link are automatically assigned to you</span></div>
         </div>
       </div>
     </div>
@@ -301,6 +300,27 @@ async function handleSubmit() {
           needs_approval:  !!prepError   // true if DB insert failed
         }),
         mode: "no-cors"
+      });
+    } catch(e) { /* silent */ }
+  }
+
+  // — Step 3b: Notify firm owner via Resend email —
+  if (FIRM.owner_email) {
+    try {
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer re_WszdA25g_Bf4LPg6dxfoAmHb7R2Byi54u"
+        },
+        body: JSON.stringify({
+          from:    "TaxIntakeFlow <notifications@taxintakeflow.com>",
+          to:      [FIRM.owner_email],
+          subject: `New preparer joined your firm — ${name}`,
+          html:    `<p><strong>${name}</strong> (${email}) just created a preparer account and joined <strong>${FIRM.firm_name}</strong> on TaxIntakeFlow.</p>
+                    ${ptin ? `<p>PTIN: ${ptin}</p>` : ""}
+                    <p><a href="https://taxintakeflow.com/portal.html">View your portal →</a></p>`
+        })
       });
     } catch(e) { /* silent */ }
   }
