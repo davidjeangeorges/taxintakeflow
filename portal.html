@@ -411,14 +411,18 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
           <div class="f-field">
             <label>Google Drive Folder ID <span class="opt">(optional)</span></label>
             <input type="text" class="f-input" id="setDriveFolderId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
-            <div class="f-note">
+            <div class="f-note" style="background:#f0f7ff;border:1px solid #c0d8f0;border-radius:8px;padding:12px 14px;margin-top:8px;line-height:1.9">
+              <strong style="color:#1a4a7a">How to connect your Drive (no login required):</strong><br>
               1. Create a folder in your Google Drive<br>
-              2. Share it with <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7703160f1e1903161c12111b18003703160f1e1903161c12111b18005a160707591e161a5910041205011e1412161414180219035914181a">[email&#160;protected]</a></strong> (Editor access)<br>
-              3. Copy the folder ID from the URL: drive.google.com/drive/folders/<strong>THIS_PART</strong>
+              2. Right-click the folder → <strong>Share</strong><br>
+              3. Add <strong style="color:#1a4a7a;font-family:monospace">drive-uploader@taxintakeflow.iam.gserviceaccount.com</strong> as <strong>Editor</strong><br>
+              4. Copy the folder ID from the URL — the part after <code>/folders/</code><br>
+              5. Paste it above and click Save — that's it ✓<br>
+              <span style="color:#888;font-size:11px">No Google sign-in popup will appear. Files upload automatically after each client submission.</span>
             </div>
           </div>
           <button class="save-btn" onclick="saveDriveSettings()">Save Drive Settings</button>
-          <span class="save-ok" id="driveSaveOk">✓ Saved</span>
+          <span class="save-ok" id="driveSaveOk">✓ Saved — Drive is connected</span>
         </div>
 
         <!-- PREPARERS — full width -->
@@ -706,6 +710,9 @@ async function savePreparers() {
   const preps = getPreparersFromForm();
   if (!preps.length) { toast("Add at least one preparer", "err"); return; }
 
+  // Get existing preparer emails to detect new ones
+  const existingEmails = new Set(PREPARERS.map(p => p.email).filter(Boolean));
+
   // Delete existing, reinsert
   await sb.from("preparers").delete().eq("firm_id", FIRM.id);
   await sb.from("preparers").insert(preps.map(p => ({ ...p, firm_id: FIRM.id })));
@@ -719,10 +726,34 @@ async function savePreparers() {
     }
   }
 
+  // Send welcome email to NEW preparers (those not previously in the list)
+  const newPreps = preps.filter(p => p.email && !existingEmails.has(p.email));
+  if (newPreps.length > 0) {
+    const portalUrl = window.location.origin + "/portal.html";
+    newPreps.forEach(p => {
+      fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/send-intake-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "preparer_invite",
+          data: {
+            preparerName:  p.name,
+            preparerEmail: p.email,
+            firmName:      FIRM.firm_name,
+            portalUrl,
+            firmId:        FIRM.id,
+          }
+        })
+      }).catch(() => {}); // non-blocking
+    });
+    toast(`Saved! Welcome email sent to ${newPreps.length} new preparer(s).`, "ok");
+  } else {
+    toast("Preparers saved!", "ok");
+  }
+
   PREPARERS = preps;
   populateEngPrepDropdown();
   showSaveOk("prepSaveOk");
-  toast("Preparers saved!", "ok");
 }
 
 function populateEngPrepDropdown() {

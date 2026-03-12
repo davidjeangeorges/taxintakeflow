@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tax Intake Form | TaxIntakeFlow</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
@@ -842,10 +843,49 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (params.get("year"))     FORM_CONFIG.taxYear       = params.get("year");
   if (params.get("preparer")) STATE.selectedPreparerId  = params.get("preparer");
 
-  document.getElementById("firmNameDisplay").textContent = FORM_CONFIG.firmName;
+  // If firmId is present, load firm data from Supabase (name, webhook, year, preparers)
+  if (FORM_CONFIG.firmId) {
+    try {
+      const { data: firm } = await _sb
+        .from("firms")
+        .select("firm_name, tax_year, ghl_webhook_url")
+        .eq("id", FORM_CONFIG.firmId)
+        .single();
 
-  // Load preparers from Google Sheet before building the form
-  await loadPreparers();
+      if (firm) {
+        if (firm.firm_name)       FORM_CONFIG.firmName      = firm.firm_name;
+        if (firm.ghl_webhook_url) FORM_CONFIG.ghlWebhookUrl = firm.ghl_webhook_url;
+        if (firm.tax_year)        FORM_CONFIG.taxYear       = firm.tax_year;
+      }
+
+      // Load preparers from Supabase
+      const { data: preps } = await _sb
+        .from("preparers")
+        .select("id, name, email, ptin")
+        .eq("firm_id", FORM_CONFIG.firmId)
+        .order("name");
+
+      if (preps && preps.length > 0) {
+        FORM_CONFIG.preparers = [
+          { name: "Select a Preparer...", id: "" },
+          ...preps.map(p => ({ name: p.name, id: p.id, email: p.email }))
+        ];
+      } else {
+        FORM_CONFIG.preparers = [{ name: "Select a Preparer...", id: "" }];
+      }
+    } catch (err) {
+      console.warn("Could not load firm from Supabase:", err.message);
+    }
+  }
+
+  // Fallback: load preparers from Apps Script if Supabase gave us nothing and URL is set
+  if (FORM_CONFIG.preparers.length <= 1 && FORM_CONFIG.appsScriptUrl) {
+    await loadPreparers();
+  } else if (FORM_CONFIG.preparers.length <= 1) {
+    FORM_CONFIG.preparers = [{ name: "Select a Preparer...", id: "" }];
+  }
+
+  document.getElementById("firmNameDisplay").textContent = FORM_CONFIG.firmName;
 
   buildProgressBar();
   buildAllSections();
