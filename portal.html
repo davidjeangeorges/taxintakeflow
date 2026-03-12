@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TaxIntakeFlow — Firm Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script data-cfasync="false" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --navy:#0d1b2a;--navy-mid:#1b2d42;--navy-light:#1e3a52;
@@ -598,7 +598,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
 
 <div id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false">
 // ── SUPABASE CONFIG ──────────────────────────────────────────
 // REPLACE with your actual values
 const SUPABASE_URL  = "https://yyobsleksxryuwxenvnb.supabase.co";
@@ -1200,7 +1200,10 @@ function toast(msg, type="ok") {
 }
 
 // ── START ─────────────────────────────────────────────────────
-init();
+init().catch(err => {
+  console.error("TaxIntakeFlow init error:", err);
+  toast("Portal failed to load — check console for details", "err");
+});
 </script>
 </body>
 </html>
