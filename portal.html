@@ -403,6 +403,27 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
           <span class="save-ok" id="ghlSaveOk">✓ Saved</span>
         </div>
 
+        <!-- MAKE INVITE WEBHOOK -->
+        <div class="card">
+          <div class="card-title">✉️ Preparer Invite Email</div>
+          <div class="card-sub">Paste a Make.com webhook URL to automatically email preparers when you click <strong>Invite</strong>. Without this, you'll get a copyable join link instead.</div>
+          <div class="f-field">
+            <label>Make.com Invite Webhook URL <span class="opt">(optional)</span></label>
+            <div class="url-row">
+              <input type="text" class="f-input" id="setMakeInviteWebhook"
+                placeholder="https://hook.us1.make.com/XXXXXXXXXXXX">
+              <button class="test-btn" onclick="testMakeInviteWebhook()">Test</button>
+            </div>
+            <div class="test-ok"  id="makeInviteTestOk">✅ Webhook reached — check Make for the test payload</div>
+            <div class="test-fail" id="makeInviteTestFail">❌ Could not reach webhook</div>
+            <div class="f-note">
+              In Make.com: create a scenario with a <strong>Webhooks → Custom webhook</strong> trigger, then add a <strong>Send an Email (or Gmail)</strong> module. The payload includes: <code>to</code>, <code>name</code>, <code>subject</code>, <code>html</code>, <code>joinLink</code>, <code>firmName</code>.
+            </div>
+          </div>
+          <button class="save-btn" onclick="saveMakeInviteWebhook()">Save</button>
+          <span class="save-ok" id="makeInviteSaveOk">✓ Saved</span>
+        </div>
+
         <!-- GOOGLE DRIVE -->
         <div class="card">
           <div class="card-title">📁 Google Drive Integration</div>
@@ -824,6 +845,7 @@ async function init() {
   document.getElementById("setGhlWebhook").value    = firm.ghl_webhook_url  || "";
   document.getElementById("setOwnerEmail").value    = firm.owner_email      || "";
   document.getElementById("setDriveFolderId").value = firm.drive_folder_id  || "";
+  if(document.getElementById("setMakeInviteWebhook")) document.getElementById("setMakeInviteWebhook").value = firm.make_invite_webhook || "";
 
   // Billing
   document.getElementById("subPlanName").textContent = `${firm.plan_tier || "Starter"} — ${firm.plan_interval || "Monthly"}`;
@@ -1514,8 +1536,6 @@ async function sendInvitation(emailFieldId, nameFieldId) {
   if (!FIRM)  { toast("Firm not loaded", "err"); return; }
 
   const joinLink = `https://taxintakeflow.com/join.html?firm=${FIRM.id}`;
-
-  // Send via Resend through Edge Function
   const subject  = `You've been invited to join ${FIRM.firm_name} on TaxIntakeFlow`;
   const html = `
     <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
@@ -1533,33 +1553,28 @@ async function sendInvitation(emailFieldId, nameFieldId) {
   toast("Sending invitation…", "ok");
 
   try {
-    const res = await fetch("https://api.resend.com/emails", {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-notification`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${RESEND_API_KEY}`
+        "Authorization": `Bearer ${SUPABASE_ANON}`
       },
-      body: JSON.stringify({
-        from:    "TaxIntakeFlow <notifications@taxintakeflow.com>",
-        to:      [email],
-        subject,
-        html
-      })
+      body: JSON.stringify({ to: email, subject, html })
     });
     if (res.ok) {
       toast(`Invitation sent to ${email}!`, "ok");
     } else {
-      const errText = await res.text().catch(() => "");
-      console.warn("Resend error:", errText);
+      const err = await res.json().catch(() => ({}));
+      console.warn("Edge function error:", err);
       copy(joinLink);
       toast("Email failed — join link copied! Send it manually.", "err");
     }
   } catch(e) {
+    console.warn("sendInvitation error:", e);
     copy(joinLink);
     toast("Email failed — join link copied! Send it manually.", "err");
   }
 }
-
 // ── CONFIRM DELETE PREPARER ───────────────────────────────────
 function confirmRemovePreparer(rowId, name) {
   const modal = document.getElementById("confirmModal");
