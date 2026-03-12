@@ -239,6 +239,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
       <span class="s-divider"></span>
       <span class="s-label">Setup</span>
       <li><button onclick="showPage('settings',this)"><span class="icon">⚙️</span> Settings</button></li>
+      <li><button onclick="showPage('engagement',this)"><span class="icon">📝</span> Engagement Letter</button></li>
       <li><button onclick="showPage('billing',this)"><span class="icon">💳</span> Billing</button></li>
     </ul>
   </div>
@@ -502,6 +503,134 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
       </div>
     </div>
 
+    <!-- ── ENGAGEMENT LETTER ───────────────────────── -->
+    <div class="page" id="page_engagement">
+      <div class="page-title">Engagement Letter</div>
+      <div class="page-sub">Customize the text clients see when they sign their engagement letter. Use <code style="background:var(--gray-100);padding:2px 6px;border-radius:4px;font-size:12px">{firmName}</code> and <code style="background:var(--gray-100);padding:2px 6px;border-radius:4px;font-size:12px">{taxYear}</code> as placeholders — they auto-fill per client.</div>
+
+      <!-- PREVIEW LINK -->
+      <div style="background:var(--navy);border-radius:var(--radius-lg);padding:18px 24px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:4px">Preview Your Letter</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.5)">See exactly what clients will see before sending</div>
+        </div>
+        <button class="ilb-btn primary" onclick="previewEngagement()">Open Preview →</button>
+      </div>
+
+      <div class="settings-grid">
+
+        <!-- INTRO -->
+        <div class="card full-width">
+          <div class="card-title">Opening Paragraph</div>
+          <div class="card-sub">The first paragraph clients read — sets the tone of the engagement</div>
+          <div class="f-field">
+            <textarea class="f-input" id="eng_intro" rows="4" style="resize:vertical;line-height:1.6" placeholder="Thank you for choosing {firmName}…"></textarea>
+          </div>
+        </div>
+
+        <!-- CLIENT RESPONSIBILITIES -->
+        <div class="card full-width">
+          <div class="card-title">Client Responsibilities</div>
+          <div class="card-sub">One item per line — each becomes a numbered point in the letter</div>
+          <div class="f-field">
+            <textarea class="f-input" id="eng_client_resp" rows="8" style="resize:vertical;line-height:1.8;font-size:13px" placeholder="You agree to provide all documents…&#10;You confirm that all information provided is accurate…"></textarea>
+          </div>
+          <div class="f-note">Each line = one numbered bullet. Press Enter to add a new one.</div>
+        </div>
+
+        <!-- OUR RESPONSIBILITIES -->
+        <div class="card full-width">
+          <div class="card-title">Our Responsibilities</div>
+          <div class="card-sub">What your firm commits to — one item per line</div>
+          <div class="f-field">
+            <textarea class="f-input" id="eng_our_resp" rows="8" style="resize:vertical;line-height:1.8;font-size:13px" placeholder="We will prepare your federal and state income tax returns…&#10;We will maintain the confidentiality of all information…"></textarea>
+          </div>
+        </div>
+
+        <!-- FEES -->
+        <div class="card">
+          <div class="card-title">Fee Paragraph</div>
+          <div class="card-sub">Intro sentence about how fees are determined</div>
+          <div class="f-field">
+            <textarea class="f-input" id="eng_fee_para" rows="4" style="resize:vertical;line-height:1.6"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Payment Notice</div>
+          <div class="card-sub">When payment is due, accepted methods, etc.</div>
+          <div class="f-field">
+            <textarea class="f-input" id="eng_fee_notice" rows="4" style="resize:vertical;line-height:1.6"></textarea>
+          </div>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-title">Refund / Additional Fee Note</div>
+          <div class="card-sub">Optional sentence about refund-based payment or add-on fees</div>
+          <div class="f-field">
+            <textarea class="f-input" id="eng_fee_after" rows="3" style="resize:vertical;line-height:1.6"></textarea>
+          </div>
+        </div>
+
+        <!-- LIMITATIONS -->
+        <div class="card full-width">
+          <div class="card-title">Limitations &amp; Disclaimers</div>
+          <div class="card-sub">Scope limitations, audit notice, liability — one paragraph per line</div>
+          <div class="f-field">
+            <textarea class="f-input" id="eng_limitations" rows="6" style="resize:vertical;line-height:1.8;font-size:13px"></textarea>
+          </div>
+        </div>
+
+        <!-- SCOPE NOTICE -->
+        <div class="card full-width">
+          <div class="card-title">Scope Notice</div>
+          <div class="card-sub">The bold "Important:" callout box at the bottom of the terms section. HTML allowed (e.g. &lt;strong&gt;…&lt;/strong&gt;)</div>
+          <div class="f-field">
+            <textarea class="f-input" id="eng_scope" rows="3" style="resize:vertical;line-height:1.6;font-size:13px"></textarea>
+          </div>
+        </div>
+
+        <!-- CONTACT INFO ON LETTER -->
+        <div class="card full-width">
+          <div class="card-title">Firm Contact Info on Letter</div>
+          <div class="card-sub">Appears in the footer/contact strip of the printed engagement letter</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="f-field">
+              <label>Address</label>
+              <input type="text" class="f-input" id="eng_address" placeholder="123 Main St, Miami FL 33101">
+            </div>
+            <div class="f-field">
+              <label>Phone</label>
+              <input type="text" class="f-input" id="eng_phone" placeholder="(305) 555-0100">
+            </div>
+            <div class="f-field">
+              <label>Email</label>
+              <input type="text" class="f-input" id="eng_email" placeholder="info@yourfirm.com">
+            </div>
+            <div class="f-field">
+              <label>Website</label>
+              <input type="text" class="f-input" id="eng_website" placeholder="https://yourfirm.com">
+            </div>
+          </div>
+        </div>
+
+        <!-- SAVE -->
+        <div class="card full-width" style="background:var(--gray-100);border-style:dashed">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--navy)">Save your changes</div>
+              <div style="font-size:13px;color:var(--gray-400);margin-top:2px">Changes go live on all new engagement letters immediately</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span class="save-ok" id="engSaveOk" style="display:none">✓ Saved</span>
+              <button class="save-btn" onclick="saveEngagementTemplate()">Save Engagement Letter</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- ── BILLING ──────────────────────────────── -->
     <div class="page" id="page_billing">
       <div class="page-title">Billing</div>
@@ -683,6 +812,9 @@ async function init() {
 
   // Build intake link
   updateIntakeLink();
+
+  // Load engagement letter template
+  await loadEngagementTemplate();
 }
 
 // ── PREPARERS ────────────────────────────────────────────────
@@ -1247,6 +1379,97 @@ async function doLogout() {
 function goToStripe() {
   toast("Stripe billing portal coming soon","ok");
   // In production: redirect to Stripe customer portal URL
+}
+
+// ── ENGAGEMENT LETTER TEMPLATE ───────────────────────────────
+const ENG_DEFAULTS = {
+  intro_paragraph: "Thank you for choosing {firmName} for your tax preparation needs. This engagement letter outlines the scope of services we will provide, the responsibilities of both parties, and the terms under which we will work together for Tax Year {taxYear}.",
+  client_responsibilities: [
+    "You agree to provide all documents, records, and information necessary to prepare your return, including but not limited to: W-2s, 1099s, prior year return, Social Security cards, and any other relevant documents requested by your preparer.",
+    "You confirm that all information provided in your intake form and any subsequent documents is accurate, complete, and truthful to the best of your knowledge.",
+    "You agree to respond promptly to requests from your preparer for additional information or clarification.",
+    "You are responsible for reviewing your completed return before signing and filing.",
+    "You agree to pay all fees as outlined in the fee section of this letter prior to, or at the time of, return delivery."
+  ],
+  our_responsibilities: [
+    "We will prepare your federal and state income tax returns based on information you provide.",
+    "We will apply applicable tax laws and regulations in effect for Tax Year {taxYear} to minimize your tax liability within the bounds of the law.",
+    "We will maintain the confidentiality of all information you provide.",
+    "We will notify you of any missing documents or questions that arise during preparation.",
+    "We will provide you with copies of your completed return for your records."
+  ],
+  fee_paragraph: "Tax preparation fees are based on the complexity of your return and the services required. Your preparer will provide a fee quote after reviewing your documents.",
+  fee_notice: "Payment is due upon delivery of your completed return. We accept payment via cash, check, credit/debit card, and payment from your refund (where applicable).",
+  fee_paragraph_after: "If you are expecting a refund, you may have the option to have fees deducted from your refund. Your preparer will discuss this option with you if available.",
+  limitations_paragraphs: [
+    "Our work does not constitute an audit, review, or compilation of financial statements.",
+    "If you receive a notice from the IRS or a state tax authority after your return is filed, please contact us immediately. Responding to tax notices is not included in this engagement unless separately arranged.",
+    "We are not responsible for penalties or interest resulting from inaccurate or incomplete information provided by you."
+  ],
+  scope_notice: "<strong>Important:</strong> Services not listed above are not included in this engagement. If additional services are required during preparation, we will contact you before proceeding, and additional fees may apply.",
+  firm_address: "", firm_phone: "", firm_email: "", firm_website: ""
+};
+
+async function loadEngagementTemplate() {
+  let T = { ...ENG_DEFAULTS };
+  if (!FIRM) return;
+  const { data } = await sb.from("engagement_templates").select("*").eq("firm_id", FIRM.id).single();
+  if (data) {
+    T.intro_paragraph         = data.intro_paragraph         || T.intro_paragraph;
+    T.client_responsibilities = data.client_responsibilities || T.client_responsibilities;
+    T.our_responsibilities    = data.our_responsibilities    || T.our_responsibilities;
+    T.fee_paragraph           = data.fee_paragraph           || T.fee_paragraph;
+    T.fee_notice              = data.fee_notice              || T.fee_notice;
+    T.fee_paragraph_after     = data.fee_paragraph_after     || T.fee_paragraph_after;
+    T.limitations_paragraphs  = data.limitations_paragraphs  || T.limitations_paragraphs;
+    T.scope_notice            = data.scope_notice            || T.scope_notice;
+    T.firm_address            = data.firm_address            || "";
+    T.firm_phone              = data.firm_phone              || "";
+    T.firm_email              = data.firm_email              || "";
+    T.firm_website            = data.firm_website            || "";
+  }
+  // Populate fields
+  document.getElementById("eng_intro").value        = T.intro_paragraph;
+  document.getElementById("eng_client_resp").value  = (T.client_responsibilities || []).join("\n");
+  document.getElementById("eng_our_resp").value     = (T.our_responsibilities    || []).join("\n");
+  document.getElementById("eng_fee_para").value     = T.fee_paragraph;
+  document.getElementById("eng_fee_notice").value   = T.fee_notice;
+  document.getElementById("eng_fee_after").value    = T.fee_paragraph_after;
+  document.getElementById("eng_limitations").value  = (T.limitations_paragraphs  || []).join("\n");
+  document.getElementById("eng_scope").value        = T.scope_notice;
+  document.getElementById("eng_address").value      = T.firm_address;
+  document.getElementById("eng_phone").value        = T.firm_phone;
+  document.getElementById("eng_email").value        = T.firm_email;
+  document.getElementById("eng_website").value      = T.firm_website;
+}
+
+async function saveEngagementTemplate() {
+  if (!FIRM) return;
+  const payload = {
+    firm_id:                 FIRM.id,
+    intro_paragraph:         document.getElementById("eng_intro").value.trim(),
+    client_responsibilities: document.getElementById("eng_client_resp").value.split("\n").map(s=>s.trim()).filter(Boolean),
+    our_responsibilities:    document.getElementById("eng_our_resp").value.split("\n").map(s=>s.trim()).filter(Boolean),
+    fee_paragraph:           document.getElementById("eng_fee_para").value.trim(),
+    fee_notice:              document.getElementById("eng_fee_notice").value.trim(),
+    fee_paragraph_after:     document.getElementById("eng_fee_after").value.trim(),
+    limitations_paragraphs:  document.getElementById("eng_limitations").value.split("\n").map(s=>s.trim()).filter(Boolean),
+    scope_notice:            document.getElementById("eng_scope").value.trim(),
+    firm_address:            document.getElementById("eng_address").value.trim(),
+    firm_phone:              document.getElementById("eng_phone").value.trim(),
+    firm_email:              document.getElementById("eng_email").value.trim(),
+    firm_website:            document.getElementById("eng_website").value.trim(),
+  };
+  const { error } = await sb.from("engagement_templates").upsert(payload, { onConflict: "firm_id" });
+  if (error) { toast("Could not save — " + error.message, "err"); return; }
+  showSaveOk("engSaveOk");
+  toast("Engagement letter saved!", "ok");
+}
+
+function previewEngagement() {
+  if (!FIRM) { toast("Firm not loaded yet","err"); return; }
+  const url = `https://taxintakeflow.com/engagement.html?firmId=${FIRM.id}&firstName=Jane&lastName=Sample&preparer=${encodeURIComponent(PREPARERS[0]?.name||"Your Preparer")}&firmName=${encodeURIComponent(FIRM.firm_name)}&taxYear=${FIRM.tax_year||"2025"}`;
+  window.open(url, "_blank");
 }
 
 // ── UTILS ────────────────────────────────────────────────────
