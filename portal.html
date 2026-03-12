@@ -213,6 +213,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
 .clickable-row{cursor:pointer;transition:background 0.1s}
 .clickable-row:hover{background:var(--gray-100)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -401,27 +402,6 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
           </div>
           <button class="save-btn" onclick="saveGHL()">Save Webhook</button>
           <span class="save-ok" id="ghlSaveOk">✓ Saved</span>
-        </div>
-
-        <!-- MAKE INVITE WEBHOOK -->
-        <div class="card">
-          <div class="card-title">✉️ Preparer Invite Email</div>
-          <div class="card-sub">Paste a Make.com webhook URL to automatically email preparers when you click <strong>Invite</strong>. Without this, you'll get a copyable join link instead.</div>
-          <div class="f-field">
-            <label>Make.com Invite Webhook URL <span class="opt">(optional)</span></label>
-            <div class="url-row">
-              <input type="text" class="f-input" id="setMakeInviteWebhook"
-                placeholder="https://hook.us1.make.com/XXXXXXXXXXXX">
-              <button class="test-btn" onclick="testMakeInviteWebhook()">Test</button>
-            </div>
-            <div class="test-ok"  id="makeInviteTestOk">✅ Webhook reached — check Make for the test payload</div>
-            <div class="test-fail" id="makeInviteTestFail">❌ Could not reach webhook</div>
-            <div class="f-note">
-              In Make.com: create a scenario with a <strong>Webhooks → Custom webhook</strong> trigger, then add a <strong>Send an Email (or Gmail)</strong> module. The payload includes: <code>to</code>, <code>name</code>, <code>subject</code>, <code>html</code>, <code>joinLink</code>, <code>firmName</code>.
-            </div>
-          </div>
-          <button class="save-btn" onclick="saveMakeInviteWebhook()">Save</button>
-          <span class="save-ok" id="makeInviteSaveOk">✓ Saved</span>
         </div>
 
         <!-- GOOGLE DRIVE -->
@@ -792,6 +772,14 @@ const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+// ── EMAILJS ───────────────────────────────────────────────────
+(function(){ emailjs.init({ publicKey: "Jo9kiQjctnGEemEMb" }); })();
+
+async function ejsSend(to_email, subject, message) {
+  return emailjs.send("service_8m75nzg", "template_rkjcnhd", { to_email, subject, message });
+}
+
+
 // State
 let FIRM = null;
 let PREPARERS = [];
@@ -967,9 +955,9 @@ async function savePreparers() {
     // Email firm owner
     sendOwnerNotification(
       `New preparer(s) added — ${FIRM.firm_name}`,
-      `<p>The following preparer(s) were added to <strong>${FIRM.firm_name}</strong>:</p>
-       <ul>${newPreps.map(p=>`<li><strong>${p.name}</strong> — ${p.email||"no email"}</li>`).join("")}</ul>
-       <p><a href="https://taxintakeflow.com/portal.html">View your portal →</a></p>`
+      `The following preparer(s) were added to ${FIRM.firm_name}:\n` +
+      newPreps.map(p => `- ${p.name} (${p.email||"no email"})`).join("\n") +
+      `\n\nView your portal: https://taxintakeflow.com/portal.html`
     );
   } else {
     toast("Preparers saved!", "ok");
@@ -1552,23 +1540,11 @@ async function sendInvitation(emailFieldId, nameFieldId) {
 
   toast("Sending invitation…", "ok");
 
+  const message = `${FIRM.firm_name} has invited you to join their tax firm on TaxIntakeFlow.\n\nClick this link to create your account:\n${joinLink}\n\nOr copy and paste it in your browser.`;
+
   try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-notification`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${SUPABASE_ANON}`
-      },
-      body: JSON.stringify({ to: email, subject, html })
-    });
-    if (res.ok) {
-      toast(`Invitation sent to ${email}!`, "ok");
-    } else {
-      const err = await res.json().catch(() => ({}));
-      console.warn("Edge function error:", err);
-      copy(joinLink);
-      toast("Email failed — join link copied! Send it manually.", "err");
-    }
+    await ejsSend(email, subject, message);
+    toast(`Invitation sent to ${email}!`, "ok");
   } catch(e) {
     console.warn("sendInvitation error:", e);
     copy(joinLink);
@@ -1591,28 +1567,12 @@ function closeConfirmModal() {
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeConfirmModal(); });
 
-// ── EMAIL NOTIFICATIONS (Resend) ──────────────────────────────
-const RESEND_API_KEY = "re_WszdA25g_Bf4LPg6dxfoAmHb7R2Byi54u";
-
-async function sendOwnerNotification(subject, htmlBody) {
+// ── EMAIL NOTIFICATIONS (EmailJS) ────────────────────────────
+async function sendOwnerNotification(subject, message) {
   const toEmail = FIRM?.owner_email || FIRM?.email;
-  if (!toEmail) { console.warn("No owner email set — skipping notification"); return; }
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${RESEND_API_KEY}`
-      },
-      body: JSON.stringify({
-        from:    "TaxIntakeFlow <notifications@taxintakeflow.com>",
-        to:      [toEmail],
-        subject,
-        html:    htmlBody
-      })
-    });
-    if (!res.ok) console.warn("Resend error:", await res.text());
-  } catch(e) { console.warn("Notification email failed:", e); }
+  if (!toEmail) { console.warn("No owner email — skipping notification"); return; }
+  try { await ejsSend(toEmail, subject, message); }
+  catch(e) { console.warn("Notification email failed:", e); }
 }
 
 // ── UTILS ────────────────────────────────────────────────────

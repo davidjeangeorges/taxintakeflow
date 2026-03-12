@@ -750,6 +750,7 @@ select {
   .welcome-hero { padding: 32px 16px; }
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -3854,13 +3855,37 @@ async function submitForm() {
   }
 }
 
-// ── EMAIL NOTIFICATION ────────────────────────────────────────────────────────
+// ── EMAIL NOTIFICATION (EmailJS) ─────────────────────────────────────────────
+(function(){ emailjs.init({ publicKey: "Jo9kiQjctnGEemEMb" }); })();
+
 async function sendEmailNotification(data) {
-  const EDGE_URL = "https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/send-intake-email";
-  await fetch(EDGE_URL, {
-    method:  "POST",
-    headers: { "Content-Type": "application/json" },
-    body:    JSON.stringify({ type: data.type || "intake_submitted", data }),
+  // Fetch firm owner email from Supabase
+  if (!data.firmId) return;
+  const { data: firm } = await _sb.from("firms").select("owner_email, email").eq("id", data.firmId).single();
+  const toEmail = firm?.owner_email || firm?.email;
+  if (!toEmail) return;
+
+  const flags = [
+    data.isTrucker  ? "Trucker"       : null,
+    data.hasBusiness ? "Business Owner" : null,
+    data.backTaxes   ? "Back Taxes"    : null,
+  ].filter(Boolean).join(", ") || "None";
+
+  const message =
+    `New client intake received!\n\n` +
+    `Client: ${data.firstName} ${data.lastName}\n` +
+    `Email: ${data.clientEmail}\n` +
+    `Phone: ${data.phone}\n` +
+    `Tax Year: ${data.taxYear}\n` +
+    `Filing Status: ${data.filingStatus}\n` +
+    `Preparer: ${data.preparerName}\n` +
+    `Flags: ${flags}\n\n` +
+    `View in portal: https://taxintakeflow.com/portal.html`;
+
+  await emailjs.send("service_8m75nzg", "template_rkjcnhd", {
+    to_email: toEmail,
+    subject:  `New intake: ${data.firstName} ${data.lastName} — ${data.firmName || ""}`,
+    message,
   });
 }
 
