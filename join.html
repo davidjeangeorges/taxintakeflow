@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join Your Firm — TaxIntakeFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script data-cfasync="false" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --navy:#0d1b2a;--navy-mid:#1b2d42;--navy-light:#1e3a52;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.25);
+  --cream:#faf8f3;--white:#fff;
+  --gray-100:#f4f4f6;--gray-200:#e5e4e0;--gray-400:#99948e;--gray-600:#55534e;--gray-800:#1e1c18;
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.1);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.1);
+  --font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+  --radius:10px;--radius-lg:16px;--shadow:0 2px 12px rgba(13,27,42,0.07);--shadow-lg:0 8px 32px rgba(13,27,42,0.13);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);min-height:100vh;display:flex;flex-direction:column}
+
+/* TOPBAR */
+.topbar{background:var(--navy);height:60px;padding:0 28px;display:flex;align-items:center;justify-content:space-between}
+.tb-logo{font-family:var(--font-display);font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.tb-tag{font-size:12px;color:rgba(255,255,255,0.4)}
+
+/* MAIN */
+.page-wrap{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:48px 20px 64px}
+.card{background:white;border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;max-width:480px;overflow:hidden}
+
+/* CARD HEADER */
+.card-head{background:var(--navy);padding:28px 32px}
+.firm-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.card-headline{font-family:var(--font-display);font-size:22px;font-weight:700;color:white;line-height:1.3}
+.card-sub{font-size:13px;color:rgba(255,255,255,0.5);margin-top:6px}
+
+/* CARD BODY */
+.card-body{padding:28px 32px}
+
+/* FIELDS */
+.f-field{margin-bottom:18px}
+.f-field label{display:block;font-size:11px;font-weight:600;letter-spacing:0.5px;color:var(--gray-600);margin-bottom:7px}
+.f-field label .opt{color:var(--gray-400);font-weight:400;font-size:11px;margin-left:4px}
+.f-input{width:100%;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius);padding:12px 14px;font-family:var(--font-body);font-size:14px;color:var(--gray-800);outline:none;transition:all 0.2s}
+.f-input:focus{background:white;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim)}
+.f-input::placeholder{color:var(--gray-400)}
+.f-note{font-size:11px;color:var(--gray-400);margin-top:5px;line-height:1.5}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--gray-200);margin:20px 0}
+.divider-label{text-align:center;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400);margin:-9px auto 0;background:white;width:fit-content;padding:0 12px;position:relative;top:-1px;left:50%;transform:translateX(-50%);display:block}
+
+/* BTN */
+.submit-btn{width:100%;background:var(--gold);color:var(--navy);border:none;border-radius:var(--radius);padding:14px;font-family:var(--font-display);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.submit-btn:hover{background:#d9b85c;transform:translateY(-1px)}
+.submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+/* ERROR */
+.form-error{background:var(--red-dim);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
+
+/* LOADING STATE */
+#stateLoading{padding:48px 32px;text-align:center}
+.spinner{width:36px;height:36px;border:3px solid var(--gray-200);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--gray-400)}
+
+/* ERROR STATE */
+#stateError{padding:48px 32px;text-align:center}
+.error-icon{font-size:40px;margin-bottom:12px}
+.error-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.error-msg{font-size:13px;color:var(--gray-400);line-height:1.6}
+
+/* SUCCESS STATE */
+#stateSuccess{display:none}
+.success-head{background:linear-gradient(135deg,#0d1b2a,#1e3a52);padding:28px 32px;text-align:center}
+.success-icon{font-size:40px;margin-bottom:10px}
+.success-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:white;margin-bottom:6px}
+.success-sub{font-size:13px;color:rgba(255,255,255,0.5)}
+.success-body{padding:28px 32px}
+.link-box{background:var(--navy);border-radius:10px;padding:16px 18px;margin-bottom:20px}
+.link-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.link-row{display:flex;gap:8px;align-items:center}
+.link-input{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:9px 12px;font-family:monospace;font-size:11px;color:rgba(255,255,255,0.7);outline:none}
+.copy-btn{background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:9px 14px;font-family:var(--font-body);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.2s}
+.copy-btn:hover{background:#d9b85c}
+.next-steps{background:var(--gray-100);border-radius:10px;padding:16px 18px}
+.next-steps-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray-600);margin-bottom:10px}
+.next-step{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--gray-600);margin-bottom:8px;line-height:1.5}
+.next-step:last-child{margin-bottom:0}
+.step-num{background:var(--navy);color:var(--gold);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+
+/* EMAIL VERIFY NOTICE */
+.verify-notice{background:rgba(201,168,76,0.1);border:1px solid var(--gold-border);border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#78350f;line-height:1.6}
+.verify-notice strong{color:var(--navy)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-logo">TaxIntakeFlow</div>
+  <div class="tb-tag">Preparer Onboarding</div>
+</div>
+
+<div class="page-wrap">
+  <div class="card">
+
+    <!-- LOADING -->
+    <div id="stateLoading">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading your firm details…</div>
+    </div>
+
+    <!-- ERROR -->
+    <div id="stateError" style="display:none">
+      <div class="error-icon">🔗</div>
+      <div class="error-title">Invalid Join Link</div>
+      <div class="error-msg" id="errorMsg">This link doesn't appear to be valid. Please ask your firm owner for a new join link.</div>
+    </div>
+
+    <!-- FORM -->
+    <div id="stateForm" style="display:none">
+      <div class="card-head">
+        <div class="firm-tag" id="firmTagDisplay">Loading…</div>
+        <div class="card-headline">Create Your Preparer Account</div>
+        <div class="card-sub">You're joining <strong id="firmNameDisplay" style="color:white">your firm</strong> on TaxIntakeFlow. Set up your account to access your client intake dashboard and get your personal intake link.</div>
+      </div>
+      <div class="card-body">
+        <div class="form-error" id="formError"></div>
+
+        <div class="f-field">
+          <label>Full Name</label>
+          <input type="text" class="f-input" id="inpName" placeholder="John Smith" autocomplete="name">
+        </div>
+        <div class="f-field">
+          <label>Work Email</label>
+          <input type="email" class="f-input" id="inpEmail" placeholder="john@yourfirm.com" autocomplete="email">
+        </div>
+        <div class="f-field">
+          <label>PTIN <span class="opt">(optional)</span></label>
+          <input type="text" class="f-input" id="inpPtin" placeholder="P00000001">
+          <div class="f-note">Your IRS Preparer Tax Identification Number</div>
+        </div>
+
+        <div style="height:1px;background:var(--gray-200);margin:20px 0;position:relative">
+          <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:0 12px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400)">Set Password</span>
+        </div>
+
+        <div class="f-field">
+          <label>Password</label>
+          <input type="password" class="f-input" id="inpPassword" placeholder="Min. 8 characters" autocomplete="new-password">
+        </div>
+        <div class="f-field">
+          <label>Confirm Password</label>
+          <input type="password" class="f-input" id="inpConfirm" placeholder="Repeat password" autocomplete="new-password">
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">
+          <span id="submitLabel">Create Account & Join Firm →</span>
+        </button>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:10px;text-align:center">Already have an account? <a href="auth.html" style="color:var(--gold);font-weight:600">Log in here</a></div>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="stateSuccess">
+      <div class="success-head">
+        <div class="success-icon">🎉</div>
+        <div class="success-title" id="successTitle">Welcome aboard!</div>
+        <div class="success-sub">Your account has been created successfully</div>
+      </div>
+      <div class="success-body">
+
+        <div class="verify-notice">
+          📧 <strong>Check your inbox</strong> — we sent a verification link to <strong id="successEmail"></strong>. Verify your email, then log in at <a href="auth.html" style="color:var(--gold);font-weight:700">taxintakeflow.com</a>.
+        </div>
+
+        <div class="link-box">
+          <div class="link-label">Your Personal Client Intake Link</div>
+          <div class="link-row">
+            <input type="text" class="link-input" id="successIntakeLink" readonly>
+            <button class="copy-btn" onclick="copyIntakeLink()">Copy</button>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:8px">Share this link with clients — their intake is automatically assigned to you</div>
+        </div>
+
+        <div class="next-steps">
+          <div class="next-steps-title">What Happens Next</div>
+          <div class="next-step"><span class="step-num">1</span><span>Verify your email by clicking the link we just sent you</span></div>
+          <div class="next-step"><span class="step-num">2</span><span>Log in at <a href="auth.html" style="color:var(--navy);font-weight:600">taxintakeflow.com</a> with your new credentials</span></div>
+          <div class="next-step"><span class="step-num">3</span><span>Share your personal intake link with clients to start receiving submissions</span></div>
+          <div class="next-step"><span class="step-num">4</span><span>Your firm owner will confirm your access — you'll appear in their Preparers list</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script data-cfasync="false">
+const SUPABASE_URL  = "https://yyobsleksxryuwxenvnb.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let FIRM = null;
+
+// ── INIT ──────────────────────────────────────────────────────
+async function init() {
+  const params  = new URLSearchParams(location.search);
+  const firmId  = params.get("firm");
+
+  if (!firmId) {
+    showError("No firm specified in this link. Ask your firm owner for the correct join link.");
+    return;
+  }
+
+  try {
+    const { data: firm, error } = await sb
+      .from("firms")
+      .select("id, firm_name, ghl_webhook_url, owner_email")
+      .eq("id", firmId)
+      .single();
+
+    if (error || !firm) {
+      showError("Firm not found. This link may be outdated — ask your firm owner for a new one.");
+      return;
+    }
+
+    FIRM = firm;
+    document.getElementById("firmTagDisplay").textContent  = firm.firm_name;
+    document.getElementById("firmNameDisplay").textContent = firm.firm_name;
+    document.title = `Join ${firm.firm_name} — TaxIntakeFlow`;
+    document.getElementById("stateLoading").style.display  = "none";
+    document.getElementById("stateForm").style.display     = "block";
+
+  } catch (err) {
+    showError("Could not load firm details. Please try again or contact your firm owner.");
+  }
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────
+async function handleSubmit() {
+  const name     = document.getElementById("inpName").value.trim();
+  const email    = document.getElementById("inpEmail").value.trim().toLowerCase();
+  const ptin     = document.getElementById("inpPtin").value.trim();
+  const password = document.getElementById("inpPassword").value;
+  const confirm  = document.getElementById("inpConfirm").value;
+
+  // — Validate —
+  if (!name)     { showFormError("Please enter your full name."); return; }
+  if (!email)    { showFormError("Please enter your work email."); return; }
+  if (!password) { showFormError("Please set a password."); return; }
+  if (password.length < 8) { showFormError("Password must be at least 8 characters."); return; }
+  if (password !== confirm) { showFormError("Passwords don't match — please re-enter."); return; }
+
+  setLoading(true);
+
+  // — Step 1: Create Supabase auth account —
+  const { data: authData, error: authError } = await sb.auth.signUp({ email, password });
+
+  if (authError) {
+    const msg = authError.message.toLowerCase().includes("already registered")
+      ? "This email is already registered. <a href='auth.html' style='color:var(--red);font-weight:700'>Log in here instead</a>."
+      : `Could not create account: ${authError.message}`;
+    showFormError(msg, true);
+    setLoading(false);
+    return;
+  }
+
+  // — Step 2: Insert preparer record —
+  // NOTE: If this fails with a permissions error, add this RLS policy in Supabase:
+  // CREATE POLICY "allow_preparer_self_insert" ON preparers
+  //   FOR INSERT TO authenticated
+  //   WITH CHECK (EXISTS (SELECT 1 FROM firms WHERE id = firm_id));
+  const { error: prepError } = await sb.from("preparers").insert({
+    firm_id:   FIRM.id,
+    name:      name,
+    email:     email,
+    ptin:      ptin || null,
+    is_active: true
+  });
+
+  if (prepError) {
+    // RLS or other DB issue — log but don't block the user
+    // Firm owner can confirm them manually from the portal
+    console.warn("Preparer insert issue (may need RLS policy update):", prepError.message);
+  }
+
+  // — Step 3: Notify firm owner via GHL webhook —
+  if (FIRM.ghl_webhook_url) {
+    try {
+      fetch(FIRM.ghl_webhook_url, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({
+          action:          "new_preparer_joined",
+          preparer_name:   name,
+          preparer_email:  email,
+          preparer_ptin:   ptin || "",
+          firm_name:       FIRM.firm_name,
+          needs_approval:  !!prepError   // true if DB insert failed
+        }),
+        mode: "no-cors"
+      });
+    } catch(e) { /* silent */ }
+  }
+
+  // — Step 4: Show success —
+  const intakeLink = `https://taxintakeflow.com/intake.html?firmId=${FIRM.id}&prep=${encodeURIComponent(name)}`;
+  document.getElementById("successTitle").textContent      = `Welcome, ${name.split(" ")[0]}!`;
+  document.getElementById("successEmail").textContent      = email;
+  document.getElementById("successIntakeLink").value       = intakeLink;
+
+  document.getElementById("stateForm").style.display    = "none";
+  document.getElementById("stateSuccess").style.display = "block";
+  window._intakeLink = intakeLink;
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function showError(msg) {
+  document.getElementById("stateLoading").style.display = "none";
+  document.getElementById("stateError").style.display   = "block";
+  document.getElementById("errorMsg").textContent = msg;
+}
+
+function showFormError(msg, isHtml = false) {
+  const el = document.getElementById("formError");
+  if (isHtml) el.innerHTML = msg;
+  else        el.textContent = msg;
+  el.style.display = "block";
+  el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function setLoading(on) {
+  const btn = document.getElementById("submitBtn");
+  const lbl = document.getElementById("submitLabel");
+  btn.disabled  = on;
+  lbl.textContent = on ? "Creating account…" : "Create Account & Join Firm →";
+  document.getElementById("formError").style.display = "none";
+}
+
+function copyIntakeLink() {
+  const link = window._intakeLink || document.getElementById("successIntakeLink").value;
+  navigator.clipboard.writeText(link).catch(() => {
+    const el = Object.assign(document.createElement("textarea"), { value: link });
+    document.body.appendChild(el); el.select(); document.execCommand("copy"); el.remove();
+  });
+  const btn = document.querySelector(".copy-btn");
+  btn.textContent = "Copied!";
+  setTimeout(() => btn.textContent = "Copy", 2000);
+}
+
+// ── ENTER KEY ─────────────────────────────────────────────────
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && document.getElementById("stateForm").style.display !== "none") {
+    handleSubmit();
+  }
+});
+
+init().catch(err => {
+  console.error("join.html init error:", err);
+  showError("An unexpected error occurred. Please refresh and try again.");
+});
+</script>
+</body>
+</html>

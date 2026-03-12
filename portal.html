@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TaxIntakeFlow — Firm Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script data-cfasync="false" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --navy:#0d1b2a;--navy-mid:#1b2d42;--navy-light:#1e3a52;
@@ -430,6 +430,16 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
           <div class="card-title">🧾 Preparers</div>
           <div class="card-sub">Add, edit, or remove preparers. Changes appear in the intake form dropdown immediately after saving.</div>
 
+          <!-- FIRM JOIN LINK -->
+          <div style="background:var(--navy);border-radius:10px;padding:16px 20px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Preparer Join Link</div>
+              <div style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="firmJoinLinkDisplay">Loading…</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:5px">Share with preparers — they click it, create their own account &amp; password, and are added to your firm automatically</div>
+            </div>
+            <button class="ilb-btn" onclick="copyJoinLink()" style="flex-shrink:0">Copy Link</button>
+          </div>
+
           <div class="prep-header">
             <span>Full Name</span><span>Email</span><span>PTIN</span><span></span>
           </div>
@@ -476,6 +486,17 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
             </div>
             <input type="text" class="f-input" id="engLinkOut" readonly style="font-family:monospace;font-size:11px;margin-top:8px" placeholder="Fill in name above...">
           </div>
+
+          <!-- PER-PREPARER INTAKE LINKS -->
+          <div style="height:1px;background:var(--gray-200);margin:24px 0;position:relative">
+            <span style="position:absolute;top:50%;left:0;transform:translateY(-50%);background:white;padding-right:12px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400)">Preparer Intake Links</span>
+          </div>
+          <div id="preparerLinksSection" style="display:none">
+            <div style="font-size:13px;color:var(--gray-600);margin-bottom:12px;line-height:1.6">Each preparer has their own personal intake link. Clients who use it are automatically assigned to that preparer.</div>
+            <div id="preparerLinksList" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          <div id="preparerLinksEmpty" style="font-size:13px;color:var(--gray-400);padding:12px 0">Add preparers above and save to generate their personal intake links.</div>
+
         </div>
 
       </div>
@@ -598,7 +619,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
 
 <div id="toast"></div>
 
-<script data-cfasync="false">
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── SUPABASE CONFIG ──────────────────────────────────────────
 // REPLACE with your actual values
 const SUPABASE_URL  = "https://yyobsleksxryuwxenvnb.supabase.co";
@@ -676,6 +697,7 @@ async function loadPreparers() {
   renderSettingsPreparers();
   document.getElementById("statPreparers").textContent = PREPARERS.length;
   populateEngPrepDropdown();
+  renderPreparerLinks();
 }
 
 function renderSettingsPreparers() {
@@ -728,6 +750,7 @@ async function savePreparers() {
 
   PREPARERS = preps;
   populateEngPrepDropdown();
+  renderPreparerLinks();
   showSaveOk("prepSaveOk");
 
   // Show login links for new preparers who have an email
@@ -1044,6 +1067,56 @@ function updateIntakeLink() {
   const full = document.getElementById("intakeLinkFull");
   if (full) full.value = link;
   window._intakeLink = link;
+
+  // Also update join link whenever firm loads
+  updateJoinLink();
+}
+
+// ── JOIN LINK ─────────────────────────────────────────────────
+function updateJoinLink() {
+  if (!FIRM) return;
+  const link = `https://taxintakeflow.com/join.html?firm=${FIRM.id}`;
+  const el = document.getElementById("firmJoinLinkDisplay");
+  if (el) el.textContent = link;
+  window._joinLink = link;
+}
+
+function copyJoinLink() {
+  if (!window._joinLink) { toast("Firm not loaded yet", "err"); return; }
+  copy(window._joinLink);
+  toast("Preparer join link copied!", "ok");
+}
+
+// ── PREPARER INTAKE LINKS ─────────────────────────────────────
+function renderPreparerLinks() {
+  const section = document.getElementById("preparerLinksSection");
+  const list    = document.getElementById("preparerLinksList");
+  const empty   = document.getElementById("preparerLinksEmpty");
+  if (!section || !list || !FIRM) return;
+
+  if (!PREPARERS.length) {
+    section.style.display = "none";
+    if (empty) empty.style.display = "block";
+    return;
+  }
+
+  if (empty) empty.style.display = "none";
+  section.style.display = "block";
+
+  list.innerHTML = PREPARERS.map(p => {
+    const link = `https://taxintakeflow.com/intake.html?firmId=${FIRM.id}&prep=${encodeURIComponent(p.name)}`;
+    const safeName = p.name.replace(/'/g, "\\'");
+    const safeLink = link.replace(/'/g, "%27");
+    return `
+    <div style="background:var(--gray-100);border:1px solid var(--gray-200);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px">${p.name}</div>
+        <div style="font-family:monospace;font-size:11px;color:var(--gray-400);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${link}</div>
+      </div>
+      <button class="test-btn" style="background:var(--gold);color:var(--navy);font-size:11px;padding:7px 14px;flex-shrink:0"
+        onclick="copy('${safeLink}');toast('${safeName} intake link copied!','ok')">Copy</button>
+    </div>`;
+  }).join("");
 }
 
 function copyIntakeLink() {
@@ -1200,10 +1273,7 @@ function toast(msg, type="ok") {
 }
 
 // ── START ─────────────────────────────────────────────────────
-init().catch(err => {
-  console.error("TaxIntakeFlow init error:", err);
-  toast("Portal failed to load — check console for details", "err");
-});
+init();
 </script>
 </body>
 </html>
