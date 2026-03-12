@@ -895,7 +895,7 @@ async function savePreparers() {
 
   // Delete existing, reinsert
   await sb.from("preparers").delete().eq("firm_id", FIRM.id);
-  await sb.from("preparers").insert(preps.map(p => ({ ...p, firm_id: FIRM.id })));
+  await sb.from("preparers").insert(preps.map(p => ({ ...p, firm_id: FIRM.id, is_active: true })));
 
   // Also send to Apps Script if connected
   if (FIRM.ghl_webhook_url || localStorage.getItem("tif_appsScriptUrl")) {
@@ -1533,17 +1533,26 @@ async function sendInvitation(emailFieldId, nameFieldId) {
   toast("Sending invitation…", "ok");
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-notification`, {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${SUPABASE_ANON}` },
-      body: JSON.stringify({ to: email, subject, html })
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${RESEND_API_KEY}`
+      },
+      body: JSON.stringify({
+        from:    "TaxIntakeFlow <notifications@taxintakeflow.com>",
+        to:      [email],
+        subject,
+        html
+      })
     });
     if (res.ok) {
       toast(`Invitation sent to ${email}!`, "ok");
     } else {
-      // Edge Function not deployed yet — copy link as fallback
+      const errText = await res.text().catch(() => "");
+      console.warn("Resend error:", errText);
       copy(joinLink);
-      toast("Email not set up yet — join link copied! Paste it and send manually.", "err");
+      toast("Email failed — join link copied! Send it manually.", "err");
     }
   } catch(e) {
     copy(joinLink);

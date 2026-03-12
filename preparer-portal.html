@@ -366,9 +366,9 @@ async function init() {
     .select("*")
     .eq("email", userEmail)
     .eq("is_active", true)
-    .single();
+    .maybeSingle();
 
-  if (prepErr || !prepRecord) {
+  if (!prepRecord) {
     // Not a preparer — might be a firm owner who ended up here by mistake
     window.location.href = "portal.html";
     return;
