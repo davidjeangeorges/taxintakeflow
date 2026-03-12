@@ -1190,4 +1190,17 @@ function copy(text) {
 }
 
 function toast(msg, type="ok") {
-  const 
+  const t = document.getElementById("toast");
+  if (!t) return;
+  t.textContent = msg;
+  t.style.background = type === "err" ? "#e03131" : "#2f9e44";
+  t.style.display = "flex";
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.style.display = "none", 3000);
+}
+
+// ── START ─────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
