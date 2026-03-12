@@ -136,12 +136,14 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
 .prep-header{display:grid;grid-template-columns:1fr 1fr 100px 38px;gap:8px;padding:0 2px;margin-bottom:6px}
 .prep-header span{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gray-400)}
 .prep-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-.prep-row{display:grid;grid-template-columns:1fr 1fr 100px 38px;gap:8px;align-items:center}
+.prep-row{display:grid;grid-template-columns:1fr 1fr 100px auto auto;gap:8px;align-items:center}
 .p-inp{width:100%;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;padding:9px 10px;font-family:var(--font-body);font-size:13px;color:var(--gray-800);outline:none;transition:border-color 0.2s}
 .p-inp:focus{border-color:var(--gold)}
 .p-inp::placeholder{color:var(--gray-400)}
 .remove-btn{background:none;border:1px solid var(--gray-200);border-radius:7px;color:var(--gray-400);cursor:pointer;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.2s}
 .remove-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-dim)}
+.invite-btn{background:none;border:1px solid var(--gold-border);border-radius:7px;color:var(--gold);cursor:pointer;height:38px;padding:0 10px;font-family:var(--font-body);font-size:12px;font-weight:600;white-space:nowrap;transition:all 0.2s}
+.invite-btn:hover{background:var(--gold-dim);border-color:var(--gold)}
 .add-prep-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px dashed var(--gray-400);border-radius:8px;padding:8px 14px;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:all 0.2s}
 .add-prep-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
 
@@ -423,7 +425,6 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
             </div>
           </div>
           <button class="save-btn" onclick="saveDriveSettings()">Save Drive Settings</button>
-          <button class="test-btn" onclick="testNotification()" style="margin-left:10px">Send Test Email</button>
           <span class="save-ok" id="driveSaveOk">✓ Saved — Drive is connected</span>
         </div>
 
@@ -442,7 +443,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
             <button class="ilb-btn" onclick="copyJoinLink()" style="flex-shrink:0">Copy Link</button>
           </div>
 
-          <div class="prep-header">
+          <div class="prep-header" style="grid-template-columns:1fr 1fr 100px auto auto">
             <span>Full Name</span><span>Email</span><span>PTIN</span><span></span>
           </div>
           <div class="prep-list" id="settingsPreparerList"></div>
@@ -788,7 +789,17 @@ async function init() {
     .eq("owner_id", session.user.id)
     .single();
 
-  if (!firm) { window.location.href = "onboarding.html"; return; }
+  if (!firm) {
+    // Not a firm owner — check if they're a preparer on any firm
+    const { data: prepRecord } = await sb
+      .from("preparers")
+      .select("id")
+      .eq("email", session.user.email)
+      .eq("is_active", true)
+      .maybeSingle();
+    window.location.href = prepRecord ? "preparer-portal.html" : "onboarding.html";
+    return;
+  }
   FIRM = firm;
 
   // Update UI
@@ -863,6 +874,7 @@ function addSettingsPreparer(name = "", email = "", ptin = "") {
     <input class="p-inp" placeholder="John Smith" value="${name}" id="pn_${id}">
     <input class="p-inp" placeholder="john@firm.com" value="${email}" id="pe_${id}">
     <input class="p-inp" placeholder="P00001" value="${ptin}" id="pt_${id}">
+    <button class="invite-btn" onclick="sendInvitation('pe_${id}','pn_${id}')" title="Send onboarding link to preparer">✉️ Invite</button>
     <button class="remove-btn" onclick="confirmRemovePreparer('pr_${id}', '${name.replace(/'/g,"\\'")}')">🗑</button>`;
   list.appendChild(row);
 }
@@ -1494,6 +1506,51 @@ function previewEngagement() {
   window.open(url, "_blank");
 }
 
+// ── SEND INVITATION ───────────────────────────────────────────
+async function sendInvitation(emailFieldId, nameFieldId) {
+  const email = document.getElementById(emailFieldId)?.value.trim();
+  const name  = document.getElementById(nameFieldId)?.value.trim();
+  if (!email) { toast("Enter the preparer's email first", "err"); return; }
+  if (!FIRM)  { toast("Firm not loaded", "err"); return; }
+
+  const joinLink = `https://taxintakeflow.com/join.html?firm=${FIRM.id}`;
+
+  // Send via Resend through Edge Function
+  const subject  = `You've been invited to join ${FIRM.firm_name} on TaxIntakeFlow`;
+  const html = `
+    <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
+      <div style="background:#0d1b2a;padding:28px 32px;border-radius:12px 12px 0 0">
+        <div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#c9a84c">TaxIntakeFlow</div>
+      </div>
+      <div style="background:white;border:1px solid #e5e4e0;border-top:none;padding:32px;border-radius:0 0 12px 12px">
+        <h2 style="color:#0d1b2a;margin:0 0 12px">You've been invited${name ? `, ${name.split(" ")[0]}` : ""}!</h2>
+        <p style="color:#55534e;line-height:1.6;margin:0 0 24px"><strong>${FIRM.firm_name}</strong> has invited you to join their tax firm on TaxIntakeFlow. Click the button below to create your account and get your personal client intake link.</p>
+        <a href="${joinLink}" style="display:inline-block;background:#c9a84c;color:#0d1b2a;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px">Create My Account →</a>
+        <p style="color:#99948e;font-size:12px;margin:24px 0 0">Or copy this link: <span style="font-family:monospace;font-size:11px">${joinLink}</span></p>
+      </div>
+    </div>`;
+
+  toast("Sending invitation…", "ok");
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-notification`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${SUPABASE_ANON}` },
+      body: JSON.stringify({ to: email, subject, html })
+    });
+    if (res.ok) {
+      toast(`Invitation sent to ${email}!`, "ok");
+    } else {
+      // Edge Function not deployed yet — copy link as fallback
+      copy(joinLink);
+      toast("Email not set up yet — join link copied! Paste it and send manually.", "err");
+    }
+  } catch(e) {
+    copy(joinLink);
+    toast("Email failed — join link copied! Send it manually.", "err");
+  }
+}
+
 // ── CONFIRM DELETE PREPARER ───────────────────────────────────
 function confirmRemovePreparer(rowId, name) {
   const modal = document.getElementById("confirmModal");
@@ -1515,37 +1572,23 @@ const RESEND_API_KEY = "re_WszdA25g_Bf4LPg6dxfoAmHb7R2Byi54u";
 
 async function sendOwnerNotification(subject, htmlBody) {
   const toEmail = FIRM?.owner_email || FIRM?.email;
-  if (!toEmail) { console.warn("No owner_email set in firm — go to Settings → Google Drive → Notification Email and save your email"); return; }
+  if (!toEmail) { console.warn("No owner email set — skipping notification"); return; }
   try {
-    // Route through Supabase Edge Function to avoid browser CORS restrictions
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-notification`, {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${SUPABASE_ANON}`
+        "Authorization": `Bearer ${RESEND_API_KEY}`
       },
-      body: JSON.stringify({ to: toEmail, subject, html: htmlBody })
+      body: JSON.stringify({
+        from:    "TaxIntakeFlow <notifications@taxintakeflow.com>",
+        to:      [toEmail],
+        subject,
+        html:    htmlBody
+      })
     });
-    if (!res.ok) {
-      const err = await res.text();
-      console.warn("Notification failed:", err);
-    } else {
-      console.log("Notification sent to", toEmail);
-    }
-  } catch(e) { console.warn("Notification error:", e); }
-}
-
-async function testNotification() {
-  const email = document.getElementById("setOwnerEmail").value.trim();
-  if (!email) { toast("Enter your notification email first then save", "err"); return; }
-  toast("Sending test email…", "ok");
-  await sendOwnerNotification(
-    "✅ TaxIntakeFlow — Test Notification",
-    `<p>This is a test notification from <strong>TaxIntakeFlow</strong>.</p>
-     <p>If you received this, your email notifications are working correctly.</p>
-     <p>Firm: <strong>${FIRM?.firm_name || "Your Firm"}</strong></p>`
-  );
-  toast("Test email sent to " + email, "ok");
+    if (!res.ok) console.warn("Resend error:", await res.text());
+  } catch(e) { console.warn("Notification email failed:", e); }
 }
 
 // ── UTILS ────────────────────────────────────────────────────
