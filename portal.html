@@ -423,6 +423,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
             </div>
           </div>
           <button class="save-btn" onclick="saveDriveSettings()">Save Drive Settings</button>
+          <button class="test-btn" onclick="testNotification()" style="margin-left:10px">Send Test Email</button>
           <span class="save-ok" id="driveSaveOk">✓ Saved — Drive is connected</span>
         </div>
 
@@ -787,21 +788,7 @@ async function init() {
     .eq("owner_id", session.user.id)
     .single();
 
-  if (!firm) {
-    // Not a firm owner — check if they're a preparer
-    const { data: prepRecord } = await sb
-      .from("preparers")
-      .select("id")
-      .eq("email", session.user.email)
-      .eq("is_active", true)
-      .single();
-    if (prepRecord) {
-      window.location.href = "preparer-portal.html";
-    } else {
-      window.location.href = "onboarding.html";
-    }
-    return;
-  }
+  if (!firm) { window.location.href = "onboarding.html"; return; }
   FIRM = firm;
 
   // Update UI
@@ -1528,23 +1515,37 @@ const RESEND_API_KEY = "re_WszdA25g_Bf4LPg6dxfoAmHb7R2Byi54u";
 
 async function sendOwnerNotification(subject, htmlBody) {
   const toEmail = FIRM?.owner_email || FIRM?.email;
-  if (!toEmail) { console.warn("No owner email set — skipping notification"); return; }
+  if (!toEmail) { console.warn("No owner_email set in firm — go to Settings → Google Drive → Notification Email and save your email"); return; }
   try {
-    const res = await fetch("https://api.resend.com/emails", {
+    // Route through Supabase Edge Function to avoid browser CORS restrictions
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-notification`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${RESEND_API_KEY}`
+        "Authorization": `Bearer ${SUPABASE_ANON}`
       },
-      body: JSON.stringify({
-        from:    "TaxIntakeFlow <notifications@taxintakeflow.com>",
-        to:      [toEmail],
-        subject,
-        html:    htmlBody
-      })
+      body: JSON.stringify({ to: toEmail, subject, html: htmlBody })
     });
-    if (!res.ok) console.warn("Resend error:", await res.text());
-  } catch(e) { console.warn("Notification email failed:", e); }
+    if (!res.ok) {
+      const err = await res.text();
+      console.warn("Notification failed:", err);
+    } else {
+      console.log("Notification sent to", toEmail);
+    }
+  } catch(e) { console.warn("Notification error:", e); }
+}
+
+async function testNotification() {
+  const email = document.getElementById("setOwnerEmail").value.trim();
+  if (!email) { toast("Enter your notification email first then save", "err"); return; }
+  toast("Sending test email…", "ok");
+  await sendOwnerNotification(
+    "✅ TaxIntakeFlow — Test Notification",
+    `<p>This is a test notification from <strong>TaxIntakeFlow</strong>.</p>
+     <p>If you received this, your email notifications are working correctly.</p>
+     <p>Firm: <strong>${FIRM?.firm_name || "Your Firm"}</strong></p>`
+  );
+  toast("Test email sent to " + email, "ok");
 }
 
 // ── UTILS ────────────────────────────────────────────────────
