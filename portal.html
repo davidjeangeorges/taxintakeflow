@@ -787,7 +787,21 @@ async function init() {
     .eq("owner_id", session.user.id)
     .single();
 
-  if (!firm) { window.location.href = "onboarding.html"; return; }
+  if (!firm) {
+    // Not a firm owner — check if they're a preparer
+    const { data: prepRecord } = await sb
+      .from("preparers")
+      .select("id")
+      .eq("email", session.user.email)
+      .eq("is_active", true)
+      .single();
+    if (prepRecord) {
+      window.location.href = "preparer-portal.html";
+    } else {
+      window.location.href = "onboarding.html";
+    }
+    return;
+  }
   FIRM = firm;
 
   // Update UI
