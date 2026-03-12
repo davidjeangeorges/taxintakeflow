@@ -302,13 +302,26 @@ let CURRENT = null;   // currently opened client in modal
     .single();
 
   if (error || !prep) {
-    // Not a preparer — try firm owner
-    const { data: firm } = await sb.from("firms").select("id").eq("owner_id", userId).single();
-    window.location.href = firm ? "portal.html" : "auth.html?logout=1";
-    return;
-  }
+    // user_id not linked yet — try matching by email (first login after invite)
+    const { data: prepByEmail } = await sb.from("preparers")
+      .select("id, name, email, ptin, firm_id")
+      .eq("email", session.user.email)
+      .eq("is_active", true)
+      .maybeSingle();
 
-  PREP = prep;
+    if (prepByEmail) {
+      // Link this auth account to the preparer record
+      await sb.from("preparers").update({ user_id: userId }).eq("id", prepByEmail.id);
+      PREP = { ...prepByEmail, user_id: userId };
+    } else {
+      // Not a preparer at all — try firm owner
+      const { data: firm } = await sb.from("firms").select("id").eq("owner_id", userId).single();
+      window.location.href = firm ? "portal.html" : "auth.html?logout=1";
+      return;
+    }
+  } else {
+    PREP = prep;
+  }
 
   // Load firm info
   const { data: firm } = await sb.from("firms")
