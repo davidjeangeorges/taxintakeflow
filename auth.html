@@ -184,6 +184,22 @@ const interval = P.get("interval") || "monthly";
 // Init
 if (mode === "signup") showTab("signup");
 
+// ── PREPARER MODE ─────────────────────────────────────────────
+// When preparer arrives via shared link (?mode=preparer&email=xxx)
+// Hide signup tab, pre-fill email, show a friendly message
+if (mode === "preparer") {
+  document.getElementById("authTabs").style.display = "none";
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("signupForm").style.display = "none";
+
+  const preEmail = P.get("email");
+  if (preEmail) document.getElementById("loginEmail").value = preEmail;
+
+  document.querySelector("#loginForm .form-title").textContent = "Preparer Login";
+  document.querySelector("#loginForm .form-sub").textContent =
+    "Your firm has added you to TaxIntakeFlow. Log in with your email to access your clients.";
+}
+
 // Show plan summary on signup
 const planNames = { starter:"Starter", growth:"Growth", pro:"Pro" };
 const intNames  = { monthly:"Monthly", "6month":"6-Month", "12month":"Annual" };
@@ -227,9 +243,28 @@ async function doLogin() {
     btn.disabled = false; btn.textContent = "Log In →";
   } else {
     btn.textContent = "Redirecting...";
-    // Check if firm exists — new users go to onboarding, existing go to portal
-    const { data: firm } = await sb.from("firms").select("id").eq("owner_id", loginData.user.id).single();
-    window.location.href = firm ? "portal.html" : "onboarding.html";
+    const userId = loginData.user.id;
+    const userEmail = loginData.user.email;
+
+    // 1. Check if this user is a firm owner
+    const { data: firm } = await sb.from("firms").select("id").eq("owner_id", userId).single();
+    if (firm) { window.location.href = "portal.html"; return; }
+
+    // 2. Check if already linked as a preparer
+    const { data: prepLinked } = await sb.from("preparers").select("id, firm_id").eq("user_id", userId).single();
+    if (prepLinked) { window.location.href = "preparer.html"; return; }
+
+    // 3. First-time preparer login — try to link by email
+    const { data: prepByEmail } = await sb.from("preparers").select("id, firm_id").eq("email", userEmail).is("user_id", null).single();
+    if (prepByEmail) {
+      // Link their Supabase user ID to the preparer record
+      await sb.from("preparers").update({ user_id: userId }).eq("id", prepByEmail.id);
+      window.location.href = "preparer.html";
+      return;
+    }
+
+    // 4. Not a firm owner or preparer — send to onboarding
+    window.location.href = "onboarding.html";
   }
 }
 
@@ -308,8 +343,26 @@ const fromLogout = urlParams.get("logout") === "1";
 if (!fromLogout) {
   sb.auth.getSession().then(async ({ data: { session } }) => {
     if (session) {
-      const { data: firm } = await sb.from("firms").select("id").eq("owner_id", session.user.id).single();
-      window.location.href = firm ? "portal.html" : "onboarding.html";
+      const userId = session.user.id;
+      const userEmail = session.user.email;
+
+      // Firm owner?
+      const { data: firm } = await sb.from("firms").select("id").eq("owner_id", userId).single();
+      if (firm) { window.location.href = "portal.html"; return; }
+
+      // Linked preparer?
+      const { data: prep } = await sb.from("preparers").select("id").eq("user_id", userId).single();
+      if (prep) { window.location.href = "preparer.html"; return; }
+
+      // First-time preparer — link by email
+      const { data: prepByEmail } = await sb.from("preparers").select("id").eq("email", userEmail).is("user_id", null).single();
+      if (prepByEmail) {
+        await sb.from("preparers").update({ user_id: userId }).eq("id", prepByEmail.id);
+        window.location.href = "preparer.html";
+        return;
+      }
+
+      window.location.href = "onboarding.html";
     }
   });
 }

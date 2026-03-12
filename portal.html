@@ -415,7 +415,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
               <strong style="color:#1a4a7a">How to connect your Drive (no login required):</strong><br>
               1. Create a folder in your Google Drive<br>
               2. Right-click the folder → <strong>Share</strong><br>
-              3. Add <strong style="color:#1a4a7a;font-family:monospace">drive-uploader@taxintakeflow.iam.gserviceaccount.com</strong> as <strong>Editor</strong><br>
+              3. Add <strong style="color:#1a4a7a;font-family:monospace"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a9cddbc0dfcc84dcd9c5c6c8cdccdbe9ddc8d1c0c7ddc8c2cccfc5c6de87c0c8c487cedaccdbdfc0caccc8cacac6dcc7dd87cac6c4">[email&#160;protected]</a></strong> as <strong>Editor</strong><br>
               4. Copy the folder ID from the URL — the part after <code>/folders/</code><br>
               5. Paste it above and click Save — that's it ✓<br>
               <span style="color:#888;font-size:11px">No Google sign-in popup will appear. Files upload automatically after each client submission.</span>
@@ -598,7 +598,7 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
 
 <div id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── SUPABASE CONFIG ──────────────────────────────────────────
 // REPLACE with your actual values
 const SUPABASE_URL  = "https://yyobsleksxryuwxenvnb.supabase.co";
@@ -710,8 +710,8 @@ async function savePreparers() {
   const preps = getPreparersFromForm();
   if (!preps.length) { toast("Add at least one preparer", "err"); return; }
 
-  // Get existing preparer emails to detect new ones
-  const existingEmails = new Set(PREPARERS.map(p => p.email).filter(Boolean));
+  // Detect new preparers (not previously in the list)
+  const existingEmails = new Set(PREPARERS.map(p => (p.email || "").toLowerCase()).filter(Boolean));
 
   // Delete existing, reinsert
   await sb.from("preparers").delete().eq("firm_id", FIRM.id);
@@ -726,34 +726,43 @@ async function savePreparers() {
     }
   }
 
-  // Send welcome email to NEW preparers (those not previously in the list)
-  const newPreps = preps.filter(p => p.email && !existingEmails.has(p.email));
-  if (newPreps.length > 0) {
-    const portalUrl = window.location.origin + "/portal.html";
-    newPreps.forEach(p => {
-      fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/send-intake-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "preparer_invite",
-          data: {
-            preparerName:  p.name,
-            preparerEmail: p.email,
-            firmName:      FIRM.firm_name,
-            portalUrl,
-            firmId:        FIRM.id,
-          }
-        })
-      }).catch(() => {}); // non-blocking
-    });
-    toast(`Saved! Welcome email sent to ${newPreps.length} new preparer(s).`, "ok");
-  } else {
-    toast("Preparers saved!", "ok");
-  }
-
   PREPARERS = preps;
   populateEngPrepDropdown();
   showSaveOk("prepSaveOk");
+
+  // Show login links for new preparers who have an email
+  const newPreps = preps.filter(p => p.email && !existingEmails.has(p.email.toLowerCase()));
+  if (newPreps.length > 0) {
+    const base = window.location.origin + "/";
+    let linksHtml = newPreps.map(p => {
+      const link = `${base}auth.html?mode=preparer&email=${encodeURIComponent(p.email)}`;
+      return `<div style="margin-bottom:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:4px">${p.name}</div>
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border-radius:8px;padding:8px 12px">
+          <span style="font-family:monospace;font-size:11px;color:rgba(255,255,255,0.7);flex:1;word-break:break-all">${link}</span>
+          <button onclick="navigator.clipboard.writeText('${link}');toast('Link copied!','ok')"
+            style="background:var(--gold);color:var(--navy);border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">Copy</button>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Share this link with ${p.name} — they click it, set a password, and land on their preparer dashboard.</div>
+      </div>`;
+    }).join("");
+
+    // Show modal-style notice
+    let box = document.getElementById("prepInviteBox");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "prepInviteBox";
+      box.style.cssText = "background:rgba(0,0,0,0.3);border:1px solid var(--gold-border);border-radius:12px;padding:20px;margin-top:16px";
+      document.querySelector(".card.full-width").appendChild(box);
+    }
+    box.innerHTML = `
+      <div style="font-size:13px;font-weight:700;color:white;margin-bottom:12px">📋 Share these login links with your new preparer(s)</div>
+      ${linksHtml}
+    `;
+    toast(`Saved! Share login link(s) with ${newPreps.length} new preparer(s).`, "ok");
+  } else {
+    toast("Preparers saved!", "ok");
+  }
 }
 
 function populateEngPrepDropdown() {
@@ -1181,15 +1190,4 @@ function copy(text) {
 }
 
 function toast(msg, type="ok") {
-  const t = document.getElementById("toast");
-  if (!t) return;
-  t.textContent = msg;
-  t.className = "toast show " + (type === "err" ? "err" : "");
-  clearTimeout(t._to);
-  t._to = setTimeout(() => t.classList.remove("show"), 3000);
-}
-
-init();
-</script>
-</body>
-</html>
+  const 

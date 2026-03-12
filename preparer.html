@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preparer Dashboard — TaxIntakeFlow</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#0d1b2a; --navy-mid:#1b2d42; --navy-light:#243b55;
+  --gold:#c9a84c; --gold-dim:rgba(201,168,76,0.12); --gold-border:rgba(201,168,76,0.3);
+  --white:#fff; --bg:#f4f6fb; --border:#e2e4ec;
+  --text:#1a1e2e; --muted:#7a8299;
+  --green:#2f9e44; --red:#e03131; --blue:#3b5bdb; --orange:#e67700;
+  --sans:'DM Sans',sans-serif; --display:'Syne',sans-serif;
+  --radius:10px; --radius-lg:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--navy);color:var(--white);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.2)}
+.tb-left{display:flex;align-items:center;gap:16px}
+.tb-brand{font-family:var(--display);font-size:13px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}
+.tb-sep{color:rgba(255,255,255,0.15);font-size:18px}
+.tb-role{font-size:12px;color:rgba(255,255,255,0.4)}
+.tb-name{font-size:13px;font-weight:600;color:rgba(255,255,255,0.85)}
+.tb-firm{font-size:11px;color:rgba(255,255,255,0.35);margin-top:1px}
+.tb-right{display:flex;align-items:center;gap:12px}
+.tb-logout{background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);font-family:var(--sans);font-size:12px;padding:6px 14px;border-radius:7px;cursor:pointer;transition:all 0.2s}
+.tb-logout:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── LAYOUT ── */
+.main{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+@media(max-width:700px){.stats-row{grid-template-columns:1fr 1fr}}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.stat-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-val{font-size:28px;font-weight:700;color:var(--navy)}
+.stat-sub{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* ── SECTION HEADER ── */
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-family:var(--display);font-size:18px;font-weight:700;color:var(--navy)}
+
+/* ── SEND INTAKE BTN ── */
+.btn-primary{background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:10px 20px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.15s}
+.btn-primary:hover{opacity:0.88;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-family:var(--sans);font-size:13px;cursor:pointer;transition:all 0.15s}
+.btn-ghost:hover{border-color:#aaa;color:var(--text)}
+.btn-sm{padding:6px 14px;font-size:12px}
+
+/* ── SEARCH ── */
+.search-bar{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;width:260px;transition:border-color 0.15s}
+.search-bar:focus{border-color:var(--gold)}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--navy)}
+th{padding:13px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45)}
+td{padding:14px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbff}
+.client-name-cell .cn{font-weight:600;color:var(--navy);font-size:13px}
+.client-name-cell .ce{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── STATUS BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:0.3px}
+.badge-new{background:#e8f4ff;color:#1a6aaa}
+.badge-review{background:#fff4e0;color:var(--orange)}
+.badge-progress{background:#edf2ff;color:var(--blue)}
+.badge-complete{background:rgba(47,158,68,0.1);color:var(--green)}
+.badge-trucker{background:rgba(201,168,76,0.12);color:#7a5c00;font-size:10px}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:0.5}
+.empty-text{font-size:14px}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,27,42,0.6);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 12px 60px rgba(0,0,0,0.25)}
+.modal-hdr{background:var(--navy);padding:24px 28px;border-radius:20px 20px 0 0;display:flex;justify-content:space-between;align-items:center}
+.modal-hdr-title{font-family:var(--display);font-size:18px;font-weight:700;color:var(--white)}
+.modal-close{background:rgba(255,255,255,0.1);border:none;color:white;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s}
+.modal-close:hover{background:rgba(255,255,255,0.2)}
+.modal-body{padding:28px}
+.modal-section{margin-bottom:22px}
+.modal-section-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-row .lbl{color:var(--muted)}
+.info-row .val{font-weight:600;color:var(--text)}
+.modal-actions{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.modal-action-btn{width:100%;padding:12px;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--text);text-align:left;display:flex;align-items:center;gap:10px;transition:all 0.15s}
+.modal-action-btn:hover{border-color:var(--gold);background:#fffdf5}
+.modal-action-btn .action-icon{font-size:18px;width:28px;text-align:center}
+
+/* ── STATUS SELECT ── */
+.status-select{padding:7px 12px;border:1px solid var(--border);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text);background:var(--white);cursor:pointer;outline:none}
+.status-select:focus{border-color:var(--gold)}
+
+/* ── SEND MODAL ── */
+.f-label{font-size:12px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block}
+.f-input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s;background:var(--bg)}
+.f-input:focus{border-color:var(--gold);background:var(--white)}
+.f-field{margin-bottom:16px}
+.link-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:12px;color:var(--muted);word-break:break-all;margin-bottom:6px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:8px;font-size:13px;z-index:999;display:none;box-shadow:0 4px 20px rgba(0,0,0,0.15);font-family:var(--sans)}
+.toast.show{display:block}
+.toast.ok{background:var(--green);color:white}
+.toast.err{background:var(--red);color:white}
+
+/* ── LOADING ── */
+.loading{display:flex;align-items:center;justify-content:center;padding:60px;color:var(--muted);gap:12px;font-size:14px}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-brand">TaxIntakeFlow</div>
+    <div class="tb-sep">|</div>
+    <div>
+      <div class="tb-name" id="tbPrepName">Loading...</div>
+      <div class="tb-firm" id="tbFirmName">—</div>
+    </div>
+    <div class="tb-role" style="background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:0.5px">PREPARER</div>
+  </div>
+  <div class="tb-right">
+    <button class="tb-logout" onclick="doLogout()">Log Out</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">My Clients</div>
+      <div class="stat-val" id="statTotal">—</div>
+      <div class="stat-sub">assigned to me</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">New Submissions</div>
+      <div class="stat-val" id="statNew" style="color:var(--blue)">—</div>
+      <div class="stat-sub">needs review</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">In Progress</div>
+      <div class="stat-val" id="statProgress" style="color:var(--orange)">—</div>
+      <div class="stat-sub">being prepared</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Complete</div>
+      <div class="stat-val" id="statDone" style="color:var(--green)">—</div>
+      <div class="stat-sub">this season</div>
+    </div>
+  </div>
+
+  <!-- CLIENTS TABLE -->
+  <div class="section-hdr">
+    <div class="section-title">My Clients</div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <input class="search-bar" type="text" placeholder="Search name or email…" oninput="filterClients(this.value)" id="clientSearch">
+      <button class="btn-primary" onclick="openSendModal()">✉ Send Intake Link</button>
+    </div>
+  </div>
+
+  <div class="table-wrap" id="tableWrap">
+    <div class="loading">Loading your clients…</div>
+  </div>
+
+</div>
+
+<!-- ── CLIENT DETAIL MODAL ── -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-hdr-title" id="modalClientName">Client</div>
+      <button class="modal-close" onclick="closeModal('detailModal')">×</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Status update -->
+      <div class="modal-section">
+        <div class="modal-section-label">Status</div>
+        <select class="status-select" id="modalStatusSelect" onchange="updateStatus(this.value)" style="width:100%">
+          <option value="new">🔵 New Submission</option>
+          <option value="in_progress">🟡 In Progress</option>
+          <option value="under_review">🟠 Under Review</option>
+          <option value="complete">🟢 Complete</option>
+          <option value="on_hold">⚫ On Hold</option>
+        </select>
+      </div>
+
+      <!-- Client info -->
+      <div class="modal-section">
+        <div class="modal-section-label">Client Info</div>
+        <div id="modalClientInfo"></div>
+      </div>
+
+      <!-- Tax info -->
+      <div class="modal-section">
+        <div class="modal-section-label">Tax Details</div>
+        <div id="modalTaxInfo"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="modal-section">
+        <div class="modal-section-label">Actions</div>
+        <div class="modal-actions">
+          <button class="modal-action-btn" onclick="sendIntakeLinkToClient()">
+            <span class="action-icon">📋</span>
+            <div><div style="font-weight:700">Send Intake Form</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Share the intake link with this client</div></div>
+          </button>
+          <button class="modal-action-btn" onclick="sendEngagementLetter()">
+            <span class="action-icon">✍️</span>
+            <div><div style="font-weight:700">Send Engagement Letter</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Client signs electronically</div></div>
+          </button>
+          <button class="modal-action-btn" onclick="copyClientIntakeLink()">
+            <span class="action-icon">🔗</span>
+            <div><div style="font-weight:700">Copy Intake Link</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Paste into WhatsApp, text, or email</div></div>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── SEND INTAKE MODAL ── -->
+<div class="modal-overlay" id="sendModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-hdr-title">✉ Send Intake Form to Client</div>
+      <button class="modal-close" onclick="closeModal('sendModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">Enter the client's info below. The intake link will be shown for you to share via WhatsApp, text, or email.</p>
+
+      <div class="f-field">
+        <label class="f-label">Client First Name</label>
+        <input class="f-input" type="text" id="sendFirstName" placeholder="Maria">
+      </div>
+      <div class="f-field">
+        <label class="f-label">Client Last Name</label>
+        <input class="f-input" type="text" id="sendLastName" placeholder="Rodriguez">
+      </div>
+      <div class="f-field">
+        <label class="f-label">Client Email <span style="font-weight:400;color:var(--muted);font-size:11px">(optional)</span></label>
+        <input class="f-input" type="email" id="sendEmail" placeholder="client@email.com">
+      </div>
+
+      <div id="sendLinkResult" style="display:none;margin-top:8px">
+        <div class="f-label" style="margin-bottom:6px">📋 Their Intake Link</div>
+        <div class="link-box" id="sendLinkUrl"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-primary" style="flex:1" onclick="copySendLink()">Copy Link</button>
+          <button class="btn-ghost" style="flex:1" onclick="openSendWhatsapp()">Open WhatsApp</button>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">Share this link with your client. When they submit, it appears in your client list here.</div>
+      </div>
+
+      <button class="btn-primary" style="width:100%;margin-top:16px;justify-content:center" onclick="generateSendLink()" id="generateLinkBtn">Generate Link →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL  = "https://yyobsleksxryuwxenvnb.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let PREP    = null;   // current preparer record
+let FIRM    = null;   // firm record
+let CLIENTS = [];     // all submissions for this preparer
+let CURRENT = null;   // currently opened client in modal
+
+// ── INIT ──────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = "auth.html"; return; }
+
+  const userId = session.user.id;
+
+  // Load preparer record
+  const { data: prep, error } = await sb.from("preparers")
+    .select("id, name, email, ptin, firm_id")
+    .eq("user_id", userId)
+    .single();
+
+  if (error || !prep) {
+    // Not a preparer — try firm owner
+    const { data: firm } = await sb.from("firms").select("id").eq("owner_id", userId).single();
+    window.location.href = firm ? "portal.html" : "auth.html?logout=1";
+    return;
+  }
+
+  PREP = prep;
+
+  // Load firm info
+  const { data: firm } = await sb.from("firms")
+    .select("firm_name, tax_year, ghl_webhook_url")
+    .eq("id", prep.firm_id)
+    .single();
+
+  FIRM = firm || { firm_name: "Your Firm", tax_year: "2025" };
+
+  document.getElementById("tbPrepName").textContent = PREP.name;
+  document.getElementById("tbFirmName").textContent  = FIRM.firm_name;
+
+  await loadClients();
+})();
+
+// ── LOAD CLIENTS ──────────────────────────────────────────────
+async function loadClients() {
+  const { data, error } = await sb.from("submissions")
+    .select("*")
+    .eq("firm_id", PREP.firm_id)
+    .or(`preparer_name.eq.${PREP.name},preparer_id.eq.${PREP.id}`)
+    .order("submitted_at", { ascending: false });
+
+  CLIENTS = data || [];
+
+  // Stats
+  document.getElementById("statTotal").textContent    = CLIENTS.length;
+  document.getElementById("statNew").textContent      = CLIENTS.filter(c => c.status === "new").length;
+  document.getElementById("statProgress").textContent = CLIENTS.filter(c => c.status === "in_progress").length;
+  document.getElementById("statDone").textContent     = CLIENTS.filter(c => c.status === "complete").length;
+
+  renderTable(CLIENTS);
+}
+
+// ── RENDER TABLE ──────────────────────────────────────────────
+function renderTable(list) {
+  const wrap = document.getElementById("tableWrap");
+
+  if (!list.length) {
+    wrap.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No clients assigned to you yet.<br>Use the <strong>Send Intake Link</strong> button to invite your first client.</div></div>`;
+    return;
+  }
+
+  const rows = list.map(c => `
+    <tr style="cursor:pointer" onclick="openClient('${c.id}')">
+      <td>
+        <div class="client-name-cell">
+          <div class="cn">${c.first_name || ""} ${c.last_name || ""}</div>
+          <div class="ce">${c.email || "—"}</div>
+        </div>
+      </td>
+      <td>${statusBadge(c.status)}</td>
+      <td>${c.tax_year || FIRM.tax_year || "—"}</td>
+      <td>${capitalize(c.filing_status || "—")}</td>
+      <td style="display:flex;flex-wrap:wrap;gap:4px">
+        ${c.is_trucker   ? '<span class="badge badge-trucker">🚛 Trucker</span>'     : ""}
+        ${c.has_business ? '<span class="badge badge-trucker">🏢 Business</span>'   : ""}
+        ${c.has_back_taxes ? '<span class="badge" style="background:#fde8e8;color:var(--red);font-size:10px">⚠ Back Taxes</span>' : ""}
+      </td>
+      <td style="font-size:12px;color:var(--muted)">${formatDate(c.submitted_at)}</td>
+    </tr>
+  `).join("");
+
+  wrap.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Status</th>
+          <th>Tax Year</th>
+          <th>Filing</th>
+          <th>Flags</th>
+          <th>Submitted</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function filterClients(q) {
+  const lower = q.toLowerCase();
+  const filtered = CLIENTS.filter(c =>
+    `${c.first_name} ${c.last_name}`.toLowerCase().includes(lower) ||
+    (c.email || "").toLowerCase().includes(lower)
+  );
+  renderTable(filtered);
+}
+
+// ── OPEN CLIENT MODAL ─────────────────────────────────────────
+function openClient(id) {
+  CURRENT = CLIENTS.find(c => c.id === id);
+  if (!CURRENT) return;
+
+  document.getElementById("modalClientName").textContent =
+    `${CURRENT.first_name || ""} ${CURRENT.last_name || ""}`;
+
+  document.getElementById("modalStatusSelect").value = CURRENT.status || "new";
+
+  document.getElementById("modalClientInfo").innerHTML = infoRows([
+    ["Email",   CURRENT.email   || "—"],
+    ["Phone",   CURRENT.phone   || "—"],
+    ["DOB",     CURRENT.dob     || "—"],
+    ["Address", [CURRENT.address, CURRENT.city, CURRENT.state, CURRENT.zip].filter(Boolean).join(", ") || "—"],
+    ["SSN (last 4)", CURRENT.ssn_last4 ? "•••-••-" + CURRENT.ssn_last4 : "—"],
+  ]);
+
+  document.getElementById("modalTaxInfo").innerHTML = infoRows([
+    ["Tax Year",      CURRENT.tax_year      || FIRM.tax_year || "—"],
+    ["Filing Status", capitalize(CURRENT.filing_status || "—")],
+    ["Trucker",       CURRENT.is_trucker  ? "Yes" : "No"],
+    ["Business",      CURRENT.has_business ? "Yes" : "No"],
+    ["Back Taxes",    CURRENT.has_back_taxes ? "⚠ Yes" : "No"],
+    ["Bookkeeping",   CURRENT.has_bookkeeping ? "Yes" : "No"],
+    ["ITIN",          CURRENT.is_itin ? "Yes" : "No"],
+    ["New Client",    CURRENT.is_new_client ? "Yes" : "Returning"],
+    ["Submitted",     formatDate(CURRENT.submitted_at)],
+  ]);
+
+  document.getElementById("detailModal").classList.add("open");
+}
+
+async function updateStatus(val) {
+  if (!CURRENT) return;
+  await sb.from("submissions").update({ status: val }).eq("id", CURRENT.id);
+  CURRENT.status = val;
+  const idx = CLIENTS.findIndex(c => c.id === CURRENT.id);
+  if (idx !== -1) CLIENTS[idx].status = val;
+  renderTable(CLIENTS);
+  toast("Status updated ✓", "ok");
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────
+function sendIntakeLinkToClient() {
+  if (!CURRENT) return;
+  const base = window.location.origin + "/";
+  const link = `${base}intake.html?firmId=${PREP.firm_id}&preparer=${encodeURIComponent(PREP.name)}`;
+  const msg  = `Hi ${CURRENT.first_name || ""},\n\nPlease fill out your tax intake form using this link:\n${link}\n\n— ${PREP.name}, ${FIRM.firm_name}`;
+  const wa   = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  navigator.clipboard.writeText(link).catch(() => {});
+  window.open(wa, "_blank");
+  toast("Link copied + WhatsApp opened!", "ok");
+}
+
+function sendEngagementLetter() {
+  if (!CURRENT) return;
+  const base = window.location.origin + "/";
+  const link = `${base}engagement.html?firmId=${PREP.firm_id}&firstName=${encodeURIComponent(CURRENT.first_name || "")}&lastName=${encodeURIComponent(CURRENT.last_name || "")}&preparer=${encodeURIComponent(PREP.name)}&firmName=${encodeURIComponent(FIRM.firm_name)}&taxYear=${CURRENT.tax_year || FIRM.tax_year || "2025"}`;
+  navigator.clipboard.writeText(link);
+  toast("Engagement letter link copied!", "ok");
+  closeModal("detailModal");
+}
+
+function copyClientIntakeLink() {
+  if (!CURRENT) return;
+  const base = window.location.origin + "/";
+  const link = `${base}intake.html?firmId=${PREP.firm_id}&preparer=${encodeURIComponent(PREP.name)}`;
+  navigator.clipboard.writeText(link);
+  toast("Intake link copied!", "ok");
+}
+
+// ── SEND INTAKE MODAL ─────────────────────────────────────────
+function openSendModal() {
+  document.getElementById("sendFirstName").value = "";
+  document.getElementById("sendLastName").value  = "";
+  document.getElementById("sendEmail").value     = "";
+  document.getElementById("sendLinkResult").style.display = "none";
+  document.getElementById("generateLinkBtn").style.display = "block";
+  document.getElementById("sendModal").classList.add("open");
+}
+
+function generateSendLink() {
+  if (!PREP || !FIRM) return;
+  const base  = window.location.origin + "/";
+  const link  = `${base}intake.html?firmId=${PREP.firm_id}&preparer=${encodeURIComponent(PREP.name)}`;
+  document.getElementById("sendLinkUrl").textContent = link;
+  document.getElementById("sendLinkResult").style.display = "block";
+  document.getElementById("generateLinkBtn").style.display = "none";
+}
+
+let _sendLink = "";
+function copySendLink() {
+  const link = document.getElementById("sendLinkUrl").textContent;
+  navigator.clipboard.writeText(link);
+  toast("Link copied!", "ok");
+}
+
+function openSendWhatsapp() {
+  const link  = document.getElementById("sendLinkUrl").textContent;
+  const first = document.getElementById("sendFirstName").value.trim();
+  const msg   = `Hi${first ? " " + first : ""},\n\nPlease complete your tax intake form using this link:\n${link}\n\nLet me know if you have any questions.\n— ${PREP.name}, ${FIRM.firm_name}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function infoRows(pairs) {
+  return pairs.map(([l, v]) => `
+    <div class="info-row">
+      <span class="lbl">${l}</span>
+      <span class="val">${v}</span>
+    </div>
+  `).join("");
+}
+
+function statusBadge(s) {
+  const map = {
+    new:          ['badge-new',      '🔵 New'],
+    in_progress:  ['badge-progress', '🟡 In Progress'],
+    under_review: ['badge-review',   '🟠 Under Review'],
+    complete:     ['badge-complete', '🟢 Complete'],
+    on_hold:      ['',               '⚫ On Hold'],
+  };
+  const [cls, label] = map[s] || ['', capitalize(s || "New")];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function capitalize(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, " ") : "";
+}
+
+function formatDate(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove("open");
+}
+
+function toast(msg, type = "ok") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = "auth.html?logout=1";
+}
+
+// Close modal on overlay click
+document.querySelectorAll(".modal-overlay").forEach(el =>
+  el.addEventListener("click", e => { if (e.target === el) el.classList.remove("open"); })
+);
+</script>
+</body>
+</html>
