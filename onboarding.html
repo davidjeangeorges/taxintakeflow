@@ -869,7 +869,7 @@ async function finishOnboarding() {
     setStep(5);
 
     // Send welcome email to firm owner (non-blocking)
-    fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/process-submission", {
+    fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/rapid-api", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
