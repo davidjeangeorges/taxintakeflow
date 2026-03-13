@@ -1525,9 +1525,28 @@ async function sendInvitation(emailFieldId, nameFieldId) {
 
   toast("Sending invitation…", "ok");
 
-  // Email sending handled by Supabase Edge Function — copy link as fallback
-  copy(joinLink);
-  toast(`Join link copied! Send it to ${email} manually.`, "ok");
+  try {
+    const res = await fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/process-submission", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type:         "preparer_invite",
+        toEmail:      email,
+        preparerName: name  || "",
+        firmName:     FIRM.firm_name,
+        joinLink,
+      }),
+    });
+    if (res.ok) {
+      toast(`Invitation sent to ${email}!`, "ok");
+    } else {
+      throw new Error("Server error");
+    }
+  } catch(e) {
+    console.warn("sendInvitation error:", e);
+    copy(joinLink);
+    toast("Email failed — join link copied! Send it manually.", "err");
+  }
 }
 // ── CONFIRM DELETE PREPARER ───────────────────────────────────
 function confirmRemovePreparer(rowId, name) {
