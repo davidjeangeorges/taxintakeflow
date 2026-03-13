@@ -233,11 +233,17 @@ async function init() {
     document.getElementById("stateLoading").style.display  = "none";
     document.getElementById("stateForm").style.display     = "block";
 
-    // Pre-fill name and email if passed in the invite link
+    // Auto-populate name and email from invite link
     const nameParam  = params.get("name");
     const emailParam = params.get("email");
-    if (nameParam)  { const el = document.getElementById("inpName");  el.value = nameParam;  el.readOnly = false; }
-    if (emailParam) { const el = document.getElementById("inpEmail"); el.value = emailParam; el.readOnly = true; el.style.background = "var(--gray-50,#f9f9f9)"; el.title = "Email set by your firm owner"; }
+    if (nameParam)  { document.getElementById("inpName").value  = nameParam; }
+    if (emailParam) {
+      const emailEl = document.getElementById("inpEmail");
+      emailEl.value    = emailParam;
+      emailEl.readOnly = true;
+      emailEl.style.background = "#f5f4f1";
+      emailEl.title = "Email set by your firm owner";
+    }
 
   } catch (err) {
     showError("Could not load firm details. Please try again or contact your firm owner.");

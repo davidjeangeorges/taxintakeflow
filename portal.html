@@ -862,7 +862,12 @@ function renderSettingsPreparers() {
   const list = document.getElementById("settingsPreparerList");
   list.innerHTML = "";
   if (PREPARERS.length === 0) { addSettingsPreparer(); return; }
-  PREPARERS.forEach(p => addSettingsPreparer(p.name, p.email, p.ptin));
+  PREPARERS.forEach(p => {
+    const parts = (p.name || "").trim().split(/\s+/);
+    const firstName = parts[0] || "";
+    const lastName  = parts.slice(1).join(" ");
+    addSettingsPreparer(firstName, lastName, p.email, p.ptin);
+  });
 }
 
 function addSettingsPreparer(name = "", email = "", ptin = "") {
@@ -883,7 +888,10 @@ function addSettingsPreparer(name = "", email = "", ptin = "") {
 function getPreparersFromForm() {
   return Array.from(document.querySelectorAll(".prep-row")).map(row => {
     const inputs = row.querySelectorAll(".p-inp");
-    return { name: inputs[0]?.value.trim(), email: inputs[1]?.value.trim(), ptin: inputs[2]?.value.trim() };
+    const firstName = inputs[0]?.value.trim() || "";
+    const lastName  = inputs[1]?.value.trim() || "";
+    const name = (firstName + " " + lastName).trim();
+    return { name, email: inputs[2]?.value.trim(), ptin: inputs[3]?.value.trim() };
   }).filter(p => p.name);
 }
 
@@ -1502,9 +1510,11 @@ function previewEngagement() {
 }
 
 // ── SEND INVITATION ───────────────────────────────────────────
-async function sendInvitation(emailFieldId, nameFieldId) {
-  const email = document.getElementById(emailFieldId)?.value.trim();
-  const name  = document.getElementById(nameFieldId)?.value.trim();
+async function sendInvitation(emailFieldId, firstNameFieldId, lastNameFieldId) {
+  const email     = document.getElementById(emailFieldId)?.value.trim();
+  const firstName = document.getElementById(firstNameFieldId)?.value.trim() || "";
+  const lastName  = lastNameFieldId ? (document.getElementById(lastNameFieldId)?.value.trim() || "") : "";
+  const name      = (firstName + " " + lastName).trim();
   if (!email) { toast("Enter the preparer's email first", "err"); return; }
   if (!FIRM)  { toast("Firm not loaded", "err"); return; }
 
