@@ -750,7 +750,6 @@ select {
   .welcome-hero { padding: 32px 16px; }
 }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -3824,26 +3823,6 @@ async function submitForm() {
       // Don't block the user — continue to show success
     }
 
-    // Fire email notifications (non-blocking — don't wait)
-    sendEmailNotification({
-      type:          "intake_submitted",
-      firstName:     STATE.data.firstName    || "",
-      lastName:      STATE.data.lastName     || "",
-      clientEmail:   STATE.data.email        || "",
-      phone:         STATE.data.phone        || "",
-      preparerName:  STATE.data.preparerName || "",
-      taxYear:       STATE.data.taxYear      || FORM_CONFIG.taxYear,
-      filingStatus:  STATE.data.filingStatus || "single",
-      isTrucker:     !!(STATE.data.inc_trucker),
-      hasBusiness:   STATE.businesses.length > 0,
-      backTaxes:     !!(STATE.data.sp_backtaxes),
-      additionalNotes: STATE.data.additionalNotes || "",
-      firmId:        FORM_CONFIG.firmId      || "",
-      firmName:      FORM_CONFIG.firmName    || "",
-      submittedAt:   new Date().toISOString(),
-      submissionId:  submissionId || "",
-    }).catch(() => {}); // silent fail — emails are best-effort
-
     // Show success
     showSuccessScreen();
     sessionStorage.removeItem("tif_progress");
@@ -3853,40 +3832,6 @@ async function submitForm() {
     showSuccessScreen();
     sessionStorage.removeItem("tif_progress");
   }
-}
-
-// ── EMAIL NOTIFICATION (EmailJS) ─────────────────────────────────────────────
-(function(){ emailjs.init({ publicKey: "Jo9kiQjctnGEemEMb" }); })();
-
-async function sendEmailNotification(data) {
-  // Fetch firm owner email from Supabase
-  if (!data.firmId) return;
-  const { data: firm } = await _sb.from("firms").select("owner_email, email").eq("id", data.firmId).single();
-  const toEmail = firm?.owner_email || firm?.email;
-  if (!toEmail) return;
-
-  const flags = [
-    data.isTrucker  ? "Trucker"       : null,
-    data.hasBusiness ? "Business Owner" : null,
-    data.backTaxes   ? "Back Taxes"    : null,
-  ].filter(Boolean).join(", ") || "None";
-
-  const message =
-    `New client intake received!\n\n` +
-    `Client: ${data.firstName} ${data.lastName}\n` +
-    `Email: ${data.clientEmail}\n` +
-    `Phone: ${data.phone}\n` +
-    `Tax Year: ${data.taxYear}\n` +
-    `Filing Status: ${data.filingStatus}\n` +
-    `Preparer: ${data.preparerName}\n` +
-    `Flags: ${flags}\n\n` +
-    `View in portal: https://taxintakeflow.com/portal.html`;
-
-  await emailjs.send("service_8m75nzg", "template_rkjcnhd", {
-    to_email: toEmail,
-    subject:  `New intake: ${data.firstName} ${data.lastName} — ${data.firmName || ""}`,
-    message,
-  });
 }
 
 function showSuccessScreen() {

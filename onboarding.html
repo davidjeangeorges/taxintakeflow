@@ -414,7 +414,6 @@ body {
 .toast.success { background: var(--success); color: white; }
 .toast.error   { background: var(--danger); color: white; }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -869,15 +868,6 @@ async function finishOnboarding() {
 
     setStep(5);
 
-    // Send welcome email to firm owner
-    try {
-      await ejsSend(
-        currentUser.email,
-        `Welcome to TaxIntakeFlow, ${formData.firm_name}!`,
-        `Hi! Your firm "${formData.firm_name}" is now set up on TaxIntakeFlow.\n\nYour intake form is live at:\nhttps://taxintakeflow.com/intake.html?firmId=${firmId}\n\nLog in to your portal anytime at:\nhttps://taxintakeflow.com/portal.html\n\nWelcome aboard!\n— The TaxIntakeFlow Team`
-      );
-    } catch(e) { console.warn("Welcome email failed:", e); }
-
   } catch (err) {
     onboardingSubmitting = false;  // allow retry
     console.error("ONBOARDING ERROR:", err);
@@ -910,12 +900,6 @@ function showToast(msg, type = 'success') {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
-
-// ── EMAILJS ───────────────────────────────────────────────────
-(function(){ emailjs.init({ publicKey: "Jo9kiQjctnGEemEMb" }); })();
-async function ejsSend(to_email, subject, message) {
-  return emailjs.send("service_8m75nzg", "template_rkjcnhd", { to_email, subject, message });
-}
 
 </body>
 </html>

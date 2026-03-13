@@ -168,6 +168,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);
         <div class="success-icon">🎉</div>
         <div class="success-title" id="successTitle">Welcome aboard!</div>
         <div class="success-sub">Your account has been created successfully</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:6px">Redirecting you to your dashboard in 3 seconds… <a href="preparer.html" style="color:var(--gold)">Go now →</a></div>
       </div>
       <div class="success-body">
 
@@ -266,23 +267,43 @@ async function handleSubmit() {
     return;
   }
 
-  // — Step 2: Insert preparer record —
-  // NOTE: If this fails with a permissions error, add this RLS policy in Supabase:
-  // CREATE POLICY "allow_preparer_self_insert" ON preparers
-  //   FOR INSERT TO authenticated
-  //   WITH CHECK (EXISTS (SELECT 1 FROM firms WHERE id = firm_id));
-  const { error: prepError } = await sb.from("preparers").insert({
-    firm_id:   FIRM.id,
-    name:      name,
-    email:     email,
-    ptin:      ptin || null,
-    is_active: true
-  });
+  // — Step 2: Link user_id to existing preparer record, or create one —
+  const userId = authData.user?.id;
+  let prepError = null;
+
+  if (userId) {
+    // Try to update the existing record the firm owner created (matched by email + firm)
+    const { data: existing } = await sb.from("preparers")
+      .select("id")
+      .eq("firm_id", FIRM.id)
+      .eq("email", email)
+      .maybeSingle();
+
+    if (existing) {
+      // Update the existing record with user_id and latest details
+      const { error } = await sb.from("preparers").update({
+        user_id:   userId,
+        name:      name,
+        ptin:      ptin || null,
+        is_active: true
+      }).eq("id", existing.id);
+      prepError = error;
+    } else {
+      // No existing record — create one
+      const { error } = await sb.from("preparers").insert({
+        firm_id:   FIRM.id,
+        user_id:   userId,
+        name:      name,
+        email:     email,
+        ptin:      ptin || null,
+        is_active: true
+      });
+      prepError = error;
+    }
+  }
 
   if (prepError) {
-    // RLS or other DB issue — log but don't block the user
-    // Firm owner can confirm them manually from the portal
-    console.warn("Preparer insert issue (may need RLS policy update):", prepError.message);
+    console.warn("Preparer record issue:", prepError.message);
   }
 
   // — Step 3: Notify firm owner via GHL webhook —
@@ -304,27 +325,6 @@ async function handleSubmit() {
     } catch(e) { /* silent */ }
   }
 
-  // — Step 3b: Notify firm owner via Resend email —
-  if (FIRM.owner_email) {
-    try {
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer re_WszdA25g_Bf4LPg6dxfoAmHb7R2Byi54u"
-        },
-        body: JSON.stringify({
-          from:    "TaxIntakeFlow <notifications@taxintakeflow.com>",
-          to:      [FIRM.owner_email],
-          subject: `New preparer joined your firm — ${name}`,
-          html:    `<p><strong>${name}</strong> (${email}) just created a preparer account and joined <strong>${FIRM.firm_name}</strong> on TaxIntakeFlow.</p>
-                    ${ptin ? `<p>PTIN: ${ptin}</p>` : ""}
-                    <p><a href="https://taxintakeflow.com/portal.html">View your portal →</a></p>`
-        })
-      });
-    } catch(e) { /* silent */ }
-  }
-
   // — Step 4: Show success —
   const intakeLink = `https://taxintakeflow.com/intake.html?firmId=${FIRM.id}&prep=${encodeURIComponent(name)}`;
   document.getElementById("successTitle").textContent      = `Welcome, ${name.split(" ")[0]}!`;
@@ -334,6 +334,10 @@ async function handleSubmit() {
   document.getElementById("stateForm").style.display    = "none";
   document.getElementById("stateSuccess").style.display = "block";
   window._intakeLink = intakeLink;
+  setLoading(false);
+
+  // Auto-redirect to preparer dashboard after a short delay
+  setTimeout(() => { window.location.href = "preparer.html"; }, 3000);
 }
 
 // ── UTILS ─────────────────────────────────────────────────────

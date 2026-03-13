@@ -213,7 +213,6 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
 .clickable-row{cursor:pointer;transition:background 0.1s}
 .clickable-row:hover{background:var(--gray-100)}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -772,14 +771,6 @@ const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// ── EMAILJS ───────────────────────────────────────────────────
-(function(){ emailjs.init({ publicKey: "Jo9kiQjctnGEemEMb" }); })();
-
-async function ejsSend(to_email, subject, message) {
-  return emailjs.send("service_8m75nzg", "template_rkjcnhd", { to_email, subject, message });
-}
-
-
 // State
 let FIRM = null;
 let PREPARERS = [];
@@ -952,13 +943,7 @@ async function savePreparers() {
     `;
     toast(`Saved! Share login link(s) with ${newPreps.length} new preparer(s).`, "ok");
 
-    // Email firm owner
-    sendOwnerNotification(
-      `New preparer(s) added — ${FIRM.firm_name}`,
-      `The following preparer(s) were added to ${FIRM.firm_name}:\n` +
-      newPreps.map(p => `- ${p.name} (${p.email||"no email"})`).join("\n") +
-      `\n\nView your portal: https://taxintakeflow.com/portal.html`
-    );
+
   } else {
     toast("Preparers saved!", "ok");
   }
@@ -1540,16 +1525,9 @@ async function sendInvitation(emailFieldId, nameFieldId) {
 
   toast("Sending invitation…", "ok");
 
-  const message = `${FIRM.firm_name} has invited you to join their tax firm on TaxIntakeFlow.\n\nClick this link to create your account:\n${joinLink}\n\nOr copy and paste it in your browser.`;
-
-  try {
-    await ejsSend(email, subject, message);
-    toast(`Invitation sent to ${email}!`, "ok");
-  } catch(e) {
-    console.warn("sendInvitation error:", e);
-    copy(joinLink);
-    toast("Email failed — join link copied! Send it manually.", "err");
-  }
+  // Email sending handled by Supabase Edge Function — copy link as fallback
+  copy(joinLink);
+  toast(`Join link copied! Send it to ${email} manually.`, "ok");
 }
 // ── CONFIRM DELETE PREPARER ───────────────────────────────────
 function confirmRemovePreparer(rowId, name) {
@@ -1566,14 +1544,6 @@ function closeConfirmModal() {
   document.getElementById("confirmModal").style.display = "none";
 }
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeConfirmModal(); });
-
-// ── EMAIL NOTIFICATIONS (EmailJS) ────────────────────────────
-async function sendOwnerNotification(subject, message) {
-  const toEmail = FIRM?.owner_email || FIRM?.email;
-  if (!toEmail) { console.warn("No owner email — skipping notification"); return; }
-  try { await ejsSend(toEmail, subject, message); }
-  catch(e) { console.warn("Notification email failed:", e); }
-}
 
 // ── UTILS ────────────────────────────────────────────────────
 function showSaveOk(id) {
