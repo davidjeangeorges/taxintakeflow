@@ -3812,7 +3812,7 @@ async function submitForm() {
         }
 
         // ── TRIGGER EDGE FUNCTION (Drive PDF + email) ─────
-        fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/rapid-api", {
+        fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/process-submission", {
           method:  "POST",
           headers: { "Content-Type": "application/json" },
           body:    JSON.stringify({ submissionId, firmId: FORM_CONFIG.firmId }),
