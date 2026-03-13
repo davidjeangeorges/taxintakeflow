@@ -168,7 +168,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);
         <div class="success-icon">🎉</div>
         <div class="success-title" id="successTitle">Welcome aboard!</div>
         <div class="success-sub">Your account has been created successfully</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:6px">Redirecting you to your dashboard in 3 seconds… <a href="preparer.html" style="color:var(--gold)">Go now →</a></div>
+        <a href="preparer.html" style="display:inline-block;margin-top:14px;background:#c9a84c;color:#0d1b2a;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:700;font-size:15px">Go to My Dashboard →</a>
       </div>
       <div class="success-body">
 
@@ -233,10 +233,9 @@ async function init() {
     document.getElementById("stateLoading").style.display  = "none";
     document.getElementById("stateForm").style.display     = "block";
 
-    // Auto-populate name and email from invite link
     const nameParam  = params.get("name");
     const emailParam = params.get("email");
-    if (nameParam)  { document.getElementById("inpName").value  = nameParam; }
+    if (nameParam)  { document.getElementById("inpName").value = nameParam; }
     if (emailParam) {
       const emailEl = document.getElementById("inpEmail");
       emailEl.value    = emailParam;
@@ -357,8 +356,7 @@ async function handleSubmit() {
   window._intakeLink = intakeLink;
   setLoading(false);
 
-  // Auto-redirect to preparer dashboard after a short delay
-  setTimeout(() => { window.location.href = "preparer.html"; }, 3000);
+  // No auto-redirect — user clicks button to go to dashboard
 
   } catch(err) {
     console.error("Join submit error:", err);
