@@ -868,6 +868,18 @@ async function finishOnboarding() {
 
     setStep(5);
 
+    // Send welcome email to firm owner (non-blocking)
+    fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/process-submission", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type:     "welcome",
+        toEmail:  currentUser.email,
+        firmName: formData.firm_name,
+        firmId:   firmId,
+      }),
+    }).catch(() => {});
+
   } catch (err) {
     onboardingSubmitting = false;  // allow retry
     console.error("ONBOARDING ERROR:", err);

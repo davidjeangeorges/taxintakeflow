@@ -32,7 +32,14 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json();
 
-    // ── Early exit: invitation email only (no PDF, no Drive) ──
+    // ── Early exits: lightweight emails (no PDF, no Drive) ──
+    if (body.type === "welcome") {
+      await handleWelcome(body);
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (body.type === "preparer_invite") {
       await handlePreparerInvite(body);
       return new Response(JSON.stringify({ success: true }), {
@@ -376,6 +383,53 @@ async function uploadFileToDrive(token: string, fileData: ArrayBuffer, fileName:
     headers: { Authorization: `Bearer ${token}`, "Content-Type": `multipart/related; boundary=${boundary}` },
     body:    merged,
   });
+}
+
+// ── WELCOME EMAIL (new firm signup) ──────────────────────────
+async function handleWelcome(body: Record<string, unknown>) {
+  const { toEmail, firmName, firmId } = body as {
+    toEmail:  string;
+    firmName: string;
+    firmId:   string;
+  };
+  if (!toEmail) return;
+
+  const res = await fetch("https://api.mailersend.com/v1/email", {
+    method:  "POST",
+    headers: {
+      "Authorization": `Bearer ${MAILERSEND_API_KEY}`,
+      "Content-Type":  "application/json",
+    },
+    body: JSON.stringify({
+      from:    { email: "notifications@taxintakeflow.com", name: "TaxIntakeFlow" },
+      to:      [{ email: toEmail }],
+      subject: `Welcome to TaxIntakeFlow, ${firmName}!`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px">
+          <div style="background:#0d1b2a;color:white;padding:20px 24px;border-radius:8px;margin-bottom:20px">
+            <div style="font-size:10px;letter-spacing:2px;color:#c9a84c;text-transform:uppercase;margin-bottom:6px">TaxIntakeFlow</div>
+            <h2 style="margin:0;font-size:20px">Welcome aboard! 🎉</h2>
+          </div>
+          <p style="font-size:14px;color:#3a3530;line-height:1.7;margin-bottom:16px">
+            Hi! Your firm <strong>${firmName}</strong> is now set up on TaxIntakeFlow.
+          </p>
+          <div style="background:#f5f4f1;border-radius:8px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:#5c5650;line-height:1.8">
+            <strong style="display:block;margin-bottom:8px;color:#1a1a1a">Your links:</strong>
+            📋 Intake form:<br>
+            <span style="font-family:monospace;font-size:12px">https://taxintakeflow.com/intake.html?firmId=${firmId}</span><br><br>
+            ✍️ Engagement letter:<br>
+            <span style="font-family:monospace;font-size:12px">https://taxintakeflow.com/engagement.html?firmId=${firmId}</span>
+          </div>
+          <a href="https://taxintakeflow.com/portal.html"
+             style="display:inline-block;background:#c9a84c;color:#0d1b2a;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px">
+            Go to My Portal →
+          </a>
+          <p style="font-size:11px;color:#9b9488;margin-top:24px">TaxIntakeFlow · taxintakeflow.com</p>
+        </div>
+      `,
+    }),
+  });
+  if (!res.ok) console.error(`MailerSend welcome error ${res.status}:`, await res.text());
 }
 
 // ── PREPARER INVITATION EMAIL ─────────────────────────────────
