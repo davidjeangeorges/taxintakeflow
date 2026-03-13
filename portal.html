@@ -1508,7 +1508,7 @@ async function sendInvitation(emailFieldId, nameFieldId) {
   if (!email) { toast("Enter the preparer's email first", "err"); return; }
   if (!FIRM)  { toast("Firm not loaded", "err"); return; }
 
-  const joinLink = `https://taxintakeflow.com/join.html?firm=${FIRM.id}`;
+  const joinLink = `https://taxintakeflow.com/join.html?firm=${FIRM.id}${name ? `&name=${encodeURIComponent(name)}` : ""}${email ? `&email=${encodeURIComponent(email)}` : ""}`;
   const subject  = `You've been invited to join ${FIRM.firm_name} on TaxIntakeFlow`;
   const html = `
     <div style="font-family:sans-serif;max-width:520px;margin:0 auto">
