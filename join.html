@@ -155,7 +155,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--gray-800);
           <input type="password" class="f-input" id="inpConfirm" placeholder="Repeat password" autocomplete="new-password">
         </div>
 
-        <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">
+        <button class="submit-btn" id="submitBtn" onclick="handleSubmit().catch(e => { showFormError(e.message || String(e)); setLoading(false); })">
           <span id="submitLabel">Create Account & Join Firm →</span>
         </button>
         <div style="font-size:11px;color:var(--gray-400);margin-top:10px;text-align:center">Already have an account? <a href="auth.html" style="color:var(--gold);font-weight:600">Log in here</a></div>
@@ -255,6 +255,8 @@ async function handleSubmit() {
 
   setLoading(true);
 
+  try {
+
   // — Step 1: Create Supabase auth account —
   const { data: authData, error: authError } = await sb.auth.signUp({ email, password });
 
@@ -267,12 +269,19 @@ async function handleSubmit() {
     return;
   }
 
-  // — Step 2: Link user_id to existing preparer record, or create one —
+  // Handle email confirmation required — Supabase returns user but no session
+  // We still proceed to save the preparer record using the anon key
   const userId = authData.user?.id;
+  if (!userId) {
+    showFormError("Account created but needs email confirmation. Please check your email to confirm, then come back and try logging in.");
+    setLoading(false);
+    return;
+  }
+
+  // — Step 2: Link user_id to existing preparer record, or create one —
   let prepError = null;
 
   if (userId) {
-    // Try to update the existing record the firm owner created (matched by email + firm)
     const { data: existing } = await sb.from("preparers")
       .select("id")
       .eq("firm_id", FIRM.id)
@@ -338,6 +347,12 @@ async function handleSubmit() {
 
   // Auto-redirect to preparer dashboard after a short delay
   setTimeout(() => { window.location.href = "preparer.html"; }, 3000);
+
+  } catch(err) {
+    console.error("Join submit error:", err);
+    showFormError("Something went wrong: " + (err.message || JSON.stringify(err)));
+    setLoading(false);
+  }
 }
 
 // ── UTILS ─────────────────────────────────────────────────────
@@ -377,7 +392,7 @@ function copyIntakeLink() {
 // ── ENTER KEY ─────────────────────────────────────────────────
 document.addEventListener("keydown", e => {
   if (e.key === "Enter" && document.getElementById("stateForm").style.display !== "none") {
-    handleSubmit();
+    handleSubmit().catch(e => { showFormError(e.message || String(e)); setLoading(false); });
   }
 });
 
