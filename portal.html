@@ -406,26 +406,29 @@ tr:hover td{background:rgba(201,168,76,0.03);cursor:pointer}
         <!-- GOOGLE DRIVE -->
         <div class="card">
           <div class="card-title">📁 Google Drive Integration</div>
-          <div class="card-sub">Client files and intake PDFs will be automatically uploaded to your Google Drive folder after each submission.</div>
+          <div class="card-sub">Client files will be automatically uploaded to your Google Drive after each submission. Each client gets their own folder created automatically.</div>
           <div class="f-field">
             <label>Notification Email <span class="opt">(for new submission alerts)</span></label>
             <input type="text" class="f-input" id="setOwnerEmail" placeholder="you@yourfirm.com">
           </div>
           <div class="f-field">
-            <label>Google Drive Folder ID <span class="opt">(optional)</span></label>
+            <label>Google Drive Folder ID</label>
             <input type="text" class="f-input" id="setDriveFolderId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
-            <div class="f-note" style="background:#f0f7ff;border:1px solid #c0d8f0;border-radius:8px;padding:12px 14px;margin-top:8px;line-height:1.9">
-              <strong style="color:#1a4a7a">How to connect your Drive (no login required):</strong><br>
-              1. Create a folder in your Google Drive<br>
-              2. Right-click the folder → <strong>Share</strong><br>
-              3. Add <strong style="color:#1a4a7a;font-family:monospace"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a9cddbc0dfcc84dcd9c5c6c8cdccdbe9ddc8d1c0c7ddc8c2cccfc5c6de87c0c8c487cedaccdbdfc0caccc8cacac6dcc7dd87cac6c4">[email&#160;protected]</a></strong> as <strong>Editor</strong><br>
-              4. Copy the folder ID from the URL — the part after <code>/folders/</code><br>
-              5. Paste it above and click Save — that's it ✓<br>
-              <span style="color:#888;font-size:11px">No Google sign-in popup will appear. Files upload automatically after each client submission.</span>
-            </div>
+            <div class="f-note">From your Drive folder URL — the part after <code>/folders/</code></div>
           </div>
-          <button class="save-btn" onclick="saveDriveSettings()">Save Drive Settings</button>
-          <span class="save-ok" id="driveSaveOk">✓ Saved — Drive is connected</span>
+          <div class="f-field" style="margin-top:4px">
+            <div id="driveConnectedBadge" style="display:none;padding:10px 14px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-size:13px;font-weight:600;margin-bottom:12px">
+              ✅ Google Drive Connected — files upload automatically
+            </div>
+            <div id="driveNotConnectedBadge" style="padding:10px 14px;border-radius:8px;background:#fff8e1;color:#856404;font-size:13px;font-weight:600;margin-bottom:12px">
+              ⚠️ Not connected yet — click the button below
+            </div>
+            <button class="save-btn" id="connectDriveBtn" onclick="connectGoogleDrive()" style="background:#4285F4;margin-right:8px">
+              🔗 Connect Google Drive
+            </button>
+            <button class="save-btn" onclick="saveDriveSettings()">Save Folder ID</button>
+            <span class="save-ok" id="driveSaveOk">✓ Saved</span>
+          </div>
         </div>
 
         <!-- PREPARERS — full width -->
@@ -825,6 +828,7 @@ async function init() {
   document.getElementById("setOwnerEmail").value    = firm.owner_email      || "";
   document.getElementById("setDriveFolderId").value = firm.drive_folder_id  || "";
   if(document.getElementById("setMakeInviteWebhook")) document.getElementById("setMakeInviteWebhook").value = firm.make_invite_webhook || "";
+  updateDriveBadge(!!firm.drive_connected);
 
   // Billing
   document.getElementById("subPlanName").textContent = `${firm.plan_tier || "Starter"} — ${firm.plan_interval || "Monthly"}`;
@@ -1025,10 +1029,76 @@ async function saveDriveSettings() {
   const email    = document.getElementById("setOwnerEmail").value.trim();
   const folderId = document.getElementById("setDriveFolderId").value.trim();
   await sb.from("firms").update({ owner_email: email, drive_folder_id: folderId }).eq("id", FIRM.id);
-  FIRM.owner_email    = email;
+  FIRM.owner_email     = email;
   FIRM.drive_folder_id = folderId;
   showSaveOk("driveSaveOk");
-  toast("Drive settings saved!", "ok");
+  toast("Folder ID saved!", "ok");
+}
+
+function connectGoogleDrive() {
+  const folderId = document.getElementById("setDriveFolderId").value.trim();
+  if (!folderId) {
+    alert("Please paste your Google Drive Folder ID first, then click Connect.");
+    return;
+  }
+  localStorage.setItem("pending_drive_folder_id", folderId);
+  localStorage.setItem("pending_drive_firm_id", FIRM.id);
+  const params = new URLSearchParams({
+    client_id:     "327400824686-83j6cjjq6mqgru681v74ag0vf3d91rdh.apps.googleusercontent.com",
+    redirect_uri:  window.location.href.split("?")[0],
+    response_type: "code",
+    scope:         "https://www.googleapis.com/auth/drive",
+    access_type:   "offline",
+    prompt:        "consent",
+    state:         "drive_connect",
+  });
+  window.location.href = "https://accounts.google.com/o/oauth2/v2/auth?" + params.toString();
+}
+
+async function checkDriveCallback() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const code  = urlParams.get("code");
+  const state = urlParams.get("state");
+  if (!code || state !== "drive_connect") return;
+  window.history.replaceState({}, "", window.location.pathname);
+  const folderId = localStorage.getItem("pending_drive_folder_id");
+  const firmId   = localStorage.getItem("pending_drive_firm_id");
+  if (!firmId) { alert("Session expired. Please log in again."); return; }
+  try {
+    toast("Connecting Google Drive...", "ok");
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/google-oauth`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON },
+      body: JSON.stringify({ action: "exchange", code, firmId }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || "Connection failed");
+    if (folderId) {
+      await sb.from("firms").update({ drive_folder_id: folderId, drive_connected: true }).eq("id", firmId);
+    }
+    localStorage.removeItem("pending_drive_folder_id");
+    localStorage.removeItem("pending_drive_firm_id");
+    updateDriveBadge(true);
+    toast("✅ Google Drive connected!", "ok");
+  } catch (err) {
+    alert("Drive connection failed: " + err.message);
+  }
+}
+
+function updateDriveBadge(connected) {
+  const yes = document.getElementById("driveConnectedBadge");
+  const no  = document.getElementById("driveNotConnectedBadge");
+  const btn = document.getElementById("connectDriveBtn");
+  if (!yes || !no) return;
+  if (connected) {
+    yes.style.display = "block";
+    no.style.display  = "none";
+    if (btn) btn.textContent = "🔄 Reconnect Drive";
+  } else {
+    yes.style.display = "none";
+    no.style.display  = "block";
+    if (btn) btn.textContent = "🔗 Connect Google Drive";
+  }
 }
 
 // ── CLIENT MODAL ──────────────────────────────────────────────
@@ -1602,6 +1672,7 @@ function toast(msg, type="ok") {
 }
 
 // ── START ─────────────────────────────────────────────────────
+checkDriveCallback();
 init();
 </script>
 </body>
