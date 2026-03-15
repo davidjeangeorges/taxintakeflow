@@ -1045,7 +1045,7 @@ function connectGoogleDrive() {
   localStorage.setItem("pending_drive_firm_id", FIRM.id);
   const params = new URLSearchParams({
     client_id:     "327400824686-83j6cjjq6mqgru681v74ag0vf3d91rdh.apps.googleusercontent.com",
-    redirect_uri:  window.location.href.split("?")[0],
+    redirect_uri:  "https://davidjeangeorges.github.io/taxintakeflow/portal.html",
     response_type: "code",
     scope:         "https://www.googleapis.com/auth/drive",
     access_type:   "offline",
