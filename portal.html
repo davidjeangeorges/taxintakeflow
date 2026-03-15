@@ -870,17 +870,19 @@ function renderSettingsPreparers() {
   });
 }
 
-function addSettingsPreparer(name = "", email = "", ptin = "") {
+function addSettingsPreparer(firstName = "", lastName = "", email = "", ptin = "") {
+  const name = (firstName + " " + lastName).trim();
   const list = document.getElementById("settingsPreparerList");
   const id   = ++prepRowId;
   const row  = document.createElement("div");
   row.className = "prep-row";
   row.id = `pr_${id}`;
   row.innerHTML = `
-    <input class="p-inp" placeholder="John Smith" value="${name}" id="pn_${id}">
+    <input class="p-inp" placeholder="First name" value="${firstName}" id="pfn_${id}">
+    <input class="p-inp" placeholder="Last name"  value="${lastName}"  id="pln_${id}">
     <input class="p-inp" placeholder="john@firm.com" value="${email}" id="pe_${id}">
     <input class="p-inp" placeholder="P00001" value="${ptin}" id="pt_${id}">
-    <button class="invite-btn" onclick="sendInvitation('pe_${id}','pn_${id}')" title="Send onboarding link to preparer">✉️ Invite</button>
+    <button class="invite-btn" onclick="sendInvitation('pe_${id}','pfn_${id}','pln_${id}')" title="Send onboarding link to preparer">✉️ Invite</button>
     <button class="remove-btn" onclick="confirmRemovePreparer('pr_${id}', '${name.replace(/'/g,"\\'")}')">🗑</button>`;
   list.appendChild(row);
 }
@@ -903,8 +905,10 @@ async function savePreparers() {
   const existingEmails = new Set(PREPARERS.map(p => (p.email || "").toLowerCase()).filter(Boolean));
 
   // Delete existing, reinsert
-  await sb.from("preparers").delete().eq("firm_id", FIRM.id);
-  await sb.from("preparers").insert(preps.map(p => ({ ...p, firm_id: FIRM.id, is_active: true })));
+  const { error: delErr } = await sb.from("preparers").delete().eq("firm_id", FIRM.id);
+  if (delErr) { toast("Save failed: " + delErr.message, "err"); return; }
+  const { error: insErr } = await sb.from("preparers").insert(preps.map(p => ({ ...p, firm_id: FIRM.id, is_active: true })));
+  if (insErr) { toast("Save failed: " + insErr.message, "err"); return; }
 
   // Also send to Apps Script if connected
   if (FIRM.ghl_webhook_url || localStorage.getItem("tif_appsScriptUrl")) {
