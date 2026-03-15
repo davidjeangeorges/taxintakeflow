@@ -348,7 +348,6 @@ async function handleSubmit() {
   // — Step 4: Show success —
   const intakeLink = `https://taxintakeflow.com/intake.html?firmId=${FIRM.id}&prep=${encodeURIComponent(name)}`;
   document.getElementById("successTitle").textContent      = `Welcome, ${name.split(" ")[0]}!`;
-  document.getElementById("successEmail").textContent      = email;
   document.getElementById("successIntakeLink").value       = intakeLink;
 
   document.getElementById("stateForm").style.display    = "none";
