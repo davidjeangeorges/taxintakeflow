@@ -526,6 +526,29 @@ select {
 }
 .doc-category-upload:hover { background: #fffdf5; border-color: var(--gold); color: var(--gold); }
 .doc-category-upload input[type="file"] { display: none; }
+.doc-upload-spot {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 10px 0 14px;
+  background: #fafaf8;
+}
+.doc-upload-spot:hover { border-color: var(--gold); }
+.doc-upload-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.doc-upload-spot input[type="file"] {
+  display: block;
+  font-size: 13px;
+  color: var(--text);
+  width: 100%;
+  padding: 6px 0;
+  cursor: pointer;
+}
 .doc-badge {
   display: inline-flex;
   align-items: center;
@@ -924,8 +947,8 @@ function buildProgressBar() {
   const wrap = document.getElementById("progressSteps");
   wrap.innerHTML = STEPS.map((step, i) => `
     <div class="progress-step" id="pstep_${i}">
-      <div class="step-circle" id="pcircle_${i}">${i + 1}</div>
-      <span class="step-label" id="plabel_${i}">${step.label}</span>
+      <div class="step-circle" id="pcircle_${i}" onclick="if(${i} < STATE.currentStep){ goToStep(${i}); }" style="${i < STATE.currentStep ? 'cursor:pointer;opacity:0.85' : ''}">${i + 1}</div>
+      <span class="step-label" id="plabel_${i}" onclick="if(${i} < STATE.currentStep){ goToStep(${i}); }" style="${i < STATE.currentStep ? 'cursor:pointer' : ''}">${step.label}</span>
       ${i < STEPS.length - 1 ? `<div class="step-connector" id="pconn_${i}"></div>` : ""}
     </div>
   `).join("");
@@ -976,6 +999,12 @@ function showStep(index) {
 function nextStep() {
   if (!validateCurrentStep()) return;
   if (STATE.currentStep < STEPS.length - 1) {
+    // Express upload: after personal step, jump straight to documents
+    const currentId = STEPS[STATE.currentStep].id;
+    if (STATE.expressUpload && currentId === 'personal') {
+      const docIdx = STEPS.findIndex(s => s.id === 'documents');
+      if (docIdx > -1) { showStep(docIdx); return; }
+    }
     showStep(STATE.currentStep + 1);
   }
 }
@@ -984,6 +1013,17 @@ function prevStep() {
   if (STATE.currentStep > 0) {
     showStep(STATE.currentStep - 1);
   }
+}
+
+function handleWelcomeContinue() {
+  const mode = STATE.data.intakeMode;
+  if (mode === 'upload') {
+    // Express mode: go to personal (name/filing), then skip to documents
+    STATE.expressUpload = true;
+  } else {
+    STATE.expressUpload = false;
+  }
+  nextStep();
 }
 
 function goToStep(id) {
@@ -1196,14 +1236,52 @@ function buildWelcomeSection() {
       </div>
     </div>
 
+    <div class="field-row">
+      <div class="field-group">
+        <label>Are you a truck driver or owner-operator?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="isTrucker" onclick="selectPill('isTrucker','yes',this); setData('isTrucker',true)">Yes — I drive commercially</div>
+          <div class="radio-pill" data-pill="isTrucker" onclick="selectPill('isTrucker','no',this); setData('isTrucker',false)">No</div>
+        </div>
+        <div class="field-note">Truckers and owner-operators have special deductions — per diem, IFTA, truck expenses. We'll ask the right questions for your situation.</div>
+      </div>
+    </div>
+
     <div class="info-box">
       🔒 Your information is encrypted and only accessible to your assigned preparer and firm owner. 
       We will never share your data with third parties.
     </div>
 
+    <div class="section-divider">How would you like to proceed?</div>
+    <div class="field-row full">
+      <div class="field-group">
+        <div class="radio-pills" style="flex-direction:column;gap:10px">
+          <div class="radio-pill" data-pill="intakeMode" id="modeFullPill"
+            onclick="selectPill('intakeMode','full',this); setData('intakeMode','full'); document.getElementById('modeFullDesc').style.display='block'; document.getElementById('modeUploadDesc').style.display='none';"
+            style="justify-content:flex-start;text-align:left;padding:14px 18px;white-space:normal;height:auto">
+            <div>
+              <div style="font-weight:700;font-size:14px">📋 Full Intake — Answer all questions</div>
+              <div style="font-weight:400;font-size:12px;margin-top:3px;color:#6b6460">Best option — helps your preparer find every deduction you qualify for</div>
+            </div>
+          </div>
+          <div class="radio-pill" data-pill="intakeMode" id="modeUploadPill"
+            onclick="selectPill('intakeMode','upload',this); setData('intakeMode','upload'); document.getElementById('modeFullDesc').style.display='none'; document.getElementById('modeUploadDesc').style.display='block';"
+            style="justify-content:flex-start;text-align:left;padding:14px 18px;white-space:normal;height:auto">
+            <div>
+              <div style="font-weight:700;font-size:14px">📤 Express Upload — Just upload my documents</div>
+              <div style="font-weight:400;font-size:12px;margin-top:3px;color:#6b6460">Skip the questions — go straight to uploading your tax forms and documents</div>
+            </div>
+          </div>
+        </div>
+        <div id="modeUploadDesc" style="display:none;margin-top:10px" class="info-box">
+          ✅ You'll skip to the document upload page after entering your basic info (name, filing status). Your preparer will follow up if anything is missing.
+        </div>
+      </div>
+    </div>
+
     <div class="nav-bar">
       <div></div>
-      <button class="btn btn-gold" onclick="nextStep()">
+      <button class="btn btn-gold" onclick="handleWelcomeContinue()">
         Get Started →
       </button>
     </div>
@@ -1380,36 +1458,30 @@ function buildPersonalSection() {
     </div>
 
     <div class="section-divider">Prior Year Information</div>
+    <div class="info-box">
+      📄 <strong>Form 1040 — Prior Year Tax Return</strong><br>
+      This is your complete federal tax return from last year. Your lender, employer, or IRS transcript will have it. We need it to verify your identity for e-filing and check for carryovers.<br>
+      <em>If you don't have it, your preparer can request a transcript from the IRS.</em>
+    </div>
+    <div class="doc-upload-spot">
+      <label class="doc-upload-label">Upload Last Year's Form 1040 <span style="font-weight:400;font-size:12px">(optional but helpful)</span></label>
+      <input type="file" id="upload_prior_1040" accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff"
+        onchange="handleFileUpload(this,'Prior Year 1040')" multiple>
+      <div class="field-note">PDF, JPG, PNG accepted — max 25MB per file</div>
+    </div>
     <div class="field-row">
       <div class="field-group">
-        <label>Did you file a tax return last year?</label>
+        <label>Do you have an IRS IP PIN?</label>
         <div class="radio-pills">
-          <div class="radio-pill" data-pill="filedLastYear" onclick="selectPill('filedLastYear','yes',this); showSubsection('sub_prior_agi',true)">Yes</div>
-          <div class="radio-pill" data-pill="filedLastYear" onclick="selectPill('filedLastYear','no',this); showSubsection('sub_prior_agi',false)">No</div>
-          <div class="radio-pill" data-pill="filedLastYear" onclick="selectPill('filedLastYear','notsure',this); showSubsection('sub_prior_agi',false)">Not sure</div>
+          <div class="radio-pill" data-pill="hasIPPIN" onclick="selectPill('hasIPPIN','yes',this); showSubsection('sub_ippin',true)">Yes</div>
+          <div class="radio-pill" data-pill="hasIPPIN" onclick="selectPill('hasIPPIN','no',this); showSubsection('sub_ippin',false)">No</div>
         </div>
       </div>
     </div>
-    <div class="subsection" id="sub_prior_agi">
-      <div class="field-row">
-        <div class="field-group">
-          <label>Prior Year AGI <span class="hint">(from last year's return — line 11 on 1040)</span></label>
-          <input type="text" id="priorAGI" placeholder="$45,000" oninput="setData('priorAGI',this.value)">
-          <div class="field-note">Needed for e-filing. Check your prior year return or IRS transcript.</div>
-        </div>
-        <div class="field-group">
-          <label>Do you have an IRS IP PIN?</label>
-          <div class="radio-pills">
-            <div class="radio-pill" data-pill="hasIPPIN" onclick="selectPill('hasIPPIN','yes',this); showSubsection('sub_ippin',true)">Yes</div>
-            <div class="radio-pill" data-pill="hasIPPIN" onclick="selectPill('hasIPPIN','no',this); showSubsection('sub_ippin',false)">No</div>
-          </div>
-        </div>
-      </div>
-      <div class="subsection" id="sub_ippin">
-        <div class="field-group">
-          <label>IP PIN (6-digit identity protection PIN)</label>
-          <input type="text" id="ippin" placeholder="123456" maxlength="6" oninput="setData('ippin',this.value)">
-        </div>
+    <div class="subsection" id="sub_ippin">
+      <div class="field-group">
+        <label>IP PIN (6-digit identity protection PIN)</label>
+        <input type="text" id="ippin" placeholder="123456" maxlength="6" oninput="setData('ippin',this.value)">
       </div>
     </div>
 
@@ -1445,43 +1517,6 @@ function buildPersonalSection() {
       </div>
     </div>
 
-    <div class="section-divider">Refund Preferences</div>
-    <div class="field-row">
-      <div class="field-group">
-        <label>How would you like to receive your refund?</label>
-        <div class="radio-pills">
-          <div class="radio-pill" data-pill="refundMethod" onclick="selectPill('refundMethod','direct',this); showSubsection('sub_banking',true)">Direct Deposit</div>
-          <div class="radio-pill" data-pill="refundMethod" onclick="selectPill('refundMethod','check',this); showSubsection('sub_banking',false)">Paper Check</div>
-          <div class="radio-pill" data-pill="refundMethod" onclick="selectPill('refundMethod','apply',this); showSubsection('sub_banking',false)">Apply to Next Year</div>
-        </div>
-      </div>
-    </div>
-    <div class="subsection" id="sub_banking">
-      <div class="subsection-title">Banking Information for Direct Deposit</div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Bank Name</label>
-          <input type="text" id="bankName" placeholder="Bank of America" oninput="setData('bankName',this.value)">
-        </div>
-        <div class="field-group">
-          <label>Account Type</label>
-          <div class="radio-pills">
-            <div class="radio-pill" data-pill="accountType" onclick="selectPill('accountType','checking',this)">Checking</div>
-            <div class="radio-pill" data-pill="accountType" onclick="selectPill('accountType','savings',this)">Savings</div>
-          </div>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Routing Number (9 digits)</label>
-          <input type="text" id="routingNum" placeholder="021000021" maxlength="9" oninput="setData('routingNum',this.value)">
-        </div>
-        <div class="field-group">
-          <label>Account Number</label>
-          <input type="text" id="accountNum" placeholder="123456789" oninput="setData('accountNum',this.value)">
-        </div>
-      </div>
-    </div>
 
     <div class="nav-bar">
       <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
@@ -1715,26 +1750,28 @@ function buildLifeEventsSection() {
     sub_ev_bought_home: `
       <div class="field-row">
         <div class="field-group"><label>Date of purchase (closing date)</label><input type="date" id="homePurchaseDate" onchange="setData('homePurchaseDate',this.value)"></div>
-        <div class="field-group"><label>Purchase price</label><input type="text" id="homePurchasePrice" placeholder="$350,000" oninput="setData('homePurchasePrice',this.value)"></div>
-      </div>
-      <div class="field-row full">
         <div class="field-group"><label>Is this your primary residence?</label>
           <div class="radio-pills">
-            <div class="radio-pill" data-pill="homePrimaryRes" onclick="selectPill('homePrimaryRes','yes',this)">Yes, primary residence</div>
-            <div class="radio-pill" data-pill="homePrimaryRes" onclick="selectPill('homePrimaryRes','vacation',this)">Vacation / second home</div>
-            <div class="radio-pill" data-pill="homePrimaryRes" onclick="selectPill('homePrimaryRes','rental',this)">Rental investment</div>
+            <div class="radio-pill" data-pill="homePrimaryRes" onclick="selectPill('homePrimaryRes','yes',this)">Primary residence</div>
+            <div class="radio-pill" data-pill="homePrimaryRes" onclick="selectPill('homePrimaryRes','vacation',this)">Vacation / 2nd home</div>
+            <div class="radio-pill" data-pill="homePrimaryRes" onclick="selectPill('homePrimaryRes','rental',this)">Rental</div>
           </div>
         </div>
       </div>
-      <div class="info-box">Please upload your HUD-1 or Closing Disclosure in the documents section.</div>`,
+      <div class="info-box">
+        📄 <strong>HUD-1 / Closing Disclosure</strong> — Your closing attorney or title company provides this at closing. It shows the purchase price, down payment, and deductible closing costs.<br>
+        📄 <strong>Form 1098</strong> — If you paid mortgage interest this year after closing, your lender will send this.
+      </div>
+      <div class="doc-upload-spot">
+        <label class="doc-upload-label">Upload Closing Disclosure (HUD-1) and/or Form 1098</label>
+        <input type="file" id="upload_home_purchase" accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff"
+          onchange="handleFileUpload(this,'Home Purchase - Closing Disclosure')" multiple>
+        <div class="field-note">PDF, JPG, PNG accepted</div>
+      </div>`,
 
     sub_ev_sold_home: `
       <div class="field-row">
         <div class="field-group"><label>Date of sale (closing date)</label><input type="date" id="homeSaleDate" onchange="setData('homeSaleDate',this.value)"></div>
-        <div class="field-group"><label>Sale price</label><input type="text" id="homeSalePrice" placeholder="$450,000" oninput="setData('homeSalePrice',this.value)"></div>
-      </div>
-      <div class="field-row">
-        <div class="field-group"><label>Original purchase price</label><input type="text" id="homeOrigPrice" placeholder="$280,000" oninput="setData('homeOrigPrice',this.value)"></div>
         <div class="field-group"><label>Was this your primary residence?</label>
           <div class="radio-pills">
             <div class="radio-pill" data-pill="soldHomePrimary" onclick="selectPill('soldHomePrimary','yes',this)">Yes</div>
@@ -1742,14 +1779,15 @@ function buildLifeEventsSection() {
           </div>
         </div>
       </div>
-      <div class="field-row">
-        <div class="field-group"><label>How long did you own this home?</label><input type="text" id="homeYearsOwned" placeholder="5 years" oninput="setData('homeYearsOwned',this.value)"></div>
-        <div class="field-group"><label>Did you make improvements to this home?</label>
-          <div class="radio-pills">
-            <div class="radio-pill" data-pill="homeImprovements" onclick="selectPill('homeImprovements','yes',this)">Yes</div>
-            <div class="radio-pill" data-pill="homeImprovements" onclick="selectPill('homeImprovements','no',this)">No</div>
-          </div>
-        </div>
+      <div class="info-box">
+        📄 <strong>Form 1099-S — Proceeds from Real Estate Transactions</strong> — The title company or closing attorney sends this after the sale. It shows the sale price.<br>
+        📄 <strong>Closing Disclosure (HUD-1)</strong> — Shows the final settlement figures. Upload both if you have them.
+      </div>
+      <div class="doc-upload-spot">
+        <label class="doc-upload-label">Upload Form 1099-S and/or Closing Disclosure</label>
+        <input type="file" id="upload_home_sale" accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff"
+          onchange="handleFileUpload(this,'Home Sale - 1099-S')" multiple>
+        <div class="field-note">PDF, JPG, PNG accepted</div>
       </div>`,
 
     sub_ev_bankruptcy: `
@@ -1831,16 +1869,27 @@ function buildLifeEventsSection() {
       </div>`,
 
     sub_ev_unemployment: `
+      <div class="info-box">
+        📄 <strong>Form 1099-G — Certain Government Payments</strong><br>
+        Your state unemployment office mails this by January 31. It shows the total unemployment benefits you received — all of it is taxable income.
+      </div>
+      <div class="doc-upload-spot">
+        <label class="doc-upload-label">Upload Form 1099-G — Unemployment Benefits</label>
+        <input type="file" id="upload_1099g" accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff"
+          onchange="handleFileUpload(this,'1099-G Unemployment')" multiple>
+        <div class="field-note">PDF, JPG, PNG accepted</div>
+      </div>
       <div class="field-row">
-        <div class="field-group"><label>Total unemployment benefits received (from 1099-G)</label><input type="text" id="unemploymentAmount" placeholder="$8,400" oninput="setData('unemploymentAmount',this.value)"></div>
+        <div class="field-group"><label>Total unemployment received <span class="hint">(if not uploading)</span></label>
+          <input type="text" id="unemploymentAmount" placeholder="$8,400" oninput="setData('unemploymentAmount',this.value)">
+        </div>
         <div class="field-group"><label>State that issued unemployment</label>
           <select id="unemploymentState" onchange="setData('unemploymentState',this.value)">
             <option value="">Select...</option>
-            ${US_STATES.map(s=>`<option>${s}</option>`).join("")}
+            \${US_STATES.map(s=>\`<option>\${s}</option>\`).join("")}
           </select>
         </div>
-      </div>
-      <div class="info-box">Please upload your 1099-G in the documents section.</div>`,
+      </div>`,
 
     sub_ev_sold_biz: `
       <div class="field-row">
@@ -1936,21 +1985,96 @@ function buildIncomeSection() {
       </div>
     </div>
     <div class="subsection" id="sub_w2_income">
-      <div id="w2Container"></div>
-      <button class="btn-add-block" onclick="addW2()">+ Add Another W-2 / Employer</button>
+      <div class="field-row">
+        <div class="field-group">
+          <label>How many W-2s do you have?</label>
+          <select id="w2Count" onchange="setData('w2Count',this.value)">
+            <option value="">Select...</option>
+            <option>1</option><option>2</option><option>3</option>
+            <option>4</option><option>5</option><option>6+</option>
+          </select>
+        </div>
+      </div>
+      <div class="info-box">
+        📄 <strong>Form W-2 — Wage and Tax Statement</strong><br>
+        Your employer sends this every January. It shows your total wages and taxes withheld for the year. Upload all W-2s you received — one per employer.
+      </div>
+      <div class="doc-upload-spot">
+        <label class="doc-upload-label">Upload All Your W-2 Forms</label>
+        <input type="file" id="upload_w2" accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff"
+          onchange="handleFileUpload(this,'W-2 Forms')" multiple>
+        <div class="field-note">You can select multiple files at once — PDF, JPG, PNG accepted</div>
+      </div>
     </div>
 
     <div class="section-divider">Self-Employment / Contract Income</div>
     <div class="check-item" style="margin-bottom:8px">
-      <input type="checkbox" id="inc_1099nec" onchange="onCheckChange(this); showSubsection('sub_1099_income', this.checked)">
+      <input type="checkbox" id="inc_selfemployed" onchange="onCheckChange(this); showSubsection('sub_selfemployed_type', this.checked)">
       <div>
-        <div class="check-label">1099-NEC / Self-Employed / Contract Work</div>
-        <div class="check-desc">You received 1099-NEC or did freelance / gig work</div>
+        <div class="check-label">Self-Employed / Freelance / Contract Work / Own Business</div>
+        <div class="check-desc">You worked for yourself, got paid cash, ran a side hustle, or received 1099s</div>
       </div>
     </div>
-    <div class="subsection" id="sub_1099_income">
-      <div id="nec1099Container"></div>
-      <button class="btn-add-block" onclick="add1099NEC()">+ Add Another 1099 / Income Source</button>
+    <div class="subsection" id="sub_selfemployed_type">
+      <div class="field-row full">
+        <div class="field-group">
+          <label>Which best describes your situation?</label>
+          <div class="radio-pills" style="flex-wrap:wrap">
+            <div class="radio-pill" data-pill="selfEmpType" onclick="selectPill('selfEmpType','1099',this); showSubsection('sub_1099_income',true); showSubsection('sub_cash_biz',false)">I received 1099s</div>
+            <div class="radio-pill" data-pill="selfEmpType" onclick="selectPill('selfEmpType','cash',this); showSubsection('sub_1099_income',false); showSubsection('sub_cash_biz',true)">Cash / no 1099 (own business, side work)</div>
+            <div class="radio-pill" data-pill="selfEmpType" onclick="selectPill('selfEmpType','both',this); showSubsection('sub_1099_income',true); showSubsection('sub_cash_biz',true)">Both — 1099s and cash work</div>
+          </div>
+          <div class="field-note">Even if you never got a 1099, income you earned working for yourself is still taxable — babysitting, handyman work, selling goods, etc.</div>
+        </div>
+      </div>
+
+      <div class="subsection" id="sub_1099_income">
+        <div class="info-box">
+          📄 <strong>Form 1099-NEC — Nonemployee Compensation</strong><br>
+          Companies that paid you $600+ as a contractor send you this by January 31. Upload all 1099-NECs you received.
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label>How many 1099-NECs did you receive?</label>
+            <select id="nec1099Count" onchange="setData('nec1099Count',this.value)">
+              <option value="">Select...</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option>
+            </select>
+          </div>
+        </div>
+        <div class="doc-upload-spot">
+          <label class="doc-upload-label">Upload All 1099-NEC / 1099-MISC Forms</label>
+          <input type="file" id="upload_1099nec" accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff"
+            onchange="handleFileUpload(this,'1099-NEC Forms')" multiple>
+          <div class="field-note">Select multiple files at once if you have more than one</div>
+        </div>
+      </div>
+
+      <div class="subsection" id="sub_cash_biz">
+        <div class="field-row">
+          <div class="field-group"><label>What type of work or business?</label>
+            <input type="text" id="cashBizType" placeholder="Cleaning, handyman, hair braiding, food sales, rideshare, etc." oninput="setData('cashBizType',this.value)">
+          </div>
+          <div class="field-group"><label>Approximate total income earned</label>
+            <input type="text" id="cashBizIncome" placeholder="$18,000" oninput="setData('cashBizIncome',this.value)">
+          </div>
+        </div>
+        <div class="field-row full">
+          <div class="field-group"><label>Did you have any business expenses related to this work?</label>
+            <div class="radio-pills">
+              <div class="radio-pill" data-pill="hasCashBizExpenses" onclick="selectPill('hasCashBizExpenses','yes',this); showSubsection('sub_cash_biz_expenses',true)">Yes</div>
+              <div class="radio-pill" data-pill="hasCashBizExpenses" onclick="selectPill('hasCashBizExpenses','no',this); showSubsection('sub_cash_biz_expenses',false)">No</div>
+            </div>
+          </div>
+        </div>
+        <div class="subsection" id="sub_cash_biz_expenses">
+          <div class="field-row full">
+            <div class="field-group"><label>Describe your expenses (supplies, equipment, mileage, etc.)</label>
+              <textarea id="cashBizExpenses" placeholder="Example: $2,400 in supplies, 8,000 business miles driven, $600 phone..." oninput="setData('cashBizExpenses',this.value)" style="min-height:80px"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="check-item" style="margin-bottom:8px">
@@ -2021,13 +2145,24 @@ function buildIncomeSection() {
       <button class="btn-add-block" onclick="addRental()">+ Add Another Rental Property</button>
     </div>
     <div class="subsection" id="sub_investments">
+      <div class="info-box">
+        📄 <strong>Form 1099-B — Proceeds from Broker Transactions</strong><br>
+        Your brokerage (Fidelity, Schwab, Robinhood, etc.) sends this when you sell stocks, ETFs, or mutual funds. Upload it — or enter the details manually below if you don't have it yet.
+      </div>
       <div class="field-row">
-        <div class="field-group"><label>Brokerage / firm name(s)</label><input type="text" id="brokerageName" placeholder="Fidelity, Schwab, Robinhood..." oninput="setData('brokerageName',this.value)"></div>
-        <div class="field-group"><label>Did you receive a 1099-B?</label>
-          <div class="radio-pills">
-            <div class="radio-pill" data-pill="has1099B" onclick="selectPill('has1099B','yes',this)">Yes</div>
-            <div class="radio-pill" data-pill="has1099B" onclick="selectPill('has1099B','no',this)">No, not yet</div>
-          </div>
+        <div class="field-group"><label>Brokerage / firm name(s)</label>
+          <input type="text" id="brokerageName" placeholder="Fidelity, Schwab, Robinhood..." oninput="setData('brokerageName',this.value)">
+        </div>
+      </div>
+      <div class="doc-upload-spot">
+        <label class="doc-upload-label">Upload Form 1099-B <span style="font-weight:400;font-size:12px">(or brokerage statement)</span></label>
+        <input type="file" id="upload_1099b" accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff"
+          onchange="handleFileUpload(this,'1099-B Investment')" multiple>
+        <div class="field-note">Upload OR fill in manually below — either is fine</div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>If no document yet — estimated total proceeds from sales</label>
+          <input type="text" id="investmentProceeds" placeholder="$12,000 (optional if uploading)" oninput="setData('investmentProceeds',this.value)">
         </div>
       </div>
       <div class="field-row full">
@@ -2060,9 +2195,23 @@ function buildIncomeSection() {
       </div>
     </div>
     <div class="subsection" id="sub_dividends">
+      <div class="info-box">
+        📄 <strong>Form 1099-INT / 1099-DIV</strong><br>
+        Banks and brokerages send these when you earn interest or dividends. Upload them — or enter totals manually below.
+      </div>
+      <div class="doc-upload-spot">
+        <label class="doc-upload-label">Upload 1099-INT or 1099-DIV Forms</label>
+        <input type="file" id="upload_1099div" accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff"
+          onchange="handleFileUpload(this,'1099-INT/DIV Interest & Dividends')" multiple>
+        <div class="field-note">PDF, JPG, PNG accepted</div>
+      </div>
       <div class="field-row">
-        <div class="field-group"><label>Bank / brokerage name</label><input type="text" id="dividendSource" placeholder="Chase, Vanguard..." oninput="setData('dividendSource',this.value)"></div>
-        <div class="field-group"><label>Total interest received (1099-INT)</label><input type="text" id="interestAmount" placeholder="$1,200" oninput="setData('interestAmount',this.value)"></div>
+        <div class="field-group"><label>Bank / brokerage name <span class="hint">(if not uploading)</span></label>
+          <input type="text" id="dividendSource" placeholder="Chase, Vanguard..." oninput="setData('dividendSource',this.value)">
+        </div>
+        <div class="field-group"><label>Total interest/dividends received <span class="hint">(if not uploading)</span></label>
+          <input type="text" id="interestAmount" placeholder="$1,200" oninput="setData('interestAmount',this.value)">
+        </div>
       </div>
       <div class="field-row full">
         <div class="field-group"><label>Did you receive foreign dividends or have a foreign bank account?</label>
@@ -2709,12 +2858,28 @@ function buildDeductionsSection() {
       </div>
     </div>
     <div class="subsection" id="sub_homeowner">
-      <div class="field-row">
-        <div class="field-group"><label>Mortgage interest paid (from 1098)</label><input type="text" id="mortgageInterest" placeholder="$12,400" oninput="setData('mortgageInterest',this.value)"></div>
-        <div class="field-group"><label>Property taxes paid</label><input type="text" id="propertyTax" placeholder="$4,800" oninput="setData('propertyTax',this.value)"></div>
+      <div class="info-box">
+        📄 <strong>Form 1098 — Mortgage Interest Statement</strong><br>
+        Your mortgage lender mails this every January. It shows how much mortgage interest and PMI you paid — both are potentially deductible. Upload it and we'll pull the numbers from it.
+      </div>
+      <div class="doc-upload-spot">
+        <label class="doc-upload-label">Upload Form 1098 — Mortgage Interest Statement</label>
+        <input type="file" id="upload_1098" accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff"
+          onchange="handleFileUpload(this,'Form 1098 Mortgage Interest')" multiple>
+        <div class="field-note">PDF, JPG, PNG accepted — upload all 1098s if you have multiple mortgages</div>
       </div>
       <div class="field-row">
-        <div class="field-group"><label>Mortgage insurance (PMI) paid</label><input type="text" id="pmiPaid" placeholder="$1,200" oninput="setData('pmiPaid',this.value)"></div>
+        <div class="field-group"><label>Mortgage interest paid <span class="hint">(if not uploading — Box 1 on 1098)</span></label>
+          <input type="text" id="mortgageInterest" placeholder="$12,400" oninput="setData('mortgageInterest',this.value)">
+        </div>
+        <div class="field-group"><label>Property taxes paid</label>
+          <input type="text" id="propertyTax" placeholder="$4,800" oninput="setData('propertyTax',this.value)">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Mortgage insurance (PMI) paid <span class="hint">(Box 5 on 1098)</span></label>
+          <input type="text" id="pmiPaid" placeholder="$1,200" oninput="setData('pmiPaid',this.value)">
+        </div>
         <div class="field-group"><label>Did you refinance your mortgage?</label>
           <div class="radio-pills">
             <div class="radio-pill" data-pill="refinanced" onclick="selectPill('refinanced','yes',this)">Yes</div>
@@ -2773,15 +2938,38 @@ function buildDeductionsSection() {
     <div class="subsection" id="sub_childcare">
       <div class="dd-callout">
         <div class="dd-callout-icon">📋</div>
-        <div class="dd-callout-text"><strong>Due Diligence — Child & Dependent Care Credit:</strong> Provider information is required to claim this credit.</div>
+        <div class="dd-callout-text"><strong>Due Diligence — Child & Dependent Care Credit:</strong> Provider information is required by the IRS to claim this credit.</div>
+      </div>
+      <div class="info-box">
+        📄 <strong>Childcare Receipt or Year-End Statement</strong><br>
+        Ask your childcare provider for a year-end statement showing their name, EIN or SSN, and total amount you paid. Many daycares and after-school programs provide these automatically. Upload it if you have it.
+      </div>
+      <div class="doc-upload-spot">
+        <label class="doc-upload-label">Upload Childcare Statement / Receipts <span style="font-weight:400;font-size:12px">(optional)</span></label>
+        <input type="file" id="upload_childcare" accept=".pdf,.jpg,.jpeg,.png,.heic,.tiff"
+          onchange="handleFileUpload(this,'Childcare Statement')" multiple>
+        <div class="field-note">PDF, JPG, PNG accepted</div>
       </div>
       <div class="field-row">
-        <div class="field-group"><label>Childcare provider name</label><input type="text" id="childcareProvider" placeholder="Little Stars Daycare" oninput="setData('childcareProvider',this.value)"></div>
-        <div class="field-group"><label>Provider EIN or SSN</label><input type="text" id="childcareEIN" placeholder="XX-XXXXXXX" oninput="setData('childcareEIN',this.value)"></div>
+        <div class="field-group"><label>Childcare provider name</label>
+          <input type="text" id="childcareProvider" placeholder="Little Stars Daycare" oninput="setData('childcareProvider',this.value)">
+        </div>
+        <div class="field-group"><label>Provider EIN or SSN</label>
+          <input type="text" id="childcareEIN" placeholder="XX-XXXXXXX" oninput="setData('childcareEIN',this.value)">
+        </div>
       </div>
       <div class="field-row">
-        <div class="field-group"><label>Total amount paid for childcare</label><input type="text" id="childcareAmount" placeholder="$8,500" oninput="setData('childcareAmount',this.value)"></div>
-        <div class="field-group"><label>Children receiving care (names)</label><input type="text" id="childcareChildren" placeholder="Maria Jr., Carlos" oninput="setData('childcareChildren',this.value)"></div>
+        <div class="field-group"><label>Total amount paid for childcare</label>
+          <input type="text" id="childcareAmount" placeholder="$8,500" oninput="setData('childcareAmount',this.value)">
+        </div>
+        <div class="field-group"><label>Children receiving care (names)</label>
+          <input type="text" id="childcareChildren" placeholder="Maria Jr., Carlos" oninput="setData('childcareChildren',this.value)">
+        </div>
+      </div>
+      <div class="field-row full">
+        <div class="field-group"><label>Anything else to share about your childcare situation?</label>
+          <textarea id="childcareNotes" placeholder="Multiple providers, split with ex-spouse, care for disabled adult, etc." oninput="setData('childcareNotes',this.value)" style="min-height:70px"></textarea>
+        </div>
       </div>
       <div class="field-row full">
         <div class="field-group"><label>Did your employer provide a Dependent Care FSA (Box 10 on W-2)?</label>
@@ -3442,23 +3630,44 @@ function buildDueDiligenceSection() {
       </div>
     </div>
 
-    <div class="section-divider">Client Certification</div>
-    <div class="check-group">
-      <label class="check-item" id="certItem">
-        <input type="checkbox" id="clientCertification" onchange="setData('clientCertification',this.checked)">
-        <div>
-          <div class="check-label">I certify that the information provided in this intake form is true, accurate, and complete to the best of my knowledge. I understand that providing false information may result in penalties under federal tax law.</div>
-        </div>
-      </label>
-    </div>
+    <div class="section-divider">Refund Preferences</div>
     <div class="field-row">
-      <div class="field-group"><label>Client Signature (type your full legal name)</label>
-        <input type="text" id="clientSignature" placeholder="Maria Gonzalez" oninput="setData('clientSignature',this.value)">
-      </div>
-      <div class="field-group"><label>Today's Date</label>
-        <input type="date" id="signatureDate" onchange="setData('signatureDate',this.value)">
+      <div class="field-group">
+        <label>How would you like to receive your refund?</label>
+        <div class="radio-pills">
+          <div class="radio-pill" data-pill="refundMethod" onclick="selectPill('refundMethod','direct',this); showSubsection('sub_banking',true)">Direct Deposit</div>
+          <div class="radio-pill" data-pill="refundMethod" onclick="selectPill('refundMethod','check',this); showSubsection('sub_banking',false)">Paper Check</div>
+          <div class="radio-pill" data-pill="refundMethod" onclick="selectPill('refundMethod','apply',this); showSubsection('sub_banking',false)">Apply to Next Year</div>
+        </div>
       </div>
     </div>
+    <div class="subsection" id="sub_banking">
+      <div class="subsection-title">Banking Information for Direct Deposit</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Bank Name</label>
+          <input type="text" id="bankName" placeholder="Bank of America" oninput="setData('bankName',this.value)">
+        </div>
+        <div class="field-group">
+          <label>Account Type</label>
+          <div class="radio-pills">
+            <div class="radio-pill" data-pill="accountType" onclick="selectPill('accountType','checking',this)">Checking</div>
+            <div class="radio-pill" data-pill="accountType" onclick="selectPill('accountType','savings',this)">Savings</div>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Routing Number (9 digits)</label>
+          <input type="text" id="routingNum" placeholder="021000021" maxlength="9" oninput="setData('routingNum',this.value)">
+        </div>
+        <div class="field-group">
+          <label>Account Number</label>
+          <input type="text" id="accountNum" placeholder="123456789" oninput="setData('accountNum',this.value)">
+        </div>
+      </div>
+    </div>
+
 
     <div class="nav-bar">
       <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
@@ -3601,6 +3810,24 @@ function buildReviewSection() {
 
     <div id="reviewContent">
       <!-- Populated dynamically -->
+    </div>
+
+    <div class="section-divider">Client Certification</div>
+    <div class="check-group">
+      <label class="check-item" id="certItem">
+        <input type="checkbox" id="clientCertification" onchange="setData('clientCertification',this.checked)">
+        <div>
+          <div class="check-label">I certify that the information provided in this intake form is true, accurate, and complete to the best of my knowledge. I understand that providing false information may result in penalties under federal tax law.</div>
+        </div>
+      </label>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Client Signature (type your full legal name)</label>
+        <input type="text" id="clientSignature" placeholder="Maria Gonzalez" oninput="setData('clientSignature',this.value)">
+      </div>
+      <div class="field-group"><label>Today's Date</label>
+        <input type="date" id="signatureDate" onchange="setData('signatureDate',this.value)">
+      </div>
     </div>
 
     <div class="section-divider">Ready to Submit?</div>
