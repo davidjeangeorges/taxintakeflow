@@ -4229,31 +4229,31 @@ async function submitForm() {
           });
         });
 
-        if (allFiles.length > 0) {
-          const firmFolder  = FORM_CONFIG.firmId || "no-firm";
-          const clientSlug  = `${STATE.data.lastName || "client"}-${STATE.data.firstName || ""}`.toLowerCase().replace(/[^a-z0-9]/g, "-");
-          const dateSlug    = new Date().toISOString().slice(0, 10);
-          const basePath    = `${firmFolder}/${clientSlug}-${dateSlug}-${submissionId.slice(0,8)}`;
+        const firmFolder  = FORM_CONFIG.firmId || "no-firm";
+        const clientSlug  = `${STATE.data.lastName || "client"}-${STATE.data.firstName || ""}`.toLowerCase().replace(/[^a-z0-9]/g, "-");
+        const dateSlug    = new Date().toISOString().slice(0, 10);
+        const basePath    = `${firmFolder}/${clientSlug}-${dateSlug}-${submissionId.slice(0,8)}`;
 
+        if (allFiles.length > 0) {
           await Promise.allSettled(
             allFiles.map(({ file, cat }) => {
               const path = `${basePath}/${cat}/${file.name}`;
               return _sb.storage.from("intake-files").upload(path, file, { upsert: true });
             })
           );
+        }
 
-          // Update submission with storage path
-          await _sb.from("submissions").update({ storage_path: basePath }).eq("id", submissionId);
+        // Update submission with storage path
+        await _sb.from("submissions").update({ storage_path: basePath }).eq("id", submissionId);
 
-          // ── GENERATE + UPLOAD INTAKE PDF ──────────────
-          try {
-            const pdfBlob = generateIntakePDF();
-            const clientName = `${STATE.data.lastName || "client"}-${STATE.data.firstName || ""}`.toLowerCase().replace(/[^a-z0-9]/g, "-");
-            const pdfPath = `${basePath}/Generated Documents/Intake-Form-${clientName}-${d.taxYear || FORM_CONFIG.taxYear || "2024"}.pdf`;
-            await _sb.storage.from("intake-files").upload(pdfPath, pdfBlob, { upsert: true, contentType: "application/pdf" });
-          } catch (pdfErr) {
-            console.warn("PDF generation error:", pdfErr);
-          }
+        // ── GENERATE + UPLOAD INTAKE PDF ──────────────────
+        try {
+          const pdfBlob  = generateIntakePDF();
+          const clientName = clientSlug;
+          const pdfPath  = `${basePath}/Generated Documents/Intake-Form-${clientName}-${STATE.data.taxYear || FORM_CONFIG.taxYear || "2024"}.pdf`;
+          await _sb.storage.from("intake-files").upload(pdfPath, pdfBlob, { upsert: true, contentType: "application/pdf" });
+        } catch (pdfErr) {
+          console.warn("PDF generation error:", pdfErr);
         }
 
         // ── TRIGGER EDGE FUNCTION (Drive + email) ─────────
