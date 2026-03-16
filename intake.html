@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tax Intake Form | TaxIntakeFlow</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
@@ -3911,6 +3912,213 @@ function buildReviewContent() {
 // Review content is built inside showStep directly — see showStep function above
 
 // ── FORM SUBMISSION ──────────────────────────────────────────
+function generateIntakePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "letter" });
+  const d = STATE.data;
+  const pageW = 216, margin = 18, colW = pageW - margin * 2;
+  let y = 20;
+
+  const GOLD = [180, 140, 60];
+  const DARK = [13, 27, 42];
+  const GRAY = [100, 100, 100];
+
+  function checkPage(needed = 8) {
+    if (y + needed > 270) { doc.addPage(); y = 20; }
+  }
+
+  function header() {
+    doc.setFillColor(...DARK);
+    doc.rect(0, 0, pageW, 14, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11); doc.setFont("helvetica", "bold");
+    doc.text("TaxIntakeFlow — Client Intake Form", margin, 9);
+    doc.setFontSize(8); doc.setFont("helvetica", "normal");
+    doc.text(`Firm: ${FORM_CONFIG.firmName || ""}   Tax Year: ${d.taxYear || FORM_CONFIG.taxYear || "2024"}   Generated: ${new Date().toLocaleDateString()}`, pageW - margin, 9, { align: "right" });
+    y = 22;
+  }
+
+  function sectionTitle(title) {
+    checkPage(12);
+    doc.setFillColor(...GOLD);
+    doc.rect(margin, y, colW, 6, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9); doc.setFont("helvetica", "bold");
+    doc.text(title.toUpperCase(), margin + 3, y + 4.2);
+    y += 9;
+  }
+
+  function row(label, value) {
+    if (!value && value !== 0) return;
+    const val = String(value);
+    checkPage(7);
+    doc.setTextColor(...GRAY);
+    doc.setFontSize(8); doc.setFont("helvetica", "normal");
+    doc.text(label, margin, y);
+    doc.setTextColor(...DARK);
+    doc.setFont("helvetica", "bold");
+    const lines = doc.splitTextToSize(val, colW - 70);
+    doc.text(lines, margin + 70, y);
+    y += Math.max(6, lines.length * 5);
+  }
+
+  function divider() {
+    checkPage(5);
+    doc.setDrawColor(220, 220, 220);
+    doc.line(margin, y, pageW - margin, y);
+    y += 4;
+  }
+
+  header();
+
+  // ── PERSONAL INFO ──────────────────────────────────────
+  sectionTitle("Personal Information");
+  row("Full Name", `${d.firstName || ""} ${d.lastName || ""}`.trim());
+  row("Date of Birth", d.dob);
+  row("SSN / ITIN", d.ssn ? `***-**-${d.ssn.slice(-4)}` : "");
+  row("Phone", d.phone);
+  row("Email", d.email);
+  row("Address", [d.address, d.city, d.state, d.zip].filter(Boolean).join(", "));
+  row("Preparer", d.preparerName);
+  row("Is Trucker", d.isTrucker ? "Yes" : "No");
+  divider();
+
+  // ── FILING STATUS ──────────────────────────────────────
+  sectionTitle("Filing Status");
+  row("Filing Status", d.filingStatus);
+  if (d.spouseFirstName) {
+    row("Spouse Name", `${d.spouseFirstName || ""} ${d.spouseLastName || ""}`.trim());
+    row("Spouse DOB", d.spouseDob);
+    row("Spouse SSN", d.spouseSSN ? `***-**-${d.spouseSSN.slice(-4)}` : "");
+  }
+  divider();
+
+  // ── DEPENDENTS ─────────────────────────────────────────
+  if (STATE.dependents?.length > 0) {
+    sectionTitle("Dependents");
+    STATE.dependents.forEach((dep, i) => {
+      row(`Dependent ${i + 1}`, `${dep.firstName || ""} ${dep.lastName || ""} | DOB: ${dep.dob || ""} | Relationship: ${dep.relationship || ""} | SSN: ${dep.ssn ? "***-**-" + dep.ssn.slice(-4) : ""}`);
+    });
+    divider();
+  }
+
+  // ── INCOME ─────────────────────────────────────────────
+  sectionTitle("Income");
+  if (d.inc_w2)         row("W-2 Employment", `${d.w2Count || ""} W-2(s)`);
+  if (d.inc_selfemployed) row("Self-Employment", d.selfEmpType === "1099" ? `1099s (${d.nec1099Count || ""})` : d.selfEmpType === "cash" ? `Cash/No 1099 — ${d.cashBizType || ""}` : "Both 1099 and cash");
+  if (d.cashBizIncome)  row("Cash Business Income", d.cashBizIncome);
+  if (d.cashBizExpenses) row("Cash Business Expenses", d.cashBizExpenses);
+  if (d.inc_trucker)    row("Trucker/Owner-Operator", "Yes");
+  if (d.inc_rental)     row("Rental Income", "Yes");
+  if (d.inc_investments) row("Investment Income", d.investmentProceeds || "Yes");
+  if (d.inc_dividends)  row("Interest/Dividends", d.interestAmount || "Yes");
+  if (d.inc_crypto)     row("Crypto Income", "Yes");
+  if (d.inc_ss)         row("Social Security", "Yes");
+  if (d.inc_pension)    row("Pension/Retirement", "Yes");
+  if (d.k1099Amount)    row("1099-K Income", `${d.k1099Platform || ""} — ${d.k1099Amount}`);
+  divider();
+
+  // ── W2 JOBS ────────────────────────────────────────────
+  if (STATE.w2Jobs?.length > 0) {
+    sectionTitle("W-2 Details");
+    STATE.w2Jobs.forEach((job, i) => {
+      row(`Employer ${i + 1}`, job.employer || "");
+      if (job.ein)          row("  EIN", job.ein);
+      if (job.wages)        row("  Wages (Box 1)", job.wages);
+      if (job.fedWithheld)  row("  Fed Withheld (Box 2)", job.fedWithheld);
+      if (job.stateWithheld)row("  State Withheld", job.stateWithheld);
+    });
+    divider();
+  }
+
+  // ── BUSINESSES ─────────────────────────────────────────
+  if (STATE.businesses?.length > 0) {
+    sectionTitle("Business Information");
+    STATE.businesses.forEach((biz, i) => {
+      row(`Business ${i + 1}`, biz.name || "");
+      if (biz.type)     row("  Type", biz.type);
+      if (biz.ein)      row("  EIN", biz.ein);
+      if (biz.revenue)  row("  Revenue", biz.revenue);
+    });
+    divider();
+  }
+
+  // ── DEDUCTIONS ─────────────────────────────────────────
+  sectionTitle("Deductions & Credits");
+  if (d.ownsHome === "yes") {
+    row("Owns Home", "Yes");
+    if (d.mortgageInterest) row("  Mortgage Interest", d.mortgageInterest);
+    if (d.propertyTax)      row("  Property Tax", d.propertyTax);
+    if (d.pmiPaid)          row("  PMI Paid", d.pmiPaid);
+  }
+  if (d.paidChildcare === "yes") {
+    row("Childcare Paid", "Yes");
+    if (d.childcareProvider) row("  Provider", d.childcareProvider);
+    if (d.childcareEIN)      row("  Provider EIN/SSN", d.childcareEIN);
+    if (d.childcareAmount)   row("  Amount Paid", d.childcareAmount);
+    if (d.childcareNotes)    row("  Notes", d.childcareNotes);
+  }
+  if (d.attendedSchool === "yes") {
+    row("Education", "Yes");
+    if (d.schoolName)    row("  School", d.schoolName);
+    if (d.tuitionAmount) row("  Tuition Paid", d.tuitionAmount);
+  }
+  if (d.madeEstPayments === "yes") {
+    row("Estimated Tax Payments", `Q1:${d.estQ1||"0"} Q2:${d.estQ2||"0"} Q3:${d.estQ3||"0"} Q4:${d.estQ4||"0"}`);
+  }
+  divider();
+
+  // ── REFUND PREFERENCES ─────────────────────────────────
+  sectionTitle("Refund Preferences");
+  row("Refund Method", d.refundMethod);
+  if (d.refundMethod === "direct") {
+    row("Bank Name", d.bankName);
+    row("Account Type", d.accountType);
+    row("Routing Number", d.routingNum);
+    row("Account Number", d.accountNum ? `****${d.accountNum.slice(-4)}` : "");
+  }
+  divider();
+
+  // ── DUE DILIGENCE ──────────────────────────────────────
+  sectionTitle("Due Diligence & Verification");
+  row("Paid to claim child", d.dd_paidToClaim);
+  row("Paid half of home", d.dd_paidHalfHome);
+  row("All dependents lived with you", d.dd_allDepLived);
+  row("IRS barred previously", d.dd_irsBarred);
+  row("Info accurate", d.dd_infoAccurate);
+  if (d.additionalNotes) row("Additional Notes", d.additionalNotes);
+  divider();
+
+  // ── UPLOADED FILES ─────────────────────────────────────
+  const allCats = Object.keys(STATE.uploadedFiles || {});
+  if (allCats.length > 0) {
+    sectionTitle("Uploaded Documents");
+    allCats.forEach(cat => {
+      const files = STATE.uploadedFiles[cat] || [];
+      if (files.length > 0) {
+        row(cat, files.map(f => f.name).join(", "));
+      }
+    });
+    divider();
+  }
+
+  // ── CERTIFICATION ──────────────────────────────────────
+  sectionTitle("Client Certification");
+  row("Certified", d.clientCertification ? "Yes — client confirmed accuracy" : "Not signed");
+  row("Client Signature", d.clientSignature);
+  row("Signature Date", d.signatureDate);
+
+  // ── FOOTER on each page ────────────────────────────────
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(7); doc.setTextColor(180, 180, 180);
+    doc.text(`Page ${i} of ${totalPages} — TaxIntakeFlow — Confidential`, pageW / 2, 275, { align: "center" });
+  }
+
+  return doc.output("blob");
+}
+
 async function submitForm() {
   const btn = document.getElementById("submitBtn");
   const text = document.getElementById("submitText");
@@ -4036,6 +4244,16 @@ async function submitForm() {
 
           // Update submission with storage path
           await _sb.from("submissions").update({ storage_path: basePath }).eq("id", submissionId);
+
+          // ── GENERATE + UPLOAD INTAKE PDF ──────────────
+          try {
+            const pdfBlob = generateIntakePDF();
+            const clientName = `${STATE.data.lastName || "client"}-${STATE.data.firstName || ""}`.toLowerCase().replace(/[^a-z0-9]/g, "-");
+            const pdfPath = `${basePath}/Generated Documents/Intake-Form-${clientName}-${d.taxYear || FORM_CONFIG.taxYear || "2024"}.pdf`;
+            await _sb.storage.from("intake-files").upload(pdfPath, pdfBlob, { upsert: true, contentType: "application/pdf" });
+          } catch (pdfErr) {
+            console.warn("PDF generation error:", pdfErr);
+          }
         }
 
         // ── TRIGGER EDGE FUNCTION (Drive + email) ─────────
