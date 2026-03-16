@@ -1068,7 +1068,11 @@ async function checkDriveCallback() {
     toast("Connecting Google Drive...", "ok");
     const res = await fetch(`${SUPABASE_URL}/functions/v1/google-oauth`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON },
+     headers: {
+  "Content-Type": "application/json",
+  "apikey": SUPABASE_ANON,
+  "Authorization": "Bearer " + SUPABASE_ANON,
+},
       body: JSON.stringify({ action: "exchange", code, firmId }),
     });
     const data = await res.json();
