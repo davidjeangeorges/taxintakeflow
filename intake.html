@@ -4038,17 +4038,20 @@ async function submitForm() {
           await _sb.from("submissions").update({ storage_path: basePath }).eq("id", submissionId);
         }
 
-        // ── TRIGGER EDGE FUNCTION (Drive PDF + email) ─────
-        fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/process-submission", {
-          method:  "POST",
-          keepalive: true,
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY",
-          },
-          body: JSON.stringify({ submissionId, firmId: FORM_CONFIG.firmId }),
-        }).catch(() => {});
+        // ── TRIGGER EDGE FUNCTION (Drive + email) ─────────
+        try {
+          await fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/process-submission", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY",
+              "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY",
+            },
+            body: JSON.stringify({ submissionId, firmId: FORM_CONFIG.firmId }),
+          });
+        } catch (efErr) {
+          console.warn("Edge function error:", efErr);
+        }
       }
     } catch (sbErr) {
       console.warn("Supabase save error:", sbErr.message);
