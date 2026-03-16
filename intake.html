@@ -4041,8 +4041,12 @@ async function submitForm() {
         // ── TRIGGER EDGE FUNCTION (Drive PDF + email) ─────
         fetch("https://yyobsleksxryuwxenvnb.supabase.co/functions/v1/process-submission", {
           method:  "POST",
-          headers: { "Content-Type": "application/json" },
-          body:    JSON.stringify({ submissionId, firmId: FORM_CONFIG.firmId }),
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY",
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5b2JzbGVrc3hyeXV3eGVudm5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTUwNTAsImV4cCI6MjA4ODczMTA1MH0.xTSlNsy0wLpwIJVPiLIV6Jvtps2dygXYLijf3oLktJY",
+          },
+          body: JSON.stringify({ submissionId, firmId: FORM_CONFIG.firmId }),
         }).catch(() => {}); // non-blocking — fire and forget
       }
     } catch (sbErr) {
